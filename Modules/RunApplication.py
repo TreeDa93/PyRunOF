@@ -3,9 +3,12 @@ import os
 class Runner():
 
     def __init__(self, name='test'):
-        name = name
+        self.name = name
+        self.pyFoam = False
+        self.mode = 'common'
 
-    def runCase(self, pathNewCase, solverName='pimpleFoam', mode='common', numCoreOF=4, numCoreEOF=4, pyFoam=False):
+
+    def runCase(self):
         """The function runs the case to calculation
             Variables:
             Name_solver is the name of the OpenFOAM solver
@@ -19,16 +22,16 @@ class Runner():
                 os.system(f'pyFoamPlotRunner.py {self.solverName}')
             else:
                 os.system(f'{self.solverName}')
-        elif mode == 'parallel':
+        elif self.mode == 'parallel':
             os.system('decomposePar -force')
-            if pyFoam == True:
-                os.system(f'pyFoamPlotRunner.py mpirun -np {numCoreOF} {solverName} -parallel :')
+            if self.pyFoam == True:
+                os.system(f'pyFoamPlotRunner.py mpirun -np {self.numCoreOF} {self.solverName} -parallel :')
             else:
-                os.system(f'mpirun -np {numCoreOF} {solverName} -parallel :')
-        elif mode == 'EOF':
+                os.system(f'mpirun -np {self.numCoreOF} {self.solverName} -parallel :')
+        elif self.mode == 'EOF':
             os.system('decomposePar -force')
-            if pyFoam == True:
-                os.system(f'pyFoamPlotRunner.py mpirun -np {numCoreOF} {solverName} -parallel :')
+            if self.pyFoam == True:
+                os.system(f'pyFoamPlotRunner.py mpirun -np {self.numCoreOF} {self.solverName} -parallel :')
             else:
                 os.system(f'mpirun -np {self.numCoreOF} {self.solverName} -parallel : '
                           f'-np {self.numcoreEOF} ElmerSolver_mpi')
@@ -52,7 +55,7 @@ class Runner():
     def setAllSettings(self, dictionary):
         self.setNewPathCase(dictionary['newPath'])
         self.setCores(dictionary['numCoreOF'], dictionary['numCoreEOF'])
-        self.solverName(dictionary['solverName'])
+        self.setNameSolver(dictionary['solverName'])
         self.setModeRunner(dictionary['mode'])
         self.setPyFoamSettings()
 
