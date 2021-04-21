@@ -36,6 +36,7 @@ class Runner():
                 os.system(f'mpirun -np {self.numCoreOF} {self.solverName} -parallel : '
                           f'-np {self.numcoreEOF} ElmerSolver_mpi')
 
+
     def setNewPathCase(self, newPath):
         self.newPath = newPath
 
