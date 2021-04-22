@@ -1,30 +1,60 @@
 import os
+import sys
+
 from Modules.AddtionalFunctions import changeVariablesFunV2
 from distutils.dir_util import copy_tree
+
+
 class IntiailValue():
 
 
-    def __init__(self, pathNewCase=''):
-        self.pathNewCase = pathNewCase
-        self.path = os.path.join(pathNewCase, '0')
-
-
-    def setVariablesValue(self, *varDict):
-        if varDict==None:
-            dictionary = self.dictionary
+    def __init__(self, pathCase=None, dictionary=None):
+        self.pathCase = pathCase
+        if pathCase == None:
+            self.path = None
         else:
-            dictionary = varDict
+            self.path = os.path.join(pathCase, '0')
+        self.dictionary = dictionary
 
+
+
+    def setVarAllFiels(self, *varDict, pathCase=None):
+
+        dictionary = self.priorityDictionary(varDict)
+        path = self.priorityPath(pathCase)
         fileList = os.listdir(self.path)
-        os.chdir(self.path)
+        os.chdir(path)
         for file in fileList:
             for list in dictionary:
                 for var in list:
-                    print(var)
                     changeVariablesFunV2(var, list[var], nameFile=file)
 
 
-    def mappValues(self, sourcePath, distPath):
+    def setVar(self, *varDict, nameFiels=['U', 'k'], pathCase=None):
+
+        dictionary = self.priorityDictionary(varDict)
+        path = self.priorityPath(pathCase)
+
+        os.chdir(path)
+        for file in nameFiels:
+            for list in dictionary:
+                for var in list:
+                    changeVariablesFunV2(var, list[var], nameFile=file)
+
+
+
+    def setMappSet(self, sourcePath=None, distPath=None, source='0', dist='0.25'):
+        self.mappSettings = {}
+        self.mappSettings['sPath'] = sourcePath
+        self.mappSettings['dPath'] = distPath
+        self.mappSettings['source'] = source
+        self.mappSettings['dist'] = dist
+
+
+    def mappValues(self, sourcePath=None, distPath=None, source=None, dist=None):
+
+
+
         sourcePath = os.path.join(pathSource, '0')
         distPath = os.path.join(pathNewCase, '0.25')
         copy_tree(sourcePath, distPath)
@@ -60,3 +90,31 @@ class IntiailValue():
                 }
         return dict
 
+
+    def priorityDictionary(self, varDict):
+        if varDict==None:
+            if self.dictionary != None:
+                return self.dictionary
+            else:
+                sys.exit('ERROR: The dictonary is not exist')
+        else:
+            return varDict
+
+    def priorityPath(self, pathCase):
+        """The method is used for selection of given path
+        the first priority is given path by methods
+        the second priority is given path by class constructor
+        If both path is None, the program is interupted
+        Input :
+        basePath, newPath is checkoing pathes
+        Output:
+        retrunBasePath, returnNewPath is selected pathes acording priority
+        """
+
+        if pathCase == None:
+            if self.pathCase != None:
+                return self.path
+            else:
+                sys.exit('Error: You do not enter the base path!!!')
+        else:
+            return os.path.join(pathCase, '0')
