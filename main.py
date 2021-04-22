@@ -62,16 +62,19 @@ turbType = 'kOmegaSST'
 
 if __name__ == "__main__":
 
-    manipulationClass = Manipulations(baseNewCase=basePath)
-
-    manipulationClass.generatorNewNameFolder('solved', baseNewCase=basePath)
-    manipulationClass.createNewPath(dirmame=os.getcwd(), newCaseName=manipulationClass.newNameCase)
-    manipulationClass.dublicateCase(baseCasePath=basePath, newPath=manipulationClass.newPath, mode='rewrite')
+    mc = Manipulations(basePath=basePath)
 
 
+    mc.generatorNewName('solved', baseNewName=basePath)
+    newName = mc.getName('newName')
+    mc.createNewPath(dirmame=os.getcwd(), newCaseName=newName)
+    newPath = mc.getPath('newPath')
+    mc.dublicateCase(basePath=basePath, newPath=newPath, mode='rewrite')
 
-    systemClass = SetSystem(manipulationClass.newPath)
-    systemClass.setControlDict(controlDict)
+
+
+    sc = SetSystem(newPath)
+    sc.setControlDict(controlDict)
 
     meshClass = Mesh(pathNewCase=manipulationClass.newPath)
     meshClass.setBlockMesh(meshList)
