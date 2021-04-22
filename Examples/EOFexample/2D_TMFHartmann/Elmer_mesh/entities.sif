@@ -1,0 +1,10 @@
+!------ Skeleton for body section -----
+Body 1
+  Name = duct
+End
+
+!------ Skeleton for boundary section -----
+Boundary Condition 1
+  Name = ext
+End
+

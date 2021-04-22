@@ -1,0 +1,258 @@
+Header
+  CHECK KEYWORDS Warn
+  Mesh DB "." "Elmer_mesh"
+  Include Path ""
+  Results Directory ""
+End
+
+INCLUDE Elmer_mesh/mesh.names
+
+!Parameters
+$ omega = 50*2*pi
+$ tau = 0.15
+$ psi = 0.1
+$ sigma = 3.838e6
+
+Simulation
+  Max Output Level = 5
+  Coordinate System = Cartesian 2D
+  Simulation Type = steady
+  Coordinate Scaling = 0.001
+  Steady State Max Iterations = 100000
+  Steady State Min Iterations = 100000
+  Output Intervals(1) = 100000
+End
+
+Constants
+  Permittivity of Vacuum = 8.8542e-12
+  Permeability of Vacuum = Real $ pi*4e-07
+End
+
+
+!###############################################################################
+!##################################### Materials ###############################
+!###############################################################################
+
+Material 1
+  Name = air
+   Relative Permittivity = Real 1
+   Relative Permeability = Real 1
+   Electric Conductivity = Equals "OF Conductivity"
+   Mapping = Logical True
+   Magnetization 2 = Variable Coordinate 1
+        Real MATC "if ((tx >= psi-0.25) & (tx <= (psi+2*tau-0.25))) 10000*cos(-pi/tau*tx - pi/2); else 0"
+   Magnetization Im 2 = Variable Coordinate 1
+        Real MATC "if ((tx >= psi-0.25) & (tx <= (psi+2*tau-0.25))) 10000*sin(-pi/tau*tx - pi/2); else 0"
+End
+
+
+!###############################################################################
+!#######################------ Body Force Section ----#######################
+!###############################################################################
+Initial Condition 1
+	CD_re_1 = Real 0
+	CD_re_2 = Real 0
+	CD_re_3 = Real 0
+
+	CD_im_1 = Real 0
+	CD_im_2 = Real 0
+	CD_im_3 = Real 0
+	
+	MF_re_1 = Real 0
+	MF_re_2 = Real 0
+	MF_re_3 = Real 0
+
+	MF_im_1 = Real 0
+	MF_im_2 = Real 0
+	MF_im_3 = Real 0
+End
+
+
+Body Force 1
+	CD_re_1 = Variable Current Density re 1
+		Real MATC "0*tx*sigma"
+	CD_re_2 = Variable Current Density re 2
+		Real MATC "0*tx*sigma"
+	CD_re_3 = Variable Current Density re 3
+		Real MATC "tx*sigma"
+
+	CD_im_1 = Variable Current Density im 1
+		Real MATC "0*tx*sigma"
+	CD_im_2 = Variable Current Density im 2
+		Real MATC "0*tx*sigma"
+	CD_im_3 = Variable Current Density im 3
+		Real MATC "tx*sigma"
+	
+	MF_re_1 = Real 0
+	MF_re_2 = Equals "Magnetic Flux density re 2"
+	MF_re_3 = Real 0
+
+	MF_im_1 = Real 0
+	MF_im_2 = Equals "Magnetic Flux density im 2"
+	MF_im_3 = Real 0
+
+    Lorentz velocity 1 = Equals "OF U1"
+    Lorentz velocity 2 = Equals "OF U2"
+    Lorentz velocity 3 = Equals "OF U3"
+End
+
+!###############################################################################
+!##################################### Bodies ##################################
+!###############################################################################
+
+Body 1
+  Target Bodies(1) = $ duct
+  Equation = 1
+  Material = 1
+  Name = "Air"
+  Body Force = 1
+  Initial Condition = 1
+End
+
+
+Solver 1
+! openfoam2elmer
+
+Equation = OpenFOAM2Elmer
+Procedure = "OpenFOAM2Elmer" "OpenFOAM2ElmerSolver"
+Target Variable 1 = String "OF Conductivity"
+! next 3 lines are needed if OpenFOAM sends velocity to Elmer
+Target Variable 2 = String "OF U1"
+Target Variable 3 = String "OF U2"
+Target Variable 4 = String "OF U3"
+
+
+End
+
+Solver 2
+! em solver
+
+Equation = "MGDynamics"
+Variable = "AV[A re:1 A im:1]"
+Procedure = "MagnetoDynamics2D" "MagnetoDynamics2DHarmonic"
+Angular Frequency = $ omega
+Linear System Symmetric = True
+Linear System Solver = iterative
+Linear System Preconditioning = none
+Linear System Residual Output = 10
+Linear System Max Iterations = 1000
+Linear System Iterative Method = BiCGStabl
+Linear System Abort Not Converged = True
+BiCGstabl polynomial degree = 4
+Linear System Convergence Tolerance = 1e-3
+Steady State Convergence Tolerance = 1e-6
+Exported Variable 1 = "OF conductivity"
+Exported Variable 1 Mask = String "material: mapping"
+! Next 3 variables in this solver are needed
+! if OpenFOAM sends velocity to Elmer
+Exported Variable 2 = "OF U1"
+Exported Variable 2 Mask = String "material: mapping"
+Exported Variable 3 = "OF U2"
+Exported Variable 3 Mask = String "material: mapping"
+Exported Variable 4 = "OF U3"
+Exported Variable 4 Mask = String "material: mapping"
+End
+
+
+Solver 3
+! em postprocessing
+
+! electromagnetics postprocessor
+! calculates j, B etc from vector potential
+Equation = "MGDynamicsCalc"
+Procedure = "MagnetoDynamics" "MagnetoDynamicsCalcFields"
+Potential Variable = String "AV"
+Calculate Current Density = Logical True
+Calculate Electric Field = Logical False
+Calculate Magnetic Field Strength = Logical False
+Calculate Joule Heating = Logical False
+Calculate JxB = Logical True
+Steady State Convergence Tolerance = 0
+Linear System Solver = "Iterative"
+Linear System Preconditioning = None
+Linear System Residual Output = 1000
+Linear System Max Iterations = 5000
+Linear System Iterative Method = CG
+Steady State Convergence Tolerance = 1e-6
+Linear System Convergence Tolerance = 1.0e-8
+Update Exported Variables = Logical True
+Exported Variable 1 = "CD_re_1"
+Exported Variable 2 = "CD_re_2"
+Exported Variable 3 = "CD_re_3"
+
+Exported Variable 4 = "CD_im_1"
+Exported Variable 5 = "CD_im_2"
+Exported Variable 6 = "CD_im_3"
+
+Exported Variable 7 = "MF_re_1"
+Exported Variable 8 = "MF_re_2"
+Exported Variable 9 = "MF_re_3"
+
+Exported Variable 10 = "MF_im_1"
+Exported Variable 11 = "MF_im_2"
+Exported Variable 12 = "MF_im_3"
+End
+
+
+
+
+Solver 4
+! elmer2openfoam
+
+
+! this solver sends data to OpenFOAM and must be after all other solvers
+Equation = ElmerToOpenFOAM
+Procedure = "Elmer2OpenFOAM" "Elmer2OpenFOAMSolver"
+! the order of the following must be as in the relevant OpenFOAM solver
+! if OpenFOAM has receiving.recvVector(Jim), here you will write:
+Target Variable 1 = String "CD_re_1"
+Target Variable 2 = String "CD_re_2"
+Target Variable 3 = String "CD_re_3"
+
+Target Variable 4 = String "CD_im_1"
+Target Variable 5 = String "CD_im_2"
+Target Variable 6 = String "CD_im_3"
+!!!!!!!!!!!!!!!!!!!!
+
+! vecotor B  receiving.recvVector(Bre)
+
+
+Target Variable 7 = String "MF_re_1"
+Target Variable 8 = String "MF_re_2"
+Target Variable 9 = String "MF_re_3"
+
+Target Variable 10 = String "MF_im_1"
+Target Variable 11 = String "MF_im_2"
+Target Variable 12 = String "MF_im_3"
+
+
+! if OpenFOAM has receiving.recvVector(JxB), here you will write:
+!Target Variable 13 = jxb re 1
+!Target Variable 14 = jxb re 2
+!Target Variable 15 = jxb re 3
+End
+
+
+Solver 5
+   Exec Solver = After simulation
+   Equation = "ResultOutput"
+   Procedure = "ResultOutputSolve" "ResultOutputSolver"
+   Output File Name = elmer_results
+   Vtu format = Logical True
+   Save Geometry Ids = Logical True
+   Output Directory = "results"
+End
+
+Equation 1
+  Name = "MGDyn"
+  Active Solvers(4) = 1 2 3 4
+End
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+
+
+
