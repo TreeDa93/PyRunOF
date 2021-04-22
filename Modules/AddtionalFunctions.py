@@ -13,6 +13,8 @@ def changeVariablesFunV2(distVar, sourVar, nameFile=''):
         newData = oldData.replace(str(distVar), str(sourVar))
         with open(nameFile, 'w') as f:
             f.write(newData)
+    else:
+        print(f'Warning: The file {nameFile} is not exist!')
 
 def changeVariablesFun(distVar, sourVar, nameFile=' '):
     """The fucntion is devoted to change  gotten text part

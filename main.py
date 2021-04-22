@@ -67,6 +67,8 @@ if __name__ == "__main__":
     manipulationClass.createNewPath(dirmame=os.getcwd(), newCaseName=manipulationClass.newNameCase)
     manipulationClass.dublicateCase(baseCasePath=basePath, newPath=manipulationClass.newPath, mode='rewrite')
 
+
+"""
     systemClass = SetSystem(manipulationClass.newPath)
     systemClass.setControlDict(controlDict)
 
@@ -89,5 +91,5 @@ if __name__ == "__main__":
     runClass.setModeRunner(mode='common')
     runClass.setPyFoamSettings(pyFoam=False)
     runClass.runCase()
-
+"""
 

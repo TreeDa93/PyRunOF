@@ -4,12 +4,18 @@ import os, sys, shutil, datetime
 
 class Manipulations():
 
-    def __init__(self):
-        test = 1
+    def __init__(self, name='firts', runPath=None, basePath=None):
+        self.name = name
+        self.runPath = runPath
+        self.basePath = basePath
 
+    def __repr__(self):
+        return f"Name of manipulation node ({self.name}, runpath {self.runPath}, basepath {self.basePath} )"
 
+    def __str__(self):
+        return f"Name of manipulation node ({self.name}, runpath {self.runPath}, basepath {self.basePath} )"
 
-    def dublicateCase(self, baseCasePath='', newPath='', mode=''):
+    def dublicateCase(self, basePath=None, newPath=None, mode='copy'):
         """The function creates copy of the base case.
            pathBaseCase is the path of base case that will be copied by the function
            pathNewCase is the path of new case that will be created by the function
@@ -20,12 +26,15 @@ class Manipulations():
                    to the folder being old name with prefix of current time of copying. And new case will be copied
                     to folder being path of pathNewCase variables."""
 
-        self.checkExistence(baseCasePath, newPath)
+
+        basePath, newPath = self.priorityPath(basePath, newPath)
+
+        self.checkExistence(basePath, newPath)
 
         if mode == 'rewrite':
                 print(f'The folder {os.path.basename(newPath)}  is exist. The script run the rewrite mode')
                 shutil.rmtree(newPath)
-                shutil.copytree(baseCasePath, newPath)
+                shutil.copytree(basePath, newPath)
         elif mode == 'copy':
                 print(f'The folder {os.path.basename(newPath)}  is exist. The script run the copy mode')
                 now = datetime.datetime.now()
@@ -35,14 +44,13 @@ class Manipulations():
                     self.oldNameCase = os.path.basename(old_file)
                 except shutil.Error:
                     print('You run the script is often. There is exception old case')
-                shutil.copytree(baseCasePath, newPath)
+                shutil.copytree(basePath, newPath)
         else:
-                shutil.copytree(baseCasePath, newPath)
+                shutil.copytree(basePath, newPath)
 
-        self.baseCasePath = baseCasePath
+        self.baseCasePath = basePath
         self.newPath = newPath
         self.newNameCase = os.path.basename(newPath)
-
 
     def generatorNewNameFolder(self, *namesNewCase, baseNewCase='', splitter='_'):
         """The function serves to create two variables of base and new case paths.
@@ -69,11 +77,25 @@ class Manipulations():
         """
         self.newPath = os.path.join(dirmame, newCaseName)
 
+    def changePath(self, path, name='newPath'):
+        if name == 'newPath':
+            self.newPath = path
+        elif name == 'basePath':
+            self.basePath = path
+
+    def createYourPath(self, path, nameVariable='testPath'):
+        exec('self.'+ nameVariable + f' = {path}')
+
+        return self.nameVariable
 
 
 
-    def checkExistence(self, baseCasePath, newPath):
-        if not os.path.exists(baseCasePath):
+    def checkExistence(self, basePath, newPath):
+        """The method supports to find out existing gotten pathes
+        If one of the gotten pathes is not exist, program is interupted
+        """
+
+        if not os.path.exists(basePath):
             sys.exit('Error: The base case is not exist in the directory!!!')
         elif not os.path.exists(newPath):
             dirname, newCaseName = os.path.split(newPath)
@@ -83,3 +105,30 @@ class Manipulations():
                 sys.exit(f'Error: The new path {dirname} is not exist !!!')
 
 
+    def priorityPath(self, basePath, newPath):
+        """The method is used for selection of given path
+        the first priority is given path by methods
+        the second priority is given path by class constructor
+        If both path is None, the program is interupted
+        Input :
+        basePath, newPath is checkoing pathes
+        Output:
+        retrunBasePath, returnNewPath is selected pathes acording priority
+        """
+
+        if basePath == None:
+            if self.basePath != None:
+                retrunBasePath = self.basePath
+            else:
+                sys.exit('Error: You do not enter the base path!!!')
+        else:
+            retrunBasePath = basePath
+        if newPath == None:
+            if self.newPath != None:
+                returnNewPath = self.newPath
+            else:
+                sys.exit('Error: You do not enter the new path!!!')
+        else:
+            returnNewPath = newPath
+
+        return retrunBasePath, returnNewPath
