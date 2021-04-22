@@ -4,10 +4,14 @@ import os, sys, shutil, datetime
 
 class Manipulations():
 
-    def __init__(self, name='firts', runPath=None, basePath=None):
+    def __init__(self, name='firts', runPath=None, newPath=None, basePath=None):
         self.name = name
         self.runPath = runPath
         self.basePath = basePath
+        self.newPath = newPath
+        self.pathes = {'newPath': newPath,
+                       'basePath': basePath,
+                        'runPath' : runPath}
 
     def __repr__(self):
         return f"Name of manipulation node ({self.name}, runpath {self.runPath}, basepath {self.basePath} )"
@@ -78,17 +82,38 @@ class Manipulations():
         self.newPath = os.path.join(dirmame, newCaseName)
 
     def changePath(self, path, name='newPath'):
+        """The function is used for changing existent path by name
+        Input variables
+        path is new given path
+        name is the name of variables of key for dictionary of addtionals pathes"""
         if name == 'newPath':
             self.newPath = path
         elif name == 'basePath':
             self.basePath = path
+        else:
+            self.additinalPathes = {name: path}
 
-    def createYourPath(self, path, nameVariable='testPath'):
-        exec('self.'+ nameVariable + f' = {path}')
+    def createYourPath(self, path, name='testPath'):
+        """The function is used to create your own path
+        The created path will be written into dictionary self.addtionaldictionary with key  = name
+        Input path is path of your new given path
+        name is the key of dictionary storaged all addtional pathes"""
+        self.additinalPathes[name] =  path
 
-        return self.nameVariable
 
-
+    def getPath(self, name):
+        """The methods gives back path acording givven name or key
+        Input:
+        name is the name of class variables consisting pathes or key of dictionary with pathes """
+        if name == 'newPath':
+            getPath =  self.newPath
+        elif name == 'basePath':
+            getPath =  self.basePath
+        elif name in self.additinalPathes.keys():
+            getPath = self.additinalPathes[name]
+        else:
+            print('Error: The given name of key with pathes is not exist!')
+        return getPath
 
     def checkExistence(self, basePath, newPath):
         """The method supports to find out existing gotten pathes
