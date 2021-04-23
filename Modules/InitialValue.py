@@ -1,6 +1,6 @@
 import os
 import sys
-
+import shutil
 from Modules.AddtionalFunctions import changeVariablesFunV2
 from distutils.dir_util import copy_tree
 
@@ -51,13 +51,26 @@ class IntiailValue():
         self.mappSettings['dist'] = dist
 
 
-    def mappValues(self, sourcePath=None, distPath=None, source=None, dist=None):
+    def setMappValues(self):
 
-
-
-        sourcePath = os.path.join(pathSource, '0')
-        distPath = os.path.join(pathNewCase, '0.25')
+        sourcePath = os.path.join(self.mappSettings['sPath'], self.mappSettings['source'])
+        distPath = os.path.join(self.mappSettings['dPath'], self.mappSettings['dist'])
         copy_tree(sourcePath, distPath)
+
+    def copyBC(self, pathSource, pathDist, nameBCsource='outlet', nameBCdist='inlet', mapTimeStep=0.25):
+        pathScalar = os.path.join(pathSource, 'postProcessing', 'outletSurf', str(mapTimeStep), nameBCsource,
+                                 'scalarField')
+        pathVector = os.path.join(pathSource, 'postProcessing', 'outletSurf', str(mapTimeStep), nameBCsource,
+                                  'vectorField')
+        pathPoints = os.path.join(pathSource, 'postProcessing', 'outletSurf', str(mapTimeStep), nameBCsource, 'points')
+
+
+        pathBCdist = os.path.join(pathDist, 'constant', 'boundaryData', nameBCdist)
+
+
+        copy_tree(pathScalar, os.path.join(pathBCdist, '0'))
+        copy_tree(pathVector, os.path.join(pathBCdist, '0'))
+        shutil.copy(pathPoints, pathBCdist)
 
     def calcInitVal(self, A, B, Uin, nu):
         """The function serves to calculate intial values required for improving convergence of task. The function
