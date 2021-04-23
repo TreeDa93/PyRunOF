@@ -15,7 +15,6 @@ class SetSystem():
     def setControlDict(self, *listsControlDicts, pathCase=None):
         """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
         path = self.priorityPath(pathCase)
-        print(path)
         os.chdir(path)
         for spisok_var in listsControlDicts:
             for var in spisok_var:

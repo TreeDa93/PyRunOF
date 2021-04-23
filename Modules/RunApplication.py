@@ -1,4 +1,6 @@
 import os, sys
+from Modules.AddtionalFunctions import changeVariablesFunV2
+
 
 class Runner():
 
@@ -8,12 +10,8 @@ class Runner():
         self.mode = 'common'
         self.pathCase = pathCase
 
-    def setFields(self, pathCase=None):
-        path = self.priorityPath(pathCase)
-        os.chdir(path)
-        os.system('setFields')
 
-    def runCase(self, pathCase=None, decompose=True):
+    def runCase(self, pathCase=None, decomposeOF=True, decomposeElmer=False):
         """The function runs the case to calculation
             Variables:
             Name_solver is the name of the OpenFOAM solver
@@ -30,34 +28,64 @@ class Runner():
             else:
                 os.system(f'{self.solverName}')
         elif self.mode == 'parallel':
-            self.decompose(decompose)
+            self.decompose(decomposeOF)
             if self.pyFoam == True:
-                os.system(f'pyFoamPlotRunner.py mpirun -np {self.numCoreOF} {self.solverName} -parallel :')
+                os.system(f'pyFoamPlotRunner.py mpirun -np {self.coreOF} {self.solverName} -parallel :')
             else:
-                os.system(f'mpirun -np {self.numCoreOF} {self.solverName} -parallel :')
+                os.system(f'mpirun -np {self.coreOF} {self.solverName} -parallel :')
         elif self.mode == 'EOF':
-            self.decompose(decompose)
+            self.decompose(decomposeOF)
+            self.decomposeElmer(decomposeElmer)
             if self.pyFoam == True:
-                os.system(f'pyFoamPlotRunner.py mpirun -np {self.numCoreOF} {self.solverName} -parallel :')
+                os.system(f'pyFoamPlotRunner.py mpirun -np {self.coreOF} {self.solverName} -parallel :')
             else:
-                os.system(f'mpirun -np {self.numCoreOF} {self.solverName} -parallel : '
-                          f'-np {self.numCoreElmer} ElmerSolver_mpi')
+                os.system(f'mpirun -np {self.coreOF} {self.solverName} -parallel : '
+                          f'-np {self.coreElmer} ElmerSolver_mpi')
 
 
-    def decompose(self, decompose):
-        if decompose == True:
+    def decompose(self, decomposeOF):
+        if decomposeOF == True:
             os.system('decomposePar -force')
-        elif decompose == False:
+        elif decomposeOF == False:
             print('Decompose procedure is pass')
         else:
             sys.exit('The decompose status is no bolean')
 
+    def decomposeElmer(self, decomposeElmer):
+        if decomposeElmer == True:
+            os.system(f'ElmerGrid 2 2 {self.meshElmer} -metis {self.coreElmer} -force')
+        elif decomposeElmer == False:
+            print('Decompose procedure is pass')
+        else:
+            sys.exit('The decompose status is no bolean')
+
+
     def setPathCase(self, pathCase):
         self.pathCase = pathCase
 
-    def setCores(self, numCoreOF=4, numCoreElmer=4):
-        self.numCoreOF = numCoreOF
-        self.numCoreElmer = numCoreElmer
+    def setCores(self, coreOF=4, CoreElmer=4):
+        self.coreElmer = CoreElmer
+        self.coreOF = coreOF
+
+    def setCoresOF(self, coreOF=4):
+        self.coreOF = coreOF
+
+    def seCoresElmer(self, coreElmer=4, meshName=''):
+        self.coreElmer = coreElmer
+        self.meshElmer = meshName
+
+    def setCoresEOF(self, coreOF=4, coreElmer=4, meshName=''):
+        self.coreElmer = coreElmer
+        self.meshElmer = meshName
+        self.coreOF = coreOF
+
+    def setDecomposeParDict(self, coreOF, nameVar='core_OF', pathCase=None):
+        """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
+
+        path = os.path.join(self.priorityPath(pathCase), 'system')
+        os.chdir(path)
+        print(os.getcwd())
+        changeVariablesFunV2(nameVar, coreOF, nameFile='decomposeParDict')
 
     def setNameSolver(self, solverName='pimpleFoam'):
         self.solverName = solverName
@@ -67,6 +95,14 @@ class Runner():
 
     def setPyFoamSettings(self, pyFoam=False):
         self.pyFoam = pyFoam
+
+
+    def setFields(self, pathCase=None):
+        path = self.priorityPath(pathCase)
+        os.chdir(path)
+        os.system('setFields')
+
+
 
     def setAllSettings(self, dictionary):
         self.setPathCase(dictionary['newPath'])
