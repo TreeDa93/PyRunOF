@@ -24,8 +24,8 @@ class ParametricSweep():
 
         while self.currentIter < self.numberCases:
 
-            self.changeVariables()
             name = self.generatorName()
+            self.changeVariables()
             self.fun(name)
             os.chdir(generalPath)
 
