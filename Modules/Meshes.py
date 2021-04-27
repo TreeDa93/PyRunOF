@@ -33,10 +33,19 @@ class Mesh():
         os.system('blockMesh')
 
 
+    def runElmerMesh(self):
+        os.system(f'gmsh -3 {self.elmerMeshName}.geo')
+        os.system('ElmerGrid 14 2 {self.elmerMeshName} -autoclean ')
 
-    def setElmerMesh(self):
-        pass
 
+
+    def settingsElmerMesh(self, meshList, pathCase=None, elmerMeshName=''):
+        pathCase = self.priorityPath2(pathCase)
+        os.chdir(pathCase)
+        print(os.getcwd())
+        self.elmerMeshName = elmerMeshName
+        for keys in meshList:
+            changeVariablesFunV2(keys, meshList[keys], nameFile=f'{self.elmerMeshName}.geo')
 
     def priorityPath(self, pathCase):
         """The method is used for selection of given path

@@ -1,14 +1,17 @@
 import os, sys
-from Modules.AddtionalFunctions import changeVariablesFunV2
+from Modules.AddtionalFunctions import changeVariablesFunV2, copyFiele
 
 class SetConstantParam():
 
-    def __init__(self, pathCase=None):
+    def __init__(self, pathCase=None, pathLib=''):
         self.pathCase = pathCase
         if pathCase == None:
             self.path = None
         else:
             self.path = os.path.join(pathCase, 'constant')
+
+        self.pathLib = pathLib
+        self.addPath = os.path.join(pathLib, 'AdditinalFiles', 'TurbulenceFiles')
 
     def setTransportProp(self, *lists):
         """The function sets given variables to transportProperties file
@@ -45,6 +48,45 @@ class SetConstantParam():
             os.rename('turbulenceProperties_kOmega', 'turbulenceProperties')
         elif typeTurbModel == 'kOmegaSST':
             os.rename('turbulenceProperties_kOmegaSST', 'turbulenceProperties')
+
+
+    def setTurbModel2(self,typeTurbModel='kEpsilon', pathCase=None):
+        """"The fucntion serves to set required turbulent model for solving task. For this purpose, one of list
+          of wrriten files with given settings will be renamed into turbulenceProperties to system folder of adjusted case
+        acording required type of rubulence model
+        path_new_case is the path of the new case
+        typeTurbModel is variables definding type of turbulence model
+                LES
+                kEpsilon
+                realizableKE
+                kOmega
+                kOmegaSST
+                """
+        path = self.priorityPath(pathCase)
+        if typeTurbModel == 'LES':
+            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_LES', nameFileNew='turbulenceProperties')
+        elif typeTurbModel == 'kEpsilon':
+            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_kEpsilon',
+                      nameFileNew='turbulenceProperties')
+        elif typeTurbModel == 'realizableKE':
+
+            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_realizableK',
+                      nameFileNew='turbulenceProperties')
+        elif typeTurbModel == 'kOmega':
+
+            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_kOmega',
+                      nameFileNew='turbulenceProperties')
+        elif typeTurbModel == 'kOmegaSST':
+            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_kOmegaSST',
+                      nameFileNew='turbulenceProperties')
+
+        elif typeTurbModel == 'laminar':
+            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_Laminar',
+                      nameFileNew='turbulenceProperties')
+        elif typeTurbModel == 'LESSmag':
+            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_LESdynamicSmag',
+                      nameFileNew='turbulenceProperties')
+
 
 
     def priorityPath(self, pathCase):
