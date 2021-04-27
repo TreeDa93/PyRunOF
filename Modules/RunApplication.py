@@ -59,7 +59,6 @@ class Runner():
         else:
             sys.exit('The decompose status is no bolean')
 
-
     def setPathCase(self, pathCase):
         self.pathCase = pathCase
 
@@ -74,15 +73,15 @@ class Runner():
         self.coreElmer = coreElmer
         self.meshElmer = meshName
 
-    def setCoresEOF(self, coreOF=4, coreElmer=4, meshName=''):
+    def setCoresEOF(self, coreOF=4, coreElmer=4, elmerMeshName=''):
         self.coreElmer = coreElmer
-        self.meshElmer = meshName
+        self.meshElmer = elmerMeshName
         self.coreOF = coreOF
 
-    def setDecomposeParDict(self, coreOF, nameVar='core_OF', pathCase=None):
+    def setDecomposeParDict(self, coreOF=None, nameVar='core_OF', pathCase=None):
         """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
-
         path = os.path.join(self.priorityPath(pathCase), 'system')
+        coreOF = self.prioritCores(coreOF)
         os.chdir(path)
         print(os.getcwd())
         changeVariablesFunV2(nameVar, coreOF, nameFile='decomposeParDict')
@@ -96,13 +95,10 @@ class Runner():
     def setPyFoamSettings(self, pyFoam=False):
         self.pyFoam = pyFoam
 
-
     def setFields(self, pathCase=None):
         path = self.priorityPath(pathCase)
         os.chdir(path)
         os.system('setFields')
-
-
 
     def setAllSettings(self, dictionary):
         self.setPathCase(dictionary['newPath'])
@@ -110,6 +106,12 @@ class Runner():
         self.setNameSolver(dictionary['solverName'])
         self.setModeRunner(dictionary['mode'])
         self.setPyFoamSettings()
+
+
+
+
+
+
 
     def priorityPath(self, pathCase):
         """The method is used for selection of given path
@@ -129,3 +131,12 @@ class Runner():
                 sys.exit('Error: You do not enter the base path!!!')
         else:
             return pathCase
+
+    def prioritCores(self, coreOF):
+        if coreOF == None:
+            if self.coreOF == None:
+                sys.exit('You have to set numbers of cores for OpenFOAM')
+            else:
+                return self.coreOF
+        else:
+            return coreOF

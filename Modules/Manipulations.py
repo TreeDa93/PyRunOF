@@ -81,6 +81,7 @@ class Manipulations():
         newPath is the path of new case
         """
         self.pathes[keyPath] = os.path.join(dirmame, newCaseName)
+        return self.pathes[keyPath]
 
 
     def changePath(self, path, keyPath='newPath'):

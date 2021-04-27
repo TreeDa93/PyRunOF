@@ -1,4 +1,4 @@
-import os, sys # import library
+import sys # import library
 libpath = '/home/ivan/mySolvers/RunnerForCases/' #write path to pyRunOF library
 sys.path.append(libpath)  # add the library into system pathes
 

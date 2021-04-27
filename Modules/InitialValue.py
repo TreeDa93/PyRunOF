@@ -1,22 +1,19 @@
-import os
-import sys
-import shutil
-from Modules.AddtionalFunctions import changeVariablesFunV2
+import os, sys, shutil
+from Modules.AddtionalFunctions import changeVariablesFunV2, copyFieles, copyfun
 from distutils.dir_util import copy_tree
+
 
 
 class IntiailValue():
 
 
-    def __init__(self, pathCase=None, dictionary=None):
+    def __init__(self, pathCase=None,  dictionary=None):
         self.pathCase = pathCase
         if pathCase == None:
             self.path = None
         else:
             self.path = os.path.join(pathCase, '0')
         self.dictionary = dictionary
-
-
 
     def setVarAllFiels(self, *varDict, pathCase=None):
 
@@ -29,9 +26,9 @@ class IntiailValue():
                 for var in list:
                     changeVariablesFunV2(var, list[var], nameFile=file)
 
-
     def setVar(self, *varDict, nameFiels=['U', 'k'], pathCase=None):
-
+        """Устанавливает значение перенных из словарей *varDict в файлах из списка nameFiels
+        в кейсе pathCase"""
         dictionary = self.priorityDictionary(varDict)
         path = self.priorityPath(pathCase)
 
@@ -41,34 +38,148 @@ class IntiailValue():
                 for var in list:
                     changeVariablesFunV2(var, list[var], nameFile=file)
 
-
-
-    def setMappSet(self, sourcePath=None, distPath=None, source='0', dist='0.25'):
+    def setMappSettings(self, sourcePath=None, distPath=None, source='0.25', dist='0'):
         self.mappSettings = {}
-        self.mappSettings['sPath'] = sourcePath
-        self.mappSettings['dPath'] = distPath
+        self.mappSettings['sPath'] = os.path.abspath(sourcePath)
+        self.mappSettings['dPath'] = os.path.abspath(distPath)
         self.mappSettings['source'] = source
         self.mappSettings['dist'] = dist
 
-
     def setMappValues(self):
-
+        "Копирует папку source в dist из пути source в  dist"
         sourcePath = os.path.join(self.mappSettings['sPath'], self.mappSettings['source'])
         distPath = os.path.join(self.mappSettings['dPath'], self.mappSettings['dist'])
-        copy_tree(sourcePath, distPath)
+        copyfun(sourcePath, distPath)
 
-    def copyBC(self, pathSource, pathDist, nameBCsource='outlet', nameBCdist='inlet', mapTimeStep=0.25):
-        pathScalar = os.path.join(pathSource, 'postProcessing', 'outletSurf', str(mapTimeStep), nameBCsource,
-                                 'scalarField')
-        pathVector = os.path.join(pathSource, 'postProcessing', 'outletSurf', str(mapTimeStep), nameBCsource,
-                                  'vectorField')
-        pathPoints = os.path.join(pathSource, 'postProcessing', 'outletSurf', str(mapTimeStep), nameBCsource, 'points')
+    def reconstruct(self, pathCase):
+        "Запускает  ReconstrucPar"
+        os.chdir(pathCase)
+        os.system('reconstructPar')
+
+    def setTimeVaryingMappedFixedValue(self, pathCase=None):
+        "Устанавливает значения для ГУ TimeVaryingMappedFixedValue"
+        path = self.priorityPath(pathCase)
+        os.chdir(path)
+
+        for var in self.dicTVMF:
+            changeVariablesFunV2(var, self.dicTVMF[var], nameFile='U')
+
+    def settingsTimeVaryingMappedFixedValue(self, nameSample='outletSurf', sourceTimeStep = 0.25, namePatch = 'outlet'):
+        "Задает значения для ГУ TimeVaryingMappedFixedValue"
+        dataDirpath = os.path.join(self.mappSettings['sPath'], 'postProcessing', nameSample)
+        dataDir_var = os.path.relpath(dataDirpath, self.mappSettings['dPath'])
+        points_var = f'{sourceTimeStep}/{namePatch}/points'
+        sample_var = namePatch
+
+        self.dicTVMF = {'dataDir_var': f'\"{dataDir_var}\"',
+                      'points_var': f'\"{points_var}\"',
+                      'sample_var': f'{sample_var}'}
+        self.checkPathTVMF = dataDirpath
 
 
-        pathBCdist = os.path.join(pathDist, 'constant', 'boundaryData', nameBCdist)
+    def mapFieldsRun(self, pathCase=None, check=False):
+
+        path = self.priorityPath(pathCase)
+        os.chdir(path)
+        if check:
+            self.checkFileForMapFields()
+            os.system(self.commandMapFields)
+        else:
+            os.system(self.commandMapFields)
 
 
-        copy_tree(pathScalar, os.path.join(pathBCdist, '0'))
+    def settingsMapField(self, sourcePath=None, distPath=None, consistent=True,
+                         mapMethod='mapNearest', parallelSource=True,
+                         parallelTarget=False, sourceTime=0.25, noFunctionObjects=True):
+        """ Usage: mapFields [OPTIONS] <sourceCase>
+          options:
+            -case <dir>       specify alternate case directory, default is the cwd
+            -consistent       source and target geometry and boundary conditions identical
+            -fileHandler <handler>
+                              override the fileHandler
+            -mapMethod <word>
+                              specify the mapping method
+                              'mapNearest, interpolate, cellPointInterpolate'
+            -noFunctionObjects
+                              do not execute functionObjects
+            -parallelSource   the source is decomposed
+            -parallelTarget   the target is decomposed
+            -sourceRegion <word>
+                              specify the source region
+            -sourceTime <scalar|'latestTime'>
+                              specify the source time
+            -subtract         subtract mapped source from target
+            -targetRegion <word>
+                              specify the target region
+            -srcDoc           display source code in browser
+            -doc              display application documentation in browser
+            -help             print the usage
+          """
+
+
+        if sourcePath == None:
+            path_src = self.mappSettings['sPath']
+        else:
+            path_src = sourcePath
+
+        if distPath == None:
+            path_dst = self.mappSettings['dPath']
+        else:
+            path_dst = distPath
+
+        relpath_src = os.path.relpath(path_src, path_dst)
+        relpath_dst = os.path.relpath(path_dst, path_dst)
+
+
+        self.option = {'-case': relpath_dst,
+                  '-consistent': consistent,
+                  '-noFunctionObjects' : noFunctionObjects,
+                  '-mapMethod': mapMethod,
+                  '-parallelSource': parallelSource,
+                  '-parallelTarget': parallelTarget,
+                  '-sourceTime': sourceTime,
+                  'src': relpath_src}
+
+        return self.option
+
+    def createMapFieldCommand(self, option=None):
+        command = 'mapFields'
+        option = self.checkOption(option)
+
+        for key in option:
+            if option[key] is True:
+                command+= f' {key}'
+            elif option[key] is False:
+                pass
+            elif key == 'src':
+                command+= f' {option[key]}'
+            elif key == '-sourceTime':
+                if option[key] == 'latestTime':
+                    command += f' {key} \'latestTime\''
+                else:
+                    command += f' {key} {option[key]}'
+            else:
+                command+= f' {key} {option[key]}'
+        self.commandMapFields = command
+        print(self.commandMapFields)
+        return command
+
+
+    def copyBC(self, nameBCsource='outlet', nameBCdist='inlet', mapTimeStep=0.25, namePostFile='outletSurf'):
+        """Эта функция копирует значения из postProcessing в заданном времени (mapTimeStep)
+        в кейс назначения в папку constant """
+
+        pathScalar = os.path.join(self.mappSettings['sPath'], 'postProcessing', namePostFile,
+                                  str(mapTimeStep), nameBCsource,'scalarField')
+        pathVector = os.path.join(self.mappSettings['sPath'], 'postProcessing', namePostFile,
+                                  str(mapTimeStep), nameBCsource,'vectorField')
+        pathPoints = os.path.join(self.mappSettings['sPath'], 'postProcessing', namePostFile,
+                                  str(mapTimeStep), nameBCsource, 'points')
+
+        pathBCdist = os.path.join(self.mappSettings['dPath'], 'constant', 'boundaryData', nameBCdist)
+
+        if os.path.exists(pathScalar):
+            copy_tree(pathScalar, os.path.join(pathBCdist, '0'))
         copy_tree(pathVector, os.path.join(pathBCdist, '0'))
         shutil.copy(pathPoints, pathBCdist)
 
@@ -104,6 +215,7 @@ class IntiailValue():
         return dict
 
 
+
     def priorityDictionary(self, varDict):
         if varDict==None:
             if self.dictionary != None:
@@ -131,3 +243,24 @@ class IntiailValue():
                 sys.exit('Error: You do not enter the base path!!!')
         else:
             return os.path.join(pathCase, '0')
+
+
+    def checkOption(self, option):
+        if option == None:
+            if self.option != None:
+                return self.option
+            else:
+                sys.exit('You need to write option of mapFields')
+        else:
+            return option
+
+    def checkFileForMapFields(self):
+        os.chdir(self.pathCase)
+        testPath = os.path.join(self.checkPathTVMF, '0')
+        if not os.path.exists(testPath):
+            copypath = os.path.join(self.checkPathTVMF, '0.25')
+            copyfun(copypath, testPath)
+            return True
+        else:
+            print('The 0 file is exist')
+            return True
