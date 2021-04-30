@@ -1,0 +1,60 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  6                                     |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     mhdVxBPhasePimpleFoam;
+
+startFrom       startTime;
+
+startTime       startTime_var;
+
+stopAt          endTime;
+
+endTime         endTime_var;
+
+deltaT          0.005;
+
+writeControl    adjustableRunTime;
+
+writeInterval   writeInterval_var;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+adjustTimeStep  yes;
+
+maxCo           1;
+
+maxDeltaT       0.01;
+
+functions
+{
+    #includeFunc components(U)
+}
+
+
+// ************************************************************************* //

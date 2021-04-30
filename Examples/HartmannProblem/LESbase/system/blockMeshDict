@@ -1,0 +1,142 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+
+
+x0				x0_var;
+z0				z0_var;
+y0				y0_var;
+
+
+x1				x1_var;
+y1				y1_var;
+z1				z1_var;
+
+
+z2				z2_var;
+y2				y2_var;	
+
+
+hx 				hx_var;
+hy 				hy_var;
+hz 				hz_var;
+
+kx 				kx_var;
+ky				ky_var;
+kz				kz_var;
+kyback 				kyback_var;
+kzback   			kzback_var;
+
+convertToMeters scale_var;
+
+vertices
+(
+
+	($x0 $y0 $z0)  // 0
+    ($x0 $y0 $z1)  // 1
+    ($x0 $y0  $z2) // 2
+    ($x0 $y1 $z0) // 3
+	($x0 $y1 $z1)  // 4
+    ($x0 $y1 $z2) // 5
+    ($x0 $y2 $z0) // 6
+    ($x0 $y2 $z1) // 7
+	($x0 $y2 $z2)  // 8
+    ($x1 $y0 $z0)  // 9
+    ($x1 $y0 $z1)  // 10
+    ($x1 $y0 $z2) // 11
+    ($x1 $y1 $z0) // 12
+	($x1 $y1 $z1)  // 13
+    ($x1 $y1 $z2) // 14
+    ($x1 $y2 $z0) // 15
+    ($x1 $y2 $z1) // 16
+	($x1 $y2 $z2)  // 17
+);
+
+
+blocks
+(
+	hex (0 9 12 3 1 10 13 4) ($hx $hy $hz) simpleGrading ($kx $ky $kz)
+	hex (1 10 13 4 2 11 14 5) ($hx $hy $hz) simpleGrading ($kx $ky $kzback)
+	hex (3 12 15 6 4 13 16 7) ($hx $hy $hz) simpleGrading ($kx $kyback $kz)
+	hex (4 13 16 7 5 14 17 8) ($hx $hy $hz) simpleGrading ($kx $kyback $kzback)
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (0 1 4 3)
+			(3 4 7 6)
+			(1 2 5 4)
+			(4 5 8 7)
+        );
+    }
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (9 10 13 12)
+			(10 11 14 13)
+			(12 13 16 15)
+			(13 14 17 16)
+        );
+    }
+    lowerHartmannWall
+    {
+        type wall;
+        faces
+        (
+             (0 1 10 9)
+			 (1 2 11 10)
+			
+        );
+    }
+    upperHartmannWall
+    {
+        type wall;
+        faces
+        (
+            (6 7 16 15)
+			(7 8 17 16)
+        );
+    }
+    sideWalls
+    {
+        type wall;
+        faces
+        (
+            (2 11 14 5)
+            (5 14 17 8)
+			(0 9 12 3)
+			(3 12 15 6)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

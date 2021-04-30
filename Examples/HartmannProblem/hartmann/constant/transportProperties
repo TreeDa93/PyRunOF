@@ -1,0 +1,65 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.6                                   |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+
+    root            "";
+    case            "";
+    instance        "";
+    local           "";
+
+    class           dictionary;
+    object          transportProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+transportModel Newtonian;
+
+nu              nu [0 2 -1 0 0 0 0] 1;
+rho             rho [1 -3 0 0 0 0 0] 1;
+frequency       frequency [0 0 -1 0 0 0 0] 50;
+elcond_melt elcond_melt[-1 -3 3 0 0 2 0]1;
+
+// * * * * * * * * * * *EOF Settings * * * * * * * * * * * * * * * * //
+
+
+// The type of recalculating MF have to be done by typeRecalculateMF 1;  Bellow the list of keys is wrritten 
+// 0 is to recalculate every iteration
+// 1 is to use logical expression 
+// 2 is to recalculate the Nth iteration (timesRecal)
+// 3 is to recalculate every given time step (timeRecal)
+// 4 is to calculate only at the first time
+typeRecalculateMF 0; 
+
+// maxRelDiff depicts how often to run EOF. 
+//If maxRelDiff = (max(mag(U_old-U)/(average(mag(U))+smallU))).value() is ture, EOF is runned ! 
+// it is worked when typeRecalculateMF = 1;
+maxRelDiff	0.3; 
+
+// timesRecal shows the N-th iterations to run EOF. It is required for typeRecalculateMF = 2
+timesRecal 10; 
+
+// timeRecal depicts value of time when solver run EOF.  It is required for typeRecalculateMF = 3
+timeRecal 0.1; 
+
+// The variable typeForce is served for chosing which kind of Lorentz force solver will be used. 
+// The value 0 of the variable means that the solver will be used instantaneus Lorentz Force to calculate CFD. 
+// Any other values of the variable means that solver will be used average Lorentz Force to calculate CFD. 
+typeForce 1; 
+
+//Tbe variable typeUxBxB depicts requiring o add term elcond_melt*UxBxB to Lorentz Force as F = JxB + elcond_melt*UxBxB
+// The value 0 of the variable means that the solver will be added elcond_melt*UxBxB. 
+// Any other values of the variable means that solver will be not added elcond_melt*UxBxB. 
+typeUxBxB 1; // 0 добавить UxBxB*elconduct к силе, другое значение не добавлять. 
+
+
+// ************************************************************************* //
