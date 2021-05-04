@@ -79,8 +79,9 @@ class IntiailValue():
 
     def mapFieldsRun(self, pathCase=None, check=False):
 
-        path = self.priorityPath(pathCase)
+        path = self.priorityPathCase(pathCase)
         os.chdir(path)
+        print(path)
         if check:
             self.checkFileForMapFields()
             os.system(self.commandMapFields)
@@ -243,6 +244,28 @@ class IntiailValue():
                 sys.exit('Error: You do not enter the base path!!!')
         else:
             return os.path.join(pathCase, '0')
+
+
+    def priorityPathCase(self, pathCase):
+        """The method is used for selection of given path
+        the first priority is given path by methods
+        the second priority is given path by class constructor
+        If both path is None, the program is interupted
+        Input :
+        basePath, newPath is checkoing pathes
+        Output:
+        retrunBasePath, returnNewPath is selected pathes acording priority
+        """
+
+        if pathCase == None:
+            if self.pathCase != None:
+                return self.pathCase
+            else:
+                sys.exit('Error: You do not enter the base path!!!')
+        else:
+            return os.path.join(pathCase)
+
+
 
 
     def checkOption(self, option):
