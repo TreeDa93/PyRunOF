@@ -13,36 +13,37 @@ class ParametricSweep():
         self.fun = fun
         self.currentIter = 0
 
-
-    def setFun(self, fun1=None):
-        self.fun1 = fun1
-
-
-
-    def run(self):
+    def run(self, generatorName=False):
         generalPath = os.getcwd()
-
         while self.currentIter < self.numberCases:
 
-            name = self.generatorName()
-            self.changeVariables()
-            self.fun(name)
-            os.chdir(generalPath)
+            if generatorName == True:
+                name = self.generatorName()
+                self.changeVariables()
+                self.fun(name)
+                os.chdir(generalPath)
+            else:
+                self.changeVariables()
+                self.fun()
+                os.chdir(generalPath)
 
+    def setFun(self, fun1=None):
+        """The method sets python function to be runned"""
+        self.fun1 = fun1
 
     def getSweepDict(self, dict={'keys': [1, 2, 3]}):
-            self.numberCases  = self.checkSweepDict(dict)
-            self.sweepDict = dict
-
-
+        """The method sets dictionarie to be varied"""
+        self.numberCases  = self.checkSweepDict(dict)
+        self.sweepDict = dict
 
     def getDicts(self, dicts=[]):
+        """The method sets dictionaries where it will be fiended varieng variables"""
         self.dicts = dicts
 
 
 
     def changeVariables(self):
-
+        """The methos change values of variables in dictionaries"""
         for dic in self.dicts:
             for key in self.sweepDict:
                 if key in dic:
