@@ -47,6 +47,7 @@ class SetSystem():
                     changeVariablesFunV2(var, spisok_var[var], nameFile=file)
 
 
+
     def priorityPath(self, pathCase):
         """The method is used for selection of given path
         the first priority is given path by methods

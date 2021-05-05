@@ -87,7 +87,15 @@ class SetConstantParam():
             copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_LESdynamicSmag',
                       nameFileNew='turbulenceProperties')
 
+    def setAnyConstantFiles(self, *listsVar, files=['controlDict'], pathCase=None):
+        """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
 
+        path = self.priorityPath(pathCase)
+        os.chdir(path)
+        for file in files:
+            for spisok_var in listsVar:
+                for var in spisok_var:
+                    changeVariablesFunV2(var, spisok_var[var], nameFile=file)
 
     def priorityPath(self, pathCase):
         """The method is used for selection of given path
