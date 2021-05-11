@@ -44,6 +44,7 @@ class Runner():
 
 
     def decompose(self, decomposeOF):
+        os.chdir(self.pathCase)
         if decomposeOF == True:
             os.system('decomposePar -force')
         elif decomposeOF == False:
@@ -52,6 +53,7 @@ class Runner():
             sys.exit('The decompose status is no bolean')
 
     def decomposeElmer(self, decomposeElmer):
+        os.chdir(self.pathCase)
         if decomposeElmer == True:
             os.system(f'ElmerGrid 2 2 {self.meshElmer} -metis {self.coreElmer} -force')
         elif decomposeElmer == False:
