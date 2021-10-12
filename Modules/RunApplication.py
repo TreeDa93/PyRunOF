@@ -40,7 +40,7 @@ class Runner():
                 os.system(f'pyFoamPlotRunner.py mpirun -np {self.coreOF} {self.solverName} -parallel :')
             else:
                 os.system(f'mpirun -np {self.coreOF} {self.solverName} -parallel : '
-                          f'-np {self.coreElmer} ElmerSolver_mpi')
+                          f'-np {self.coreElmer} ElmerSolver_mpi | tee log -a')
 
 
     def decompose(self, decomposeOF):

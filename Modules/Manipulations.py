@@ -132,7 +132,7 @@ class Manipulations():
         elif not os.path.exists(newPath):
             dirname, newCaseName = os.path.split(newPath)
             if os.path.exists(dirname):
-                os.mkdir(f'{newCaseName}')
+                os.mkdir(f'{newPath}')
             else:
                 sys.exit(f'Error: The new path {dirname} is not exist !!!')
 
