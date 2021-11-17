@@ -57,7 +57,7 @@ def copyFiele(root_src_dir, root_dst_dir, nameFilesOld='', nameFileNew=''):
 
 class AddtionalFun:
     """ The class supports
-
+    FIXME
     """
 
     def __init__(self):

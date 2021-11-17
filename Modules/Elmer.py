@@ -1,8 +1,12 @@
-import sys, os
+import sys
+import os
 from Modules.AddtionalFunctions import changeVariablesFunV2
 
-class Elmer():
 
+class Elmer:
+    """
+    FIXME
+    """
 
     def __init__(self, pathCase=None, sifName='.sif'):
         self.pathCase = pathCase

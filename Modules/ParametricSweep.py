@@ -1,11 +1,13 @@
 import os
 import sys
 
-import numpy as np
 
 
-class ParametricSweep():
+class ParametricSweep:
+    """
+        #FIXIT
 
+    """
 
     def __init__(self, *dicts, values={'keys': []}, fun=None):
         self.dictionaries = dicts

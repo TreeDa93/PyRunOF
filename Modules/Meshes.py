@@ -1,8 +1,13 @@
-import os, sys
-
+import os
+import sys
 from Modules.AddtionalFunctions import changeVariablesFunV2
 
-class Mesh():
+
+class Mesh:
+    """
+    FIXME
+
+    """
 
     def __init__(self, pathCase=None):
         """PathCase is path where the class will be doing any manipulation"""

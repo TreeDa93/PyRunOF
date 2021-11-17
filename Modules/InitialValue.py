@@ -1,11 +1,15 @@
-import os, sys, shutil
-from Modules.AddtionalFunctions import changeVariablesFunV2, copyFieles, copyfun
+import os
+import sys
+import shutil
 from distutils.dir_util import copy_tree
+from Modules.AddtionalFunctions import changeVariablesFunV2, copyfun
 
 
+class IntiailValue:
+    """
+    FIXME
 
-class IntiailValue():
-
+    """
 
     def __init__(self, pathCase=None,  dictionary=None):
         self.pathCase = pathCase

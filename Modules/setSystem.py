@@ -1,8 +1,12 @@
+import os
+import sys
 from Modules.AddtionalFunctions import changeVariablesFunV2
 
-import os, sys
+class SetSystem:
+    """
+    #FIXIT
 
-class SetSystem():
+    """
 
     def __init__(self, pathCase=None):
         """PathCase is path where the class will be doing any manipulation"""

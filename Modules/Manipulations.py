@@ -1,9 +1,14 @@
-import os, sys, shutil, datetime
+import os
+import sys
+import shutil
+import datetime
 
 
+class Manipulations:
+    """
+    FIXME
 
-class Manipulations():
-
+    """
     def __init__(self, name='firts', runPath=None, newPath=None, basePath=None):
         self.name = name
         self.pathes = {'newPath': newPath,

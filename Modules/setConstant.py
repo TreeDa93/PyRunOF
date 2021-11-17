@@ -1,7 +1,13 @@
-import os, sys
+import os
+import sys
 from Modules.AddtionalFunctions import changeVariablesFunV2, copyFiele
 
-class SetConstantParam():
+
+class SetConstantParam:
+    """
+        #FIXIT
+
+    """
 
     def __init__(self, pathCase=None, pathLib=''):
         self.pathCase = pathCase
@@ -23,7 +29,7 @@ class SetConstantParam():
             for var in spisok_var:
                 changeVariablesFunV2(var, spisok_var[var], nameFile='transportProperties')
 
-    def setTurbModel(self,typeTurbModel='kEpsilon', pathCase=None):
+    def setTurbModel(self, typeTurbModel='kEpsilon', pathCase=None):
         """"The fucntion serves to set required turbulent model for solving task. For this purpose, one of list
           of wrriten files with given settings will be renamed into turbulenceProperties to system folder of adjusted case
         acording required type of rubulence model
@@ -49,8 +55,7 @@ class SetConstantParam():
         elif typeTurbModel == 'kOmegaSST':
             os.rename('turbulenceProperties_kOmegaSST', 'turbulenceProperties')
 
-
-    def setTurbModel2(self,typeTurbModel='kEpsilon', pathCase=None):
+    def setTurbModel2(self, typeTurbModel='kEpsilon', pathCase=None):
         """"The fucntion serves to set required turbulent model for solving task. For this purpose, one of list
           of wrriten files with given settings will be renamed into turbulenceProperties to system folder of adjusted case
         acording required type of rubulence model

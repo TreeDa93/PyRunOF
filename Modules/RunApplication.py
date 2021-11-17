@@ -1,9 +1,13 @@
-import os, sys
+import os
+import sys
 from Modules.AddtionalFunctions import changeVariablesFunV2
 
 
-class Runner():
+class Runner:
+    """
+        FIXME
 
+    """
     def __init__(self, name='test', pathCase=None):
         self.name = name
         self.pyFoam = False
