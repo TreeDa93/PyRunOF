@@ -2,16 +2,16 @@ import os
 import shutil
 
 
-def changeVariablesFunV2(distVar, sourVar, nameFile=''):
+def change_var_fun(dist_var, sour_var, nameFile=''):
     """Function to find and replace required text part at given file
-    distVar depicts finding variables
-    sourVar depicts replacing variables
+    dist_var depicts finding variables
+    sour_var depicts replacing variables
     nameFile is the name of file where the procedure will be done"""
 
     if os.path.isfile(nameFile):
         with open(nameFile, 'r') as f:
             oldData = f.read()
-        newData = oldData.replace(str(distVar), str(sourVar))
+        newData = oldData.replace(str(dist_var), str(sour_var))
         with open(nameFile, 'w') as f:
             f.write(newData)
     else:
@@ -20,14 +20,14 @@ def changeVariablesFunV2(distVar, sourVar, nameFile=''):
 
 def changeVariablesFun(distVar, sourVar, nameFile=' '):
     """The fucntion is devoted to change  gotten text part
-    distVar is variable defended text, which should be replaced
-    sourVar is variable defended text, which should be entered instead replaced text part
+    dist_var is variable defended text, which should be replaced
+    sour_var is variable defended text, which should be entered instead replaced text part
     nameFile is name of file where the procedure will be executed.
     """
     os.system("sed -i 's/{0}/{1}/g' {2}".format(distVar, sourVar, nameFile))
 
 
-def copyfun(root_src_dir, root_dst_dir):
+def copy_fun(root_src_dir, root_dst_dir):
     for src_dir, dirs, files in os.walk(root_src_dir):
         dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
         if not os.path.exists(dst_dir):
@@ -40,7 +40,7 @@ def copyfun(root_src_dir, root_dst_dir):
             shutil.copy(src_file, dst_dir)
 
 
-def copyFieles(root_src_dir, root_dst_dir):
+def copy_files(root_src_dir, root_dst_dir):
     for file_ in os.listdir(root_src_dir):
         src_file = os.path.join(root_src_dir, file_)
         dst_file = os.path.join(root_dst_dir, file_)
@@ -65,8 +65,8 @@ class AddtionalFun:
 
     def change_text(self, dist_var, sour_var, name_file=''):
         """Function to find and replace required text part at given file
-        distVar is the depicts finding variables
-        sourVar depicts replacing variables
+        dist_var is the depicts finding variables
+        sour_var depicts replacing variables
         nameFile is the name of file where the procedure will be done
 
         """
