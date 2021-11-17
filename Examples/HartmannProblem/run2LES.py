@@ -47,7 +47,7 @@ def step1():
     initialClass.setVarAllFiles(initialDictConst, initialDictCalculated)
 
     cpClass.setTurbModel2(turbType1)
-    cpClass.setTransportProp(tranPropDict)
+    cpClass.set_transportProp(tranPropDict)
 
 
     meshClass.setBlockMesh(meshList)
@@ -87,7 +87,7 @@ def hartmann(oldPath):
 
     sc.setControlDict(controlDict2) # настраиваем controlDict
     cpClass.setTurbModel2(turbType1)  # настраиваем модель турбулентности
-    cpClass.setTransportProp(tranPropDict)  # настраиваем transportProperties in constant
+    cpClass.set_transportProp(tranPropDict)  # настраиваем transportProperties in constant
 
     meshClass.setBlockMesh(meshList)   # настраиваем BlockMeshDict
     meshClass.runBlockMesh()             # запускаем BlockMesh

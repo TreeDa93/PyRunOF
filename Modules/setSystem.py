@@ -9,51 +9,49 @@ class SetSystem:
 
     """
 
-    def __init__(self, pathCase=None):
+    def __init__(self, path_case=None):
         """PathCase is path where the class will be doing any manipulation"""
-        self.pathCase = pathCase
-        if pathCase == None:
+        self.path_case = path_case
+        if path_case is None:
             self.path = None
         else:
-            self.path = os.path.join(pathCase, 'system')
+            self.path = os.path.join(path_case, 'system')
 
-    def setControlDict(self, *listsControlDicts, pathCase=None):
+    def set_control_dict(self, *lists_controlDicts, path_case=None):
         """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
-        path = self.priorityPath(pathCase)
+        path = self._priorityPath(path_case)
         os.chdir(path)
-        for spisok_var in listsControlDicts:
-            for var in spisok_var:
-                change_var_fun(var, spisok_var[var], nameFile='controlDict')
+        for list_var in lists_controlDicts:
+            for var in list_var:
+                change_var_fun(var, list_var[var], nameFile='controlDict')
 
-    def setfvSolution(self, *listsfvSolution, pathCase=None):
+    def set_fvSolution(self, *listsfvSolution, path_case=None):
         """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
-        path = self.priorityPath(pathCase)
+        path = self._priorityPath(path_case)
         os.chdir(path)
-        for spisok_var in listsfvSolution:
-            for var in spisok_var:
-                change_var_fun(var, spisok_var[var], nameFile='fvSolution')
+        for list_var in listsfvSolution:
+            for var in list_var:
+                change_var_fun(var, list_var[var], nameFile='fvSolution')
 
-    def setfvSchemes(self, *listsfvSchemes, pathCase=None):
+    def set_fvSchemes(self, *listsfvSchemes, path_case=None):
         """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
-        path = self.priorityPath(pathCase)
+        path = self._priorityPath(path_case)
         os.chdir(path)
-        for spisok_var in listsfvSchemes:
-            for var in spisok_var:
-                change_var_fun(var, spisok_var[var], nameFile='fvSchemes')
+        for list_var in listsfvSchemes:
+            for var in list_var:
+                change_var_fun(var, list_var[var], nameFile='fvSchemes')
 
-    def setAnyFiles(self, *listsVar, files=['controlDict'], pathCase=None):
+    def set_any_files(self, *listsVar, files=['controlDict'], path_case=None):
         """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
 
-        path = self.priorityPath(pathCase)
+        path = self._priorityPath(path_case)
         os.chdir(path)
         for file in files:
-            for spisok_var in listsVar:
-                for var in spisok_var:
-                    change_var_fun(var, spisok_var[var], nameFile=file)
+            for list_var in listsVar:
+                for var in list_var:
+                    change_var_fun(var, list_var[var], nameFile=file)
 
-
-
-    def priorityPath(self, pathCase):
+    def _priorityPath(self, path_case):
         """The method is used for selection of given path
         the first priority is given path by methods
         the second priority is given path by class constructor
@@ -64,13 +62,13 @@ class SetSystem:
         retrunBasePath, returnNewPath is selected pathes acording priority
         """
 
-        if pathCase == None:
-            if self.pathCase != None:
+        if path_case is None:
+            if self.path_case is not None:
                 return self.path
             else:
                 sys.exit('Error: You do not enter the base path!!!')
         else:
-            return os.path.join(pathCase, 'system')
+            return os.path.join(path_case, 'system')
 
 
 

@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 
 
@@ -17,15 +18,6 @@ def change_var_fun(dist_var, sour_var, nameFile=''):
             f.write(newData)
     else:
         print(f'Warning: The file {nameFile} is not exist!')
-
-
-def changeVariablesFun(distVar, sourVar, nameFile=' '):
-    """The fucntion is devoted to change  gotten text part
-    dist_var is variable defended text, which should be replaced
-    sour_var is variable defended text, which should be entered instead replaced text part
-    nameFile is name of file where the procedure will be executed.
-    """
-    os.system("sed -i 's/{0}/{1}/g' {2}".format(distVar, sourVar, nameFile))
 
 
 def copy_fun(root_src_dir, root_dst_dir):
@@ -96,3 +88,99 @@ class AddtionalFun:
                 f.write(newData)
         else:
             print(f'Warning: The file {name_file} is not exist!')
+
+
+class Priority:
+
+    def __init__(self, path_case=None, sif_name='.sif', file=None):
+        self.path_case = path_case
+        self.sifName = sif_name
+        self.file = file
+
+    def path(self, path_case):
+        """The method is used for selection of given path
+        the first priority is given path by methods
+        the second priority is given path by class constructor
+        If both path is None, the program is interupted
+        Input :
+        basePath, newPath is checkoing pathes
+        Output:
+        retrun BasePath, returnNewPath is selected pathes acording priority
+        """
+        if path_case is None:
+            if self.path_case is None:
+                return self.path_case
+            else:
+                sys.exit('Error: You do not enter the base path!!!')
+        else:
+            return path_case
+
+    def file(self, file):
+        """The method is used for selection of given path
+        the first priority is given path by methods
+        the second priority is given path by class constructor
+        If both path is None, the program is interupted
+        Input :
+        basePath, newPath is checkoing pathes
+        Output:
+        retrunBasePath, returnNewPath is selected pathes acording priority
+        """
+        if file is None:
+            if self.file is not None:
+                return self.file
+            else:
+                sys.exit('Error: You do not enter the name of the sif file!!!')
+        else:
+            return file
+
+    def sif_file(self, sif_file):
+        """The method is used for selection of given path
+        the first priority is given path by methods
+        the second priority is given path by class constructor
+        If both path is None, the program is interupted
+        Input :
+        basePath, newPath is checkoing pathes
+        Output:
+        retrunBasePath, returnNewPath is selected pathes acording priority
+        """
+        if sif_file is None:
+            if self.sif_file is not None:
+                return self.sif_file
+            else:
+                sys.exit('Error: You do not enter the name of the sif file!!!')
+        else:
+            return sif_file
+
+    def _priority_cores(self, core_OF):
+        if core_OF is None:
+            if self.core_OF is not None:
+                return self.core_OF
+            else:
+                sys.exit('You have to set numbers of cores for OpenFOAM')
+        else:
+            return core_OF
+
+    def _priority(self, var, type_priority='core'):
+        """
+        Test priority fun
+        :param var:
+        :return:
+        """
+        if var is None:
+            return self._chose_type_priority(self, type_priority)
+        else:
+            return var
+
+    def _chose_type_priority(self, type_priority):
+        if type_priority == 'core_OF':
+            if self.core_OF is not None:
+                return self.core_OF
+            else:
+                sys.exit('You have to set numbers of cores for OpenFOAM')
+        elif type_priority == 'file':
+            if self.file is not None:
+                return self.file
+            else:
+                sys.exit('Error: You do not enter the name of the sif file!!!')
+        else:
+            pass

@@ -32,7 +32,7 @@ class InitialValue:
 
     def setVar(self, *varDict, nameFiels=['U', 'k'], pathCase=None):
         """Устанавливает значение перенных из словарей *varDict в файлах из списка nameFiels
-        в кейсе pathCase"""
+        в кейсе path_case"""
         dictionary = self.priorityDictionary(varDict)
         path = self.priorityPath(pathCase)
 

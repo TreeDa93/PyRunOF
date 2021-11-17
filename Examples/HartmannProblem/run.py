@@ -44,7 +44,7 @@ def step1():
 
     cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
     cpClass.setTurbModel2(turbType1)
-    cpClass.setTransportProp(tranPropDict)
+    cpClass.set_transportProp(tranPropDict)
 
     meshClass = Mesh(pathCase=runPath)
     meshClass.setBlockMesh(meshList)
@@ -86,7 +86,7 @@ def step2(oldPath):
 
     cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
     cpClass.setTurbModel2(turbType1)
-    cpClass.setTransportProp(tranPropDict)
+    cpClass.set_transportProp(tranPropDict)
 
 
     meshClass = Mesh(pathCase=runPath)

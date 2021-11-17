@@ -5,7 +5,7 @@ from Modules.AddtionalFunctions import change_var_fun, copyFiele
 
 class SetConstantParam:
     """
-        #FIXIT
+        FIXME
 
     """
 
@@ -19,17 +19,17 @@ class SetConstantParam:
         self.pathLib = pathLib
         self.addPath = os.path.join(pathLib, 'AdditinalFiles', 'TurbulenceFiles')
 
-    def setTransportProp(self, *lists):
+    def set_transportProp(self, *lists):
         """The function sets given variables to transportProperties file
         patheNewCase is the path where transportProperties will be modificated
         lists are a number of dictionaries with keys, which called as name of variables to transportProperties,
         and values"""
         os.chdir(self.path)
-        for spisok_var in lists:
-            for var in spisok_var:
-                change_var_fun(var, spisok_var[var], nameFile='transportProperties')
+        for list_var in lists:
+            for var in list_var:
+                change_var_fun(var, list_var[var], nameFile='transportProperties')
 
-    def setTurbModel(self, typeTurbModel='kEpsilon', pathCase=None):
+    def set_turb_model(self, typeTurbModel='kEpsilon', pathCase=None):
         """"The fucntion serves to set required turbulent model for solving task. For this purpose, one of list
           of wrriten files with given settings will be renamed into turbulenceProperties to system folder of adjusted case
         acording required type of rubulence model
@@ -41,7 +41,7 @@ class SetConstantParam:
                 kOmega
                 kOmegaSST
                 """
-        path = self.priorityPath(pathCase)
+        path = self._priority_path(pathCase)
         os.chdir(path)
 
         if typeTurbModel == 'LES':
@@ -67,7 +67,7 @@ class SetConstantParam:
                 kOmega
                 kOmegaSST
                 """
-        path = self.priorityPath(pathCase)
+        path = self._priority_path(pathCase)
         if typeTurbModel == 'LES':
             copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_LES', nameFileNew='turbulenceProperties')
         elif typeTurbModel == 'kEpsilon':
@@ -92,17 +92,17 @@ class SetConstantParam:
             copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_LESdynamicSmag',
                       nameFileNew='turbulenceProperties')
 
-    def setAnyConstantFiles(self, *listsVar, files=['controlDict'], pathCase=None):
+    def setAnyConstantFiles(self, *lists_var, files=['controlDict'], path_case=None):
         """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
 
-        path = self.priorityPath(pathCase)
+        path = self._priority_path(path_case)
         os.chdir(path)
         for file in files:
-            for spisok_var in listsVar:
-                for var in spisok_var:
-                    change_var_fun(var, spisok_var[var], nameFile=file)
+            for list_var in lists_var:
+                for var in list_var:
+                    change_var_fun(var, list_var[var], nameFile=file)
 
-    def priorityPath(self, pathCase):
+    def _priority_path(self, path_case):
         """The method is used for selection of given path
         the first priority is given path by methods
         the second priority is given path by class constructor
@@ -113,10 +113,10 @@ class SetConstantParam:
         retrunBasePath, returnNewPath is selected pathes acording priority
         """
 
-        if pathCase == None:
-            if self.pathCase != None:
+        if path_case is None:
+            if self.pathCase is not None:
                 return self.path
             else:
                 sys.exit('Error: You do not enter the base path!!!')
         else:
-            return os.path.join(pathCase, 'constant')
+            return os.path.join(path_case, 'constant')

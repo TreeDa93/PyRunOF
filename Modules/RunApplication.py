@@ -14,8 +14,7 @@ class Runner:
         self.mode = 'common'
         self.pathCase = pathCase
 
-
-    def runCase(self, pathCase=None, decomposeOF=True, decomposeElmer=False):
+    def run_case(self, pathCase=None, decomposeOF=True, decomposeElmer=False):
         """The function runs the case to calculation
             Variables:
             Name_solver is the name of the OpenFOAM solver
@@ -23,77 +22,78 @@ class Runner:
             NUMBER_OF_PROC_Elmer - is the number of processor cores involved to calculation of Elmer problem
             """
 
-        path = self.priorityPath(pathCase)
+        path = self._priority_path(pathCase)
         os.chdir(path)
 
         if self.mode == 'common':
             if self.pyFoam == True:
-                os.system(f'pyFoamPlotRunner.py {self.solverName}')
+                os.system(f'pyFoamPlotRunner.py {self.solver_name}')
             else:
-                os.system(f'{self.solverName}')
+                os.system(f'{self.solver_name}')
         elif self.mode == 'parallel':
             self.decompose(decomposeOF)
-            if self.pyFoam == True:
-                os.system(f'pyFoamPlotRunner.py mpirun -np {self.coreOF} {self.solverName} -parallel :')
+            if self.pyFoam is True:
+                os.system(f'pyFoamPlotRunner.py mpirun -np {self.coreOF} {self.solver_name} -parallel :')
             else:
-                os.system(f'mpirun -np {self.coreOF} {self.solverName} -parallel :')
+                os.system(f'mpirun -np {self.coreOF} {self.solver_name} -parallel :')
         elif self.mode == 'EOF':
             self.decompose(decomposeOF)
             self.decomposeElmer(decomposeElmer)
-            if self.pyFoam == True:
-                os.system(f'pyFoamPlotRunner.py mpirun -np {self.coreOF} {self.solverName} -parallel :')
+            if self.pyFoam is True:
+                os.system(f'pyFoamPlotRunner.py mpirun -np {self.coreOF} {self.solver_name} -parallel :')
             else:
-                os.system(f'mpirun -np {self.coreOF} {self.solverName} -parallel : '
+                os.system(f'mpirun -np {self.coreOF} {self.solver_name} -parallel : '
                           f'-np {self.coreElmer} ElmerSolver_mpi | tee log -a')
 
-
-    def decompose(self, decomposeOF):
+    def decompose(self, decompose_OF: bool):
         os.chdir(self.pathCase)
-        if decomposeOF == True:
+        if decompose_OF is True:
             os.system('decomposePar -force')
-        elif decomposeOF == False:
+        elif decompose_OF is False:
             print('Decompose procedure is pass')
         else:
             sys.exit('The decompose status is no bolean')
 
-    def decomposeElmer(self, decomposeElmer):
+    def decomposeElmer(self, decompose_Elmer: bool):
         os.chdir(self.pathCase)
-        if decomposeElmer == True:
+        if decompose_Elmer is True:
             os.system(f'ElmerGrid 2 2 {self.meshElmer} -metis {self.coreElmer} -force')
-        elif decomposeElmer == False:
+        elif decompose_Elmer is False:
             print('Decompose procedure is pass')
         else:
             sys.exit('The decompose status is no bolean')
 
-    def setPathCase(self, pathCase):
-        self.pathCase = pathCase
+    def set_PathCase(self, path_case):
+        self.pathCase = path_case
 
-    def setCores(self, coreOF=4, CoreElmer=4):
-        self.coreElmer = CoreElmer
+    def set_cores(self, coreOF=4, coreElmer=4):
+        self.coreOF = coreOF
+        self.coreElmer = coreElmer
+
+
+    def set_cores_OF(self, coreOF=4):
         self.coreOF = coreOF
 
-    def setCoresOF(self, coreOF=4):
-        self.coreOF = coreOF
-
-    def seCoresElmer(self, coreElmer=4, meshName=''):
+    def set_cores_Elmer(self, coreElmer=4, meshName=''):
         self.coreElmer = coreElmer
         self.meshElmer = meshName
 
-    def setCoresEOF(self, coreOF=4, coreElmer=4, elmerMeshName=''):
+    def set_cores_EOF(self, coreOF=4, coreElmer=4, elmerMeshName=''):
         self.coreElmer = coreElmer
         self.meshElmer = elmerMeshName
         self.coreOF = coreOF
 
-    def setDecomposeParDict(self, coreOF=None, nameVar='core_OF', pathCase=None):
+    def set_decomposeParDict(self, coreOF=None, nameVar='core_OF', pathCase=None):
         """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
-        path = os.path.join(self.priorityPath(pathCase), 'system')
-        coreOF = self.prioritCores(coreOF)
+        path = os.path.join(self._priority_path(pathCase), 'system')
+        coreOF = self._priority_cores(coreOF)
         os.chdir(path)
         print(os.getcwd())
         change_var_fun(nameVar, coreOF, nameFile='decomposeParDict')
 
-    def setNameSolver(self, solverName='pimpleFoam'):
-        self.solverName = solverName
+    def setNameSolver(self, solver_name='pimpleFoam'):
+        self.solver_name = solver_name
+        print(f'You set name of solver as {self.solver_name}')
 
     def setModeRunner(self, mode='common'):
         self.mode = mode
@@ -101,25 +101,19 @@ class Runner:
     def setPyFoamSettings(self, pyFoam=False):
         self.pyFoam = pyFoam
 
-    def setFields(self, pathCase=None):
-        path = self.priorityPath(pathCase)
+    def set_fields(self, pathCase=None):
+        path = self._priority_path(pathCase)
         os.chdir(path)
         os.system('setFields')
 
-    def setAllSettings(self, dictionary):
+    def set_all_settings(self, dictionary):
         self.setPathCase(dictionary['newPath'])
         self.setCores(dictionary['numCoreOF'], dictionary['numCoreEOF'])
-        self.setNameSolver(dictionary['solverName'])
+        self.setNameSolver(dictionary['solver_name'])
         self.setModeRunner(dictionary['mode'])
         self.setPyFoamSettings()
 
-
-
-
-
-
-
-    def priorityPath(self, pathCase):
+    def _priority_path(self, path_case):
         """The method is used for selection of given path
         the first priority is given path by methods
         the second priority is given path by class constructor
@@ -130,19 +124,20 @@ class Runner:
         retrunBasePath, returnNewPath is selected pathes acording priority
         """
 
-        if pathCase == None:
-            if self.pathCase != None:
+        if path_case is None:
+            if self.pathCase is not None:
                 return self.pathCase
             else:
                 sys.exit('Error: You do not enter the base path!!!')
         else:
-            return pathCase
+            return path_case
 
-    def prioritCores(self, coreOF):
-        if coreOF == None:
-            if self.coreOF == None:
-                sys.exit('You have to set numbers of cores for OpenFOAM')
+
+    def _priority_cores(self, core_OF):
+        if core_OF is None:
+            if self.core_OF is not None:
+                return self.core_OF
             else:
-                return self.coreOF
+                sys.exit('You have to set numbers of cores for OpenFOAM')
         else:
-            return coreOF
+            return core_OF

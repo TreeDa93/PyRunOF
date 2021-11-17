@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
 
     cc = SetConstantParam(pathCase=newPath)
-    cc.setTransportProp(tranPropDict)
+    cc.set_transportProp(tranPropDict)
     cc.setTurbModel(typeTurbModel='kEpsilon')
 
 

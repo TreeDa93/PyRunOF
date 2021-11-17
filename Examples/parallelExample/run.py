@@ -34,7 +34,7 @@ if __name__ == "__main__":
     ic.setVarAllFiles(constDictVar)
 
     cc = SetConstantParam(pathCase=runPath)
-    cc.setTransportProp(tranPropDict)   # write viscosity in transportProperies
+    cc.set_transportProp(tranPropDict)   # write viscosity in transportProperies
 
 
 

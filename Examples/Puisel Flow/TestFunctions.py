@@ -103,11 +103,11 @@ if __name__ == "__main__":
 ###tests
     #initValueClass.setVarAllFiles()  # test
     #initValueClass.setVar(constDictVar, newDict)
-    #initValueClass.setVar(constDictVar, newDict, nameFiels=['U', 'k'], pathCase=newPath)
+    #initValueClass.setVar(constDictVar, newDict, nameFiels=['U', 'k'], path_case=newPath)
  ######
 
     constantClass = SetConstantParam(pathCase=newPath)
-    constantClass.setTransportProp(tranPropDict)
+    constantClass.set_transportProp(tranPropDict)
     constantClass.setTurbModel(typeTurbModel='kEpsilon')
 
 
