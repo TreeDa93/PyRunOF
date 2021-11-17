@@ -1,6 +1,6 @@
 import os
 import sys
-from Modules.AddtionalFunctions import changeVariablesFunV2, copyFiele
+from Modules.AddtionalFunctions import change_var_fun, copyFiele
 
 
 class SetConstantParam:
@@ -27,7 +27,7 @@ class SetConstantParam:
         os.chdir(self.path)
         for spisok_var in lists:
             for var in spisok_var:
-                changeVariablesFunV2(var, spisok_var[var], nameFile='transportProperties')
+                change_var_fun(var, spisok_var[var], nameFile='transportProperties')
 
     def setTurbModel(self, typeTurbModel='kEpsilon', pathCase=None):
         """"The fucntion serves to set required turbulent model for solving task. For this purpose, one of list
@@ -100,7 +100,7 @@ class SetConstantParam:
         for file in files:
             for spisok_var in listsVar:
                 for var in spisok_var:
-                    changeVariablesFunV2(var, spisok_var[var], nameFile=file)
+                    change_var_fun(var, spisok_var[var], nameFile=file)
 
     def priorityPath(self, pathCase):
         """The method is used for selection of given path

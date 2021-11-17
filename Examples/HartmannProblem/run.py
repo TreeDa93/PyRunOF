@@ -8,7 +8,7 @@ from data import * # import variables from data
 from Modules.Manipulations import Manipulations
 from Modules.Meshes import Mesh
 from Modules.setSystem import SetSystem
-from Modules.InitialValue import IntiailValue
+from Modules.InitialValue import InitialValue
 from Modules.setConstant import SetConstantParam
 from Modules.RunApplication import Runner
 
@@ -38,9 +38,9 @@ def step1():
     sc = SetSystem(pathCase=runPath)
     sc.setControlDict(controlDict)
 
-    initialClass = IntiailValue(pathCase=runPath)
+    initialClass = InitialValue(pathCase=runPath)
     initialDictCalculated= initialClass.calcInitVal(A, B, Uin, nu)
-    initialClass.setVarAllFiels(initialDictConst, initialDictCalculated)
+    initialClass.setVarAllFiles(initialDictConst, initialDictCalculated)
 
     cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
     cpClass.setTurbModel2(turbType1)
@@ -77,7 +77,7 @@ def step2(oldPath):
     sc = SetSystem(pathCase=runPath)
     sc.setControlDict(controlDict)
 
-    initialClass = IntiailValue(pathCase=runPath)
+    initialClass = InitialValue(pathCase=runPath)
     initialClass.setMappSettings(sourcePath=oldPath, distPath=runPath, source='0.25', dist='0')
     initialClass.copyBC(nameBCsource='outlet', nameBCdist='inlet',
                                 mapTimeStep=stopTime)

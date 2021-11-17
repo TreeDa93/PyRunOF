@@ -8,7 +8,7 @@ from data import * # import variables from data
 from Modules.Manipulations import Manipulations
 from Modules.Meshes import Mesh
 from Modules.setSystem import SetSystem
-from Modules.InitialValue import IntiailValue
+from Modules.InitialValue import InitialValue
 from Modules.setConstant import SetConstantParam
 from Modules.RunApplication import Runner
 from Modules.Elmer import Elmer
@@ -37,7 +37,7 @@ def step1():
     mc.dublicateCase(basePath=basePathStep1, newPath=runPath, mode='rewrite')
 
     sc = SetSystem(pathCase=runPath)
-    initialClass = IntiailValue(pathCase=runPath)
+    initialClass = InitialValue(pathCase=runPath)
     cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
     meshClass = Mesh(pathCase=runPath)
 
@@ -45,7 +45,7 @@ def step1():
     sc.setControlDict(controlDict)
 
     initialDictCalculated= initialClass.calcInitVal(A, B, Uin, nu)
-    initialClass.setVarAllFiels(initialDictConst, initialDictCalculated)
+    initialClass.setVarAllFiles(initialDictConst, initialDictCalculated)
 
     cpClass.setTurbModel2(turbType1)
     cpClass.setTransportProp(tranPropDict)
@@ -80,7 +80,7 @@ def hartmann(oldPath):
     # initialization all required classes
     sc = SetSystem(pathCase=runPath)
     cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
-    initialClass = IntiailValue(pathCase=runPath)
+    initialClass = InitialValue(pathCase=runPath)
     meshClass = Mesh(pathCase=runPath)
     eClass = Elmer(pathCase=runPath, sifName='case.sif')
     rc = Runner(pathCase=runPath)

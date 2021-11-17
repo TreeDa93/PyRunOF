@@ -1,6 +1,6 @@
 import os
 import sys
-from Modules.AddtionalFunctions import changeVariablesFunV2
+from Modules.AddtionalFunctions import change_var_fun
 
 
 class Mesh:
@@ -26,7 +26,7 @@ class Mesh:
         pathCase = self.priorityPath(pathCase)
         os.chdir(pathCase)
         for keys in meshList:
-            changeVariablesFunV2(keys, meshList[keys], nameFile='blockMeshDict')
+            change_var_fun(keys, meshList[keys], nameFile='blockMeshDict')
 
         print('The file blockMesh is set!')
 
@@ -52,7 +52,7 @@ class Mesh:
         print(os.getcwd())
         self.elmerMeshName = elmerMeshName
         for keys in meshList:
-            changeVariablesFunV2(keys, meshList[keys], nameFile=f'{self.elmerMeshName}.geo')
+            change_var_fun(keys, meshList[keys], nameFile=f'{self.elmerMeshName}.geo')
 
     def priorityPath(self, pathCase):
         """The method is used for selection of given path

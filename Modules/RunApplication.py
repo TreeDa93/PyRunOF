@@ -1,6 +1,6 @@
 import os
 import sys
-from Modules.AddtionalFunctions import changeVariablesFunV2
+from Modules.AddtionalFunctions import change_var_fun
 
 
 class Runner:
@@ -90,7 +90,7 @@ class Runner:
         coreOF = self.prioritCores(coreOF)
         os.chdir(path)
         print(os.getcwd())
-        changeVariablesFunV2(nameVar, coreOF, nameFile='decomposeParDict')
+        change_var_fun(nameVar, coreOF, nameFile='decomposeParDict')
 
     def setNameSolver(self, solverName='pimpleFoam'):
         self.solverName = solverName

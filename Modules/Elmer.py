@@ -1,6 +1,6 @@
 import sys
 import os
-from Modules.AddtionalFunctions import changeVariablesFunV2
+from Modules.AddtionalFunctions import change_var_fun
 
 
 class Elmer:
@@ -19,7 +19,7 @@ class Elmer:
         os.chdir(path)
         for list in elmerDictioaries:
             for var in list:
-                changeVariablesFunV2(var, list[var], nameFile=sifName)
+                change_var_fun(var, list[var], nameFile=sifName)
 
 
 

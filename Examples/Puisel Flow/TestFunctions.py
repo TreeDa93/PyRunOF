@@ -6,7 +6,7 @@ from Modules.Manipulations import Manipulations
 from Modules.RunApplication import Runner
 from Modules.Meshes import Mesh
 from Modules.setSystem import SetSystem
-from Modules.InitialValue import IntiailValue
+from Modules.InitialValue import InitialValue
 from Modules.setConstant import SetConstantParam
 
 
@@ -97,11 +97,11 @@ if __name__ == "__main__":
     meshClass.runBlockMesh()
 
 
-    initValueClass = IntiailValue(pathCase=newPath)
+    initValueClass = InitialValue(pathCase=newPath)
     newDict= initValueClass.calcInitVal(A, B, Uin, nu)
-    initValueClass.setVarAllFiels(constDictVar, newDict)
+    initValueClass.setVarAllFiles(constDictVar, newDict)
 ###tests
-    #initValueClass.setVarAllFiels()  # test
+    #initValueClass.setVarAllFiles()  # test
     #initValueClass.setVar(constDictVar, newDict)
     #initValueClass.setVar(constDictVar, newDict, nameFiels=['U', 'k'], pathCase=newPath)
  ######

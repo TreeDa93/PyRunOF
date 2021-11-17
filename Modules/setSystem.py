@@ -1,6 +1,7 @@
 import os
 import sys
-from Modules.AddtionalFunctions import changeVariablesFunV2
+from Modules.AddtionalFunctions import change_var_fun
+
 
 class SetSystem:
     """
@@ -22,7 +23,7 @@ class SetSystem:
         os.chdir(path)
         for spisok_var in listsControlDicts:
             for var in spisok_var:
-                changeVariablesFunV2(var, spisok_var[var], nameFile='controlDict')
+                change_var_fun(var, spisok_var[var], nameFile='controlDict')
 
     def setfvSolution(self, *listsfvSolution, pathCase=None):
         """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
@@ -30,7 +31,7 @@ class SetSystem:
         os.chdir(path)
         for spisok_var in listsfvSolution:
             for var in spisok_var:
-                changeVariablesFunV2(var, spisok_var[var], nameFile='fvSolution')
+                change_var_fun(var, spisok_var[var], nameFile='fvSolution')
 
     def setfvSchemes(self, *listsfvSchemes, pathCase=None):
         """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
@@ -38,7 +39,7 @@ class SetSystem:
         os.chdir(path)
         for spisok_var in listsfvSchemes:
             for var in spisok_var:
-                changeVariablesFunV2(var, spisok_var[var], nameFile='fvSchemes')
+                change_var_fun(var, spisok_var[var], nameFile='fvSchemes')
 
     def setAnyFiles(self, *listsVar, files=['controlDict'], pathCase=None):
         """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
@@ -48,7 +49,7 @@ class SetSystem:
         for file in files:
             for spisok_var in listsVar:
                 for var in spisok_var:
-                    changeVariablesFunV2(var, spisok_var[var], nameFile=file)
+                    change_var_fun(var, spisok_var[var], nameFile=file)
 
 
 

@@ -4,10 +4,11 @@ import shutil
 
 def change_var_fun(dist_var, sour_var, nameFile=''):
     """Function to find and replace required text part at given file
-    dist_var depicts finding variables
-    sour_var depicts replacing variables
-    nameFile is the name of file where the procedure will be done"""
+            dist_var is the depicts finding variables
+            sour_var depicts replacing variables
+            nameFile is the name of file where the procedure will be done
 
+    """
     if os.path.isfile(nameFile):
         with open(nameFile, 'r') as f:
             oldData = f.read()
@@ -56,8 +57,24 @@ def copyFiele(root_src_dir, root_dst_dir, nameFilesOld='', nameFileNew=''):
 
 
 class AddtionalFun:
-    """ The class supports
+    """
+    Discription of class
     FIXME
+    Note:
+        Возможны проблемы с кодировкой в Windows
+
+    Attributes
+        ----------
+        file_path : str
+            полный путь до текстового файла
+        lines : list
+            список строк исходного файла
+
+    Methods
+        -------
+        change_text(self, dist_var, sour_var, name_file='')
+            Разделяет строки списка по указанному разделителю
+            и возвращает результат в виде списка
     """
 
     def __init__(self):
