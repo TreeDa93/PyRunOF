@@ -1,11 +1,15 @@
-import os, sys, shutil
-from Modules.AddtionalFunctions import changeVariablesFunV2, copyFieles, copyfun
+import os
+import sys
+import shutil
 from distutils.dir_util import copy_tree
+from Modules.AddtionalFunctions import change_var_fun, copy_fun
 
 
+class InitialValue:
+    """
+    FIXME
 
-class IntiailValue():
-
+    """
 
     def __init__(self, pathCase=None,  dictionary=None):
         self.pathCase = pathCase
@@ -15,7 +19,7 @@ class IntiailValue():
             self.path = os.path.join(pathCase, '0')
         self.dictionary = dictionary
 
-    def setVarAllFiels(self, *varDict, pathCase=None):
+    def setVarAllFiles(self, *varDict, pathCase=None):
 
         dictionary = self.priorityDictionary(varDict)
         path = self.priorityPath(pathCase)
@@ -24,11 +28,11 @@ class IntiailValue():
         for file in fileList:
             for list in dictionary:
                 for var in list:
-                    changeVariablesFunV2(var, list[var], nameFile=file)
+                    change_var_fun(var, list[var], nameFile=file)
 
     def setVar(self, *varDict, nameFiels=['U', 'k'], pathCase=None):
         """Устанавливает значение перенных из словарей *varDict в файлах из списка nameFiels
-        в кейсе pathCase"""
+        в кейсе path_case"""
         dictionary = self.priorityDictionary(varDict)
         path = self.priorityPath(pathCase)
 
@@ -36,7 +40,7 @@ class IntiailValue():
         for file in nameFiels:
             for list in dictionary:
                 for var in list:
-                    changeVariablesFunV2(var, list[var], nameFile=file)
+                    change_var_fun(var, list[var], nameFile=file)
 
     def setMappSettings(self, sourcePath=None, distPath=None, source='0.25', dist='0'):
         self.mappSettings = {}
@@ -49,7 +53,7 @@ class IntiailValue():
         "Копирует папку source в dist из пути source в  dist"
         sourcePath = os.path.join(self.mappSettings['sPath'], self.mappSettings['source'])
         distPath = os.path.join(self.mappSettings['dPath'], self.mappSettings['dist'])
-        copyfun(sourcePath, distPath)
+        copy_fun(sourcePath, distPath)
 
     def reconstruct(self, pathCase):
         "Запускает  ReconstrucPar"
@@ -62,7 +66,7 @@ class IntiailValue():
         os.chdir(path)
 
         for var in self.dicTVMF:
-            changeVariablesFunV2(var, self.dicTVMF[var], nameFile='U')
+            change_var_fun(var, self.dicTVMF[var], nameFile='U')
 
     def settingsTimeVaryingMappedFixedValue(self, nameSample='outletSurf', sourceTimeStep = 0.25, namePatch = 'outlet'):
         "Задает значения для ГУ TimeVaryingMappedFixedValue"
@@ -282,7 +286,7 @@ class IntiailValue():
         testPath = os.path.join(self.checkPathTVMF, '0')
         if not os.path.exists(testPath):
             copypath = os.path.join(self.checkPathTVMF, '0.25')
-            copyfun(copypath, testPath)
+            copy_fun(copypath, testPath)
             return True
         else:
             print('The 0 file is exist')

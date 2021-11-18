@@ -6,7 +6,7 @@ from Modules.Manipulations import Manipulations
 from Modules.RunApplication import Runner
 from Modules.Meshes import Mesh
 from Modules.setSystem import SetSystem
-from Modules.InitialValue import IntiailValue
+from Modules.InitialValue import InitialValue
 from Modules.setConstant import SetConstantParam
 
 
@@ -30,11 +30,11 @@ if __name__ == "__main__":
     Mesh().runBlockMesh(pathCase=runPath)
 
 
-    ic = IntiailValue(pathCase=runPath)
-    ic.setVarAllFiels(constDictVar)
+    ic = InitialValue(pathCase=runPath)
+    ic.setVarAllFiles(constDictVar)
 
     cc = SetConstantParam(pathCase=runPath)
-    cc.setTransportProp(tranPropDict)   # write viscosity in transportProperies
+    cc.set_transportProp(tranPropDict)   # write viscosity in transportProperies
 
 
 
