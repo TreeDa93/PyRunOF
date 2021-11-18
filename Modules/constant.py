@@ -1,6 +1,6 @@
 import os
 import sys
-from Modules.AddtionalFunctions import change_var_fun, copyFiele
+from Modules.auxiliary_functions import change_var_fun, copyFiele
 
 
 class SetConstantParam:

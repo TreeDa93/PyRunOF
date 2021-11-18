@@ -2,7 +2,7 @@ import os
 import sys
 import shutil
 from distutils.dir_util import copy_tree
-from Modules.AddtionalFunctions import change_var_fun, copy_fun
+from Modules.auxiliary_functions import change_var_fun, copy_fun
 
 
 class InitialValue:

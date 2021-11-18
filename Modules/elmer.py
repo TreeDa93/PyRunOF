@@ -1,7 +1,7 @@
 import sys
 import os
-from Modules.AddtionalFunctions import change_var_fun
-from Modules.AddtionalFunctions import Priority
+from Modules.auxiliary_functions import change_var_fun
+from Modules.auxiliary_functions import Priority
 
 
 class Elmer(Priority):

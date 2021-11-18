@@ -5,13 +5,13 @@ sys.path.append(libpath)  # add the library into system pathes
 from data import * # import variables from data
 
 # add require modules from pyRunOF library
-from Modules.Manipulations import Manipulations
-from Modules.Meshes import Mesh
-from Modules.setSystem import SetSystem
-from Modules.InitialValue import IntiailValue
-from Modules.setConstant import SetConstantParam
-from Modules.RunApplication import Runner
-from Modules.ParametricSweep import ParametricSweep
+from Modules.manipulations import Manipulations
+from Modules.meshes import Mesh
+from Modules.set_system import SetSystem
+from Modules.initial_value import IntiailValue
+from Modules.constant import SetConstantParam
+from Modules.run import Runner
+from Modules.parametric_sweep import ParametricSweep
 
 def main():
 

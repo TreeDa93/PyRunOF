@@ -3,12 +3,12 @@ libpath = '/home/ivan/mySolvers/RunnerForCases/'
 sys.path.append(libpath)
 
 
-from Modules.Manipulations import Manipulations
-from Modules.RunApplication import Runner
-from Modules.Meshes import Mesh
-from Modules.setSystem import SetSystem
-from Modules.InitialValue import InitialValue
-from Modules.setConstant import SetConstantParam
+from Modules.manipulations import Manipulations
+from Modules.run import Runner
+from Modules.meshes import Mesh
+from Modules.set_system import SetSystem
+from Modules.initial_value import InitialValue
+from Modules.constant import SetConstantParam
 
 
 
