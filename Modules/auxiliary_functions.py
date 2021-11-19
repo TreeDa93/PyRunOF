@@ -92,12 +92,13 @@ class AddtionalFun:
 
 class Priority:
 
-    def __init__(self, path_case=None, sif_name='.sif', file=None):
-        self.path_case = path_case
+    def __init__(self, names_cases=None, paths=None, sif_name='.sif', file=None):
+        self.paths = paths
+        self.names_cases = names_cases
         self.sifName = sif_name
         self.file = file
 
-    def path(self, path_case):
+    def priority_path(self, path_case, path_key=''):
         """The method is used for selection of given path
         the first priority is given path by methods
         the second priority is given path by class constructor
@@ -108,12 +109,80 @@ class Priority:
         retrun BasePath, returnNewPath is selected pathes acording priority
         """
         if path_case is None:
-            if self.path_case is None:
-                return self.path_case
+            if self.paths[path_key] is not None:
+                return self.paths[path_key]
+            else:
+                #sys.exit('Error: You do not enter the name of the sif file!!!')
+                raise SystemExit(f'Error: You do not set {path_key} path!!!')
+        else:
+            return path_case
+
+    def priority_path(self, path_case, path_key=''):
+        """The method is used for selection of given path
+        the first priority is given path by methods
+        the second priority is given path by class constructor
+        If both path is None, the program is interupted
+        Input :
+        basePath, newPath is checkoing pathes
+        Output:
+        retrun BasePath, returnNewPath is selected pathes acording priority
+        """
+        if path_case is None:
+            if self.paths[path_key] is not None:
+                return self.paths[path_key]
+            else:
+                #sys.exit('Error: You do not enter the name of the sif file!!!')
+                raise SystemExit(f'Error: You do not set {path_key} path!!!')
+        else:
+            return path_case
+
+    def check_path_key(self, key):
+        """The method is used for selection of given path
+        the first priority is given path by methods
+        the second priority is given path by class constructor
+        If both path is None, the program is interupted
+        Input :
+        basePath, newPath is checkoing pathes
+        Output:
+        retrun BasePath, returnNewPath is selected pathes acording priority
+        """
+        if key in self.paths.keys():
+            pass
+        else:
+            raise SystemExit(f'You write wrong key!!!')
+
+    def check_key(self, key, where):
+        """The method is used for selection of given path
+        the first priority is given path by methods
+        the second priority is given path by class constructor
+        If both path is None, the program is interupted
+        Input :
+        basePath, newPath is checkoing pathes
+        Output:
+        retrun BasePath, returnNewPath is selected pathes acording priority
+        """
+        if key in where:
+            pass
+        else:
+            raise SystemExit(f'You write wrong key!!!')
+
+    def priority_name(self, case_name, name_key=''):
+        """The method is used for selection of given path
+        the first priority is given path by methods
+        the second priority is given path by class constructor
+        If both path is None, the program is interupted
+        Input :
+        basePath, newPath is checkoing pathes
+        Output:
+        retrun BasePath, returnNewPath is selected pathes acording priority
+        """
+        if case_name is None:
+            if self.paths is not None:
+                return self.names_cases[name_key]
             else:
                 sys.exit('Error: You do not enter the base path!!!')
         else:
-            return path_case
+            return case_name
 
     def file(self, file):
         """The method is used for selection of given path
@@ -172,6 +241,19 @@ class Priority:
             return var
 
     def _chose_type_priority(self, type_priority):
+        """The function defines priority between attribute variable
+        and input variable of the executing method
+
+        Input :
+        type_priority is the flag to define for which variables to detirmine the priority
+        Now it is avaible following flags
+            * core_OF is core OpenFOAM flags
+            * file is the file flag
+        Output:
+        attribute of the required variable or
+        error that the required variables was not set
+
+        """
         if type_priority == 'core_OF':
             if self.core_OF is not None:
                 return self.core_OF

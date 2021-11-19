@@ -15,12 +15,12 @@ from data import *
 
 if __name__ == "__main__":
 
-    mc = Manipulations(basePath=basePath)
-    mc.generatorNewName('solved', baseNewName=basePath)
-    newName = mc.getName('newName')
-    mc.createNewPath(dirmame=os.getcwd(), newCaseName=newName)
-    newPath = mc.getPath('newPath')
-    mc.dublicateCase(basePath=basePath, newPath=newPath, mode='rewrite')
+    mc = Manipulations(base_path=basePath)
+    mc.create_name('solved', name_base=basePath)
+    newName = mc.get_name('newName')
+    mc.create_path_dir(dirname=os.getcwd(), case_name=newName)
+    newPath = mc.get_path('newPath')
+    mc.duplicate_case(base_path=basePath, new_path=newPath, mode='rewrite')
 
 
     sc = SetSystem(pathCase=newPath)
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     rc = Runner()
     rc.setCores()
     rc.setPathCase(newPath)
-    rc.setNameSolver(solverName='pimpleFoam')
-    rc.setModeRunner(mode='common')
-    rc.setPyFoamSettings(pyFoam=False)
+    rc.set_solver_name()
+    rc.set_mode(mode='common')
+    rc.set_pyFoam_settings(pyFoam=False)
     rc.runCase()

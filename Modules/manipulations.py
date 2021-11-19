@@ -2,30 +2,45 @@ import os
 import sys
 import shutil
 import datetime
+from typing import List, Optional
+from Modules.auxiliary_functions import Priority
 
-
-class Manipulations:
+class Manipulations(Priority):
     """
     FIXME
 
     """
-    def __init__(self, name='firts', runPath=None, newPath=None, basePath=None):
+    def __init__(self,
+                 name='test',
+                 run_path: Optional[str] = None,
+                 new_path: Optional[str] = None,
+                 base_path: Optional[str] = None,
+                 dir_path: Optional[str] = None,):
         self.name = name
-        self.pathes = {'newPath': newPath,
-                       'basePath': basePath,
-                        'runPath' : runPath}
-        self.namesCases = {'newName': None}
+        self.paths = {'new': new_path,
+                        'base': base_path,
+                        'run': run_path,
+                        'dir': dir_path}
+        self.names_cases = {'new': None,
+                            'base': None,
+                            'run': None}
+        super().__init__(paths=self.paths, names_cases=self.names_cases)
+
 
     def __repr__(self):
-        return f"Name of manipulation node ({self.name}, runpath {self.pathes['runPath']}, basepath " \
-               f"{self.pathes['basePath']}, newPath {self.pathes['newPath']})"
+        return f"Name of manipulation node ({self.name}, run path {self.paths['run']}, base path " \
+               f"{self.paths['base']}, new path {self.paths['new']})"
 
     def __str__(self):
-        return f"Name of manipulation node ({self.name}, runpath {self.pathes['runPath']}, basepath " \
-               f"{self.pathes['basePath']}, newPath {self.pathes['newPath']})"
+        return f"Name of manipulation node ({self.name}, runpath {self.paths['run']}, basepath " \
+               f"{self.paths['base']}, newPath {self.paths['new']})"
 
-    def dublicateCase(self, basePath=None, newPath=None, keyPathes=('basePath', 'newPath'),
-                      keyNames=('baseName', 'newName'), mode='copy'):
+    def duplicate_case(self,
+                       base_path: Optional[str] = None,
+                       new_path: Optional[str] = None,
+                       path_keys: tuple = ('basePath', 'newPath'),
+                       name_keys: tuple = ('baseName', 'newName'),
+                       mode: str = 'copy') -> None:
         """The function creates copy of the base case.
            pathBaseCase is the path of base case that will be copied by the function
            pathNewCase is the path of new case that will be created by the function
@@ -37,32 +52,32 @@ class Manipulations:
                     to folder being path of pathNewCase variables."""
 
 
-        basePath, newPath = self.priorityPath(basePath, newPath)
+        base_path, new_path = self._priority_path(base_path, new_path)
 
-        self.checkExistence(basePath, newPath)
+        self.checkExistence(base_path, new_path)
 
         if mode == 'rewrite':
-                print(f'The folder {os.path.basename(newPath)}  is exist. The script run the rewrite mode')
-                shutil.rmtree(newPath)
-                shutil.copytree(basePath, newPath)
+                print(f'The folder {os.path.basename(new_path)}  is exist. The script run the rewrite mode')
+                shutil.rmtree(new_path)
+                shutil.copytree(base_path, new_path)
         elif mode == 'copy':
-                print(f'The folder {os.path.basename(newPath)}  is exist. The script run the copy mode')
+                print(f'The folder {os.path.basename(new_path)}  is exist. The script run the copy mode')
                 now = datetime.datetime.now()
-                old_file = newPath + '_' + 'old' + '_' + now.strftime("%d-%m-%Y %H:%M")
+                old_file = new_path + '_' + 'old' + '_' + now.strftime("%d-%m-%Y %H:%M")
                 try:
-                    shutil.move(newPath, old_file)
+                    shutil.move(new_path, old_file)
                     self.oldNameCase = os.path.basename(old_file)
                 except shutil.Error:
                     print('You run the script is often. There is exception old case')
-                shutil.copytree(basePath, newPath)
+                shutil.copytree(base_path, new_path)
         else:
-                shutil.copytree(basePath, newPath)
-        self.pathes[keyPathes[0]] = basePath
-        self.pathes[keyPathes[1]] = newPath
-        self.namesCases[keyNames[0]] = os.path.basename(basePath)
-        self.namesCases[keyPathes[1]] = os.path.basename(newPath)
+                shutil.copytree(base_path, new_path)
+        self.paths[path_keys[0]] = base_path
+        self.paths[path_keys[1]] = new_path
+        self.names_cases[name_keys[0]] = os.path.basename(base_path)
+        self.names_cases[path_keys[1]] = os.path.basename(new_path)
 
-    def generatorNewName(self, *namesNewCase, baseNewName='', keyName='newName', splitter='_'):
+    def create_name(self, *case_names, name_base='', name_key='new', splitter='_'):
         """The function serves to create two variables of base and new case paths.
         The name of new case is generated by special algorithm realized in the fucntion.
         The name will be created by adding variables of the list namesNewCase to base case folder name. The variables
@@ -71,58 +86,58 @@ class Manipulations:
                     *namesNewCase is a number of variables, which will be added to name of new case
                     baseCase is the folder name of base case
                     splitter is the variables defending the for separation in folder name of new case """
-        for addName in namesNewCase:
-            baseNewName += splitter + str(addName)
+        for addName in case_names:
+            name_base += splitter + str(addName)
 
-        self.namesCases[keyName] = baseNewName
-        return self.namesCases[keyName]
+        self.names_cases[name_key] = name_base
+        return self.names_cases[name_key]
 
-    def createNewPath(self, dirmame=None, newCaseName=None, keyPath='newPath'):
-        """The function is used for creating new path
+    def create_path_dir(self, dirname=None, case_name=None, path_key='new'):
+        """The function creates the path using directory and name of case
         Variables
         dirname is the path of directory where new folder of case put
         newCaseName is the name of new case
 
         newPath is the path of new case
         """
-        self.pathes[keyPath] = os.path.join(dirmame, newCaseName)
-        return self.pathes[keyPath]
 
+        self.paths[path_key] = os.path.join(self.priority_path(dirname, path_key='dir'), case_name)
+        return self.paths[path_key]
 
-    def changePath(self, path, keyPath='newPath'):
+    def change_path(self, new_path: str, pat_key: str = 'newPath'):
         """The function is used for changing existent path by name
         Input variables
         path is new given path
         key is the name of variables of key for dictionary of addtionals pathes"""
-        if keyPath in self.pathes.keys():
-            self.pathes[keyPath] = path
+        if pat_key in self.paths.keys():
+            self.paths[pat_key] = new_path
         else:
             print('Error the key of path is not exist!')
 
-
-    def createYourPath(self, path, keyPath='testPath'):
+    def create_path(self, path, path_key='testPath'):
         """The function is used to create your own path
         The created path will be written into dictionary self.addtionaldictionary with key  = name
         Input path is path of your new given path
         name is the key of dictionary storaged all addtional pathes"""
-        self.pathes[keyPath] = path
+        self.paths[path_key] = path
 
 
-    def getPath(self, keyPath):
+    def get_path(self, path_key):
         """The methods gives back path acording givven name or key
         Input:
         key is the name of class variables consisting pathes or key of dictionary with pathes """
-        if keyPath in self.pathes.keys():
-            return self.pathes[keyPath]
-        else:
-            print('Error: The given name of key with pathes is not exist!')
 
-    def getName(self, keyName):
+        #self.check_path_key(path_key)
+        self.check_key(path_key, self.paths)
+        return self.paths[path_key]
+
+    def get_name(self, name_key):
         """The methods gives back path acording givven name or key
         Input:
         key is the name of class variables consisting pathes or key of dictionary with pathes """
-        if keyName in self.namesCases.keys():
-            return self.namesCases[keyName]
+        if name_key in self.names_cases.keys():
+            print(self.names_cases[name_key])
+            return self.names_cases[name_key]
         else:
             print('Error: The given name of key with pathes is not exist!')
 
@@ -142,7 +157,7 @@ class Manipulations:
                 sys.exit(f'Error: The new path {dirname} is not exist !!!')
 
 
-    def priorityPath(self, basePath, newPath):
+    def _priority_path(self, base_path, new_path):
         """The method is used for selection of given path
         the first priority is given path by methods
         the second priority is given path by class constructor
@@ -153,20 +168,20 @@ class Manipulations:
         retrunBasePath, returnNewPath is selected pathes acording priority
         """
 
-        if basePath == None:
-            if self.pathes['basePath'] != None:
-                retrunBasePath = self.pathes['basePath']
+        if base_path == None:
+            if self.paths['base'] != None:
+                retrunBasePath = self.paths['base']
             else:
                 sys.exit('Error: You do not enter the base path!!!')
         else:
-            retrunBasePath = basePath
+            retrunBasePath = base_path
 
-        if newPath == None:
-            if self.pathes['newPath'] != None:
-                returnNewPath = self.pathes['newPath']
+        if new_path == None:
+            if self.paths['new'] != None:
+                returnNewPath = self.paths['new']
             else:
                 sys.exit('Error: You do not enter the new path!!!')
         else:
-            returnNewPath = newPath
+            returnNewPath = new_path
 
         return retrunBasePath, returnNewPath

@@ -28,12 +28,12 @@ def main():
 
 def step1():
     generalPath= os.getcwd()
-    mc = Manipulations(basePath=basePathStep1)
-    mc.generatorNewName(prefixName, baseNewName=baseName1) #return name
-    newName = mc.getName('newName')
-    mc.createNewPath(dirmame=os.getcwd(), newCaseName=newName)
-    runPath = mc.getPath('newPath')
-    mc.dublicateCase(basePath=basePathStep1, newPath=runPath, mode='rewrite')
+    mc = Manipulations(base_path=basePathStep1)
+    mc.create_name(prefixName, name_base=baseName1)  #return name
+    newName = mc.get_name('newName')
+    mc.create_path_dir(dirname=os.getcwd(), case_name=newName)
+    runPath = mc.get_path('newPath')
+    mc.duplicate_case(base_path=basePathStep1, new_path=runPath, mode='rewrite')
 
     sc = SetSystem(pathCase=runPath)
     initialClass = InitialValue(pathCase=runPath)
@@ -53,11 +53,11 @@ def step1():
     meshClass.setBlockMesh(meshList)
     meshClass.runBlockMesh()
 
-    rc = Runner(pathCase=runPath)
+    rc = Runner(path_case=runPath)
     rc.setCoresOF(coreOF=coreOFstep1)
-    rc.setNameSolver(solverName=solverName1)
-    rc.setModeRunner(mode=modeStep1)
-    rc.setPyFoamSettings(pyFoam=False)
+    rc.set_solver_name()
+    rc.set_mode(mode=modeStep1)
+    rc.set_pyFoam_settings(pyFoam=False)
     rc.setDecomposeParDict(nameVar=nameCoreOF)
     rc.runCase()
 
@@ -67,14 +67,14 @@ def step1():
 
 def hartmann(oldPath):
     generalPath = os.getcwd()
-    mc = Manipulations(basePath=basePathStep2) # initialize manipulation class
-    mc.generatorNewName(prefixName2, baseNewName=baseName2)
-    newName = mc.getName('newName')
-    mc.createNewPath(dirmame=os.getcwd(), newCaseName=newName, keyPath='newPath')
-    mc.createNewPath(dirmame=os.getcwd(), newCaseName=oldPath, keyPath='oldPath')
-    runPath = mc.getPath('newPath')
-    oldPath = mc.getPath('oldPath')
-    mc.dublicateCase(basePath=basePathStep2, newPath=runPath, mode=modeManipul2)
+    mc = Manipulations(base_path=basePathStep2)  # initialize manipulation class
+    mc.create_name(prefixName2, name_base=baseName2)
+    newName = mc.get_name('newName')
+    mc.create_path_dir(dirname=os.getcwd(), case_name=newName, path_key='newPath')
+    mc.create_path_dir(dirname=os.getcwd(), case_name=oldPath, path_key='oldPath')
+    runPath = mc.get_path('newPath')
+    oldPath = mc.get_path('oldPath')
+    mc.duplicate_case(base_path=basePathStep2, new_path=runPath, mode=modeManipul2)
 
     # initialization all required classes
     sc = SetSystem(pathCase=runPath)
@@ -82,7 +82,7 @@ def hartmann(oldPath):
     initialClass = InitialValue(pathCase=runPath)
     meshClass = Mesh(pathCase=runPath)
     eClass = Elmer(pathCase=runPath, sifName='case.sif')
-    rc = Runner(pathCase=runPath)
+    rc = Runner(path_case=runPath)
 
 
     sc.setControlDict(controlDict2) # настраиваем controlDict
@@ -106,9 +106,9 @@ def hartmann(oldPath):
     eClass.setElmerVar(elmerDict) # Устанавливаем значения в sif файле
 
     rc.setCoresEOF(coreOF=coreOF2, coreElmer=coreElmer2, elmerMeshName=meshClass.elmerMeshName) # set core for Eler and OF
-    rc.setNameSolver(solverName=solverName)    # set name of solver
-    rc.setModeRunner(mode=mode2)                 # set mode to run
-    rc.setPyFoamSettings(pyFoam=False)          # set to run pyFoam
+    rc.set_solver_name()  # set name of solver
+    rc.set_mode(mode=mode2)  # set mode to run
+    rc.set_pyFoam_settings(pyFoam=False)          # set to run pyFoam
     rc.setDecomposeParDict(nameVar=varcoreOF)       # write core to decomposeParDict
 
     # write settings for mapFields
@@ -119,8 +119,8 @@ def hartmann(oldPath):
     # run mapFields
     initialClass.mapFieldsRun(check=True)
 
-    rc.decompose(True)
-    rc.decomposeElmer(True)
+    rc.decompose_OF(True)
+    rc.decompose_Elmer(True)
 
     rc.runCase()   # run case
     os.chdir(generalPath)
