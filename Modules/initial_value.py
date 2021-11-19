@@ -32,7 +32,7 @@ class InitialValue:
 
     def setVar(self, *varDict, nameFiels=['U', 'k'], pathCase=None):
         """Устанавливает значение перенных из словарей *varDict в файлах из списка nameFiels
-        в кейсе path_case"""
+        в кейсе var"""
         dictionary = self.priorityDictionary(varDict)
         path = self.priorityPath(pathCase)
 
@@ -231,10 +231,10 @@ class InitialValue:
             return varDict
 
     def priorityPath(self, pathCase):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
         Input :
         basePath, newPath is checkoing pathes
         Output:
@@ -245,16 +245,16 @@ class InitialValue:
             if self.pathCase != None:
                 return self.path
             else:
-                sys.exit('Error: You do not enter the base path!!!')
+                sys.exit('Error: You do not enter the base name!!!')
         else:
             return os.path.join(pathCase, '0')
 
 
     def priorityPathCase(self, pathCase):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
         Input :
         basePath, newPath is checkoing pathes
         Output:
@@ -265,7 +265,7 @@ class InitialValue:
             if self.pathCase != None:
                 return self.pathCase
             else:
-                sys.exit('Error: You do not enter the base path!!!')
+                sys.exit('Error: You do not enter the base name!!!')
         else:
             return os.path.join(pathCase)
 

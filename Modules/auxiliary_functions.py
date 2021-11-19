@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+import traceback
 
 
 def change_var_fun(dist_var, sour_var, nameFile=''):
@@ -91,6 +92,9 @@ class AddtionalFun:
 
 
 class Priority:
+    """The class is designed to chose priority between some objects
+
+    """
 
     def __init__(self, names_cases=None, paths=None, sif_name='.sif', file=None):
         self.paths = paths
@@ -98,65 +102,148 @@ class Priority:
         self.sifName = sif_name
         self.file = file
 
-    def priority_path(self, path_case, path_key=''):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
+    @staticmethod
+    def variable(var, key, where):
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
         Input :
         basePath, newPath is checkoing pathes
         Output:
         retrun BasePath, returnNewPath is selected pathes acording priority
         """
-        if path_case is None:
-            if self.paths[path_key] is not None:
-                return self.paths[path_key]
-            else:
-                #sys.exit('Error: You do not enter the name of the sif file!!!')
-                raise SystemExit(f'Error: You do not set {path_key} path!!!')
-        else:
-            return path_case
 
-    def priority_path(self, path_case, path_key=''):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
-        Input :
-        basePath, newPath is checkoing pathes
-        Output:
-        retrun BasePath, returnNewPath is selected pathes acording priority
-        """
-        if path_case is None:
-            if self.paths[path_key] is not None:
-                return self.paths[path_key]
+        if var is None:
+            if type(where) is dict:
+                if where[key] is not None:
+                    return where[key]
+                else:
+                    error_message = f''' 
+                    ------------------------------------------
+                    You did not specify either in the object or 
+                    in the method.
+                    Above information can help you find where is it.
+                    ------------------------------------------
+                    '''
+                    print(repr(traceback.format_stack()))
+                    raise SystemExit(error_message)
             else:
-                #sys.exit('Error: You do not enter the name of the sif file!!!')
-                raise SystemExit(f'Error: You do not set {path_key} path!!!')
+                if where is not None:
+                    return where
+                else:
+                    error_message = f''' 
+                    ------------------------------------------
+                    You did not specify either in the object or 
+                    in the method.
+                    Above information can help you find where is it.
+                    ------------------------------------------
+                    '''
+                    print(repr(traceback.format_stack()))
+                    raise SystemExit(error_message)
         else:
-            return path_case
-
-    def check_path_key(self, key):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
-        Input :
-        basePath, newPath is checkoing pathes
-        Output:
-        retrun BasePath, returnNewPath is selected pathes acording priority
-        """
-        if key in self.paths.keys():
-            pass
-        else:
-            raise SystemExit(f'You write wrong key!!!')
+            return var
 
     @staticmethod
-    def check_key(self, key, where):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
+    def path(path_case, path_key, where):
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
+        Input :
+        basePath, newPath is checkoing pathes
+        Output:
+        retrun BasePath, returnNewPath is selected pathes acording priority
+        """
+        if path_case is None:
+            if where[path_key] is not None:
+                return where[path_key]
+            else:
+                error_message = f''' 
+                ------------------------------------------
+                You did not specify either in the object or 
+                in the method.
+                Above information can help you find where is it.
+                ------------------------------------------
+                '''
+                print(repr(traceback.format_stack()))
+                raise SystemExit(error_message)
+        else:
+            return path_case
+    @staticmethod
+    def path2(path_case, path_key, where):
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
+        Input :
+        basePath, newPath is checkoing pathes
+        Output:
+        retrun BasePath, returnNewPath is selected pathes acording priority
+        """
+        if path_case is None:
+            if type(where) is dict:
+                if path_case[path_key] is not None:
+                    return path_case[path_key]
+                else:
+                    error_message = f''' 
+                    ------------------------------------------
+                    You did not specify either in the object or 
+                    in the method.
+                    Above information can help you find where is it.
+                    ------------------------------------------
+                    '''
+                    print(repr(traceback.format_stack()))
+                    raise SystemExit(error_message)
+            else:
+                if where is not None:
+                    return where
+                else:
+                    error_message = f''' 
+                    ------------------------------------------
+                    You did not specify either in the object or 
+                    in the method.
+                    Above information can help you find where is it.
+                    ------------------------------------------
+                    '''
+                    print(repr(traceback.format_stack()))
+                    raise SystemExit(error_message)
+        else:
+            return path_case
+
+    @staticmethod
+    def name(name,name_key, where):
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
+        Input :
+        basePath, newPath is checkoing pathes
+        Output:
+        retrun BasePath, returnNewPath is selected pathes acording priority
+        """
+        if name is None:
+            if where[name_key] is not None:
+                return where[name_key]
+            else:
+                error_message = f''' 
+                ------------------------------------------
+                You did not specify either in the object or 
+                in the method.
+                Above information can help you find where is it.
+                ------------------------------------------
+                '''
+                print(repr(traceback.format_stack()))
+                raise SystemExit(error_message)
+        else:
+            return name
+
+    @staticmethod
+    def check_key(key, where):
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
         Input :
         basePath, newPath is checkoing pathes
         Output:
@@ -165,31 +252,148 @@ class Priority:
         if key in where:
             pass
         else:
-            raise SystemExit(f'You write wrong key!!!')
+            error_message = f''' 
+            ------------------------------------------
+            You write wrong key {key}. Please check it.
+            Above information can help you find where is it.
+            ------------------------------------------
+            '''
+            print(repr(traceback.format_stack()))
+            raise SystemExit(error_message)
 
-    def priority_name(self, case_name, name_key=''):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
+    @staticmethod
+    def check_name(name, where):
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
         Input :
         basePath, newPath is checkoing pathes
         Output:
         retrun BasePath, returnNewPath is selected pathes acording priority
         """
-        if case_name is None:
-            if self.paths is not None:
-                return self.names_cases[name_key]
-            else:
-                sys.exit('Error: You do not enter the base path!!!')
+        if name in where:
+            pass
         else:
-            return case_name
+            error_message = f''' 
+                ------------------------------------------
+                You write wrong name {name}. Please check it.
+                Above information can help you find where is it.
+                ------------------------------------------
+                '''
+            print(repr(traceback.format_stack()))
+            raise SystemExit(error_message)
+
+    @staticmethod
+    def check_key_path(path, key, where):
+        if path is None:
+            if key is None:
+                error_message = f''' 
+                ------------------------------------------
+                You have set neither the name nor the key to the name. 
+                Above information can help you find where is it.
+                ------------------------------------------
+                '''
+                print(repr(traceback.format_stack()))
+                raise SystemExit(error_message)
+            else:
+                return where[key]
+        else:
+            return path
+
+    @staticmethod
+    def check_key_name(name, key, where):
+        if name is None:
+            if key is None:
+                error_message = f''' 
+                    ------------------------------------------
+                    You have set neither the name nor the key to the name. 
+                    Above information can help you find where is it.
+                    ------------------------------------------
+                    '''
+                print(repr(traceback.format_stack()))
+                raise SystemExit(error_message)
+            else:
+                return where[key]
+        else:
+            return name
+
+    @staticmethod
+    def check_path_existence(check_path, make_new=False):
+        """The method supports to find out existing gotten pathes
+        If one of the gotten pathes is not exist, program is interupted
+        """
+
+        if os.path.exists(check_path):
+            return check_path
+        else:
+            dir_path, case_name = os.path.split(check_path)
+            if os.path.exists(dir_path):
+                if make_new is True:
+                    os.mkdir(case_name)
+                    return check_path
+                else:
+                    error_message = f''' 
+                    ------------------------------------------
+                    Your name {check_path} and is not exist! But directory 
+                    {dir_path} is exist! You can create folder {case_name} 
+                    yourself or set flag make_new as True to make the Folder
+                    by the script with name {case_name}! 
+                    Above information can help you find where is it.
+                    ------------------------------------------
+                    '''
+                    print(repr(traceback.format_stack()))
+                    raise SystemExit(error_message)
+            else:
+                error_message = f''' 
+                ------------------------------------------
+                The given name is not exist and directory {dir_path}
+                of the folder {case_name} is not exist as well.  
+                Above information can help you find where is it.
+                ------------------------------------------
+                '''
+                print(repr(traceback.format_stack()))
+                raise SystemExit(error_message)
+
+    @staticmethod
+    def check_path_existence_only(check_path):
+        """The method supports to find out existing gotten pathes
+        If one of the gotten pathes is not exist, program is interupted
+        """
+
+        if os.path.exists(check_path):
+            return 'full'
+        else:
+            dir_path, case_name = os.path.split(check_path)
+            if os.path.exists(dir_path):
+                return 'dir'
+            else:
+                error_message = f''' 
+                    ------------------------------------------
+                    The given name is not exist and directory {dir_path}
+                    of the folder {case_name} is not exist as well.  
+                    Above information can help you find where is it.
+                    ------------------------------------------
+                    '''
+                print(repr(traceback.format_stack()))
+                raise SystemExit(error_message)
+    @staticmethod
+    def error_create_folder():
+        error_message = f''' 
+        ------------------------------------------
+        The folder is already exist and your moder 
+        of writing is available to make copy.
+        Above information can help you find where is it.
+        ------------------------------------------
+        '''
+        print(repr(traceback.format_stack()))
+        raise SystemExit(error_message)
 
     def file(self, file):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
         Input :
         basePath, newPath is checkoing pathes
         Output:
@@ -204,10 +408,10 @@ class Priority:
             return file
 
     def sif_file(self, sif_file):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
         Input :
         basePath, newPath is checkoing pathes
         Output:
@@ -220,11 +424,11 @@ class Priority:
                 sys.exit('Error: You do not enter the name of the sif file!!!')
         else:
             return sif_file
-
-    def _priority_cores(self, core_OF):
+    @staticmethod
+    def cores(core_OF, where):
         if core_OF is None:
-            if self.core_OF is not None:
-                return self.core_OF
+            if where is not None:
+                return where
             else:
                 sys.exit('You have to set numbers of cores for OpenFOAM')
         else:

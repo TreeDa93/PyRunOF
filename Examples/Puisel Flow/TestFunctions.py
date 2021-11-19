@@ -81,7 +81,7 @@ if __name__ == "__main__":
     newName = manipulationClass.get_name('newName')
     manipulationClass.create_path_dir(dirname=os.getcwd(), case_name=newName)
     newPath = manipulationClass.get_path('newPath')
-    manipulationClass.duplicate_case(base_path=basePath, new_path=newPath, mode='rewrite')
+    manipulationClass.duplicate_case(src_path=basePath, dist_path=newPath, mode='rewrite')
 
 
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
 ###tests
     #initValueClass.setVarAllFiles()  # test
     #initValueClass.setVar(constDictVar, newDict)
-    #initValueClass.setVar(constDictVar, newDict, nameFiels=['U', 'k'], path_case=newPath)
+    #initValueClass.setVar(constDictVar, newDict, nameFiels=['U', 'k'], var=newPath)
  ######
 
     constantClass = SetConstantParam(pathCase=newPath)

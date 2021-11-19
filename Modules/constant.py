@@ -21,7 +21,7 @@ class SetConstantParam:
 
     def set_transportProp(self, *lists):
         """The function sets given variables to transportProperties file
-        patheNewCase is the path where transportProperties will be modificated
+        patheNewCase is the name where transportProperties will be modificated
         lists are a number of dictionaries with keys, which called as name of variables to transportProperties,
         and values"""
         os.chdir(self.path)
@@ -33,7 +33,7 @@ class SetConstantParam:
         """"The fucntion serves to set required turbulent model for solving task. For this purpose, one of list
           of wrriten files with given settings will be renamed into turbulenceProperties to system folder of adjusted case
         acording required type of rubulence model
-        path_new_case is the path of the new case
+        path_new_case is the name of the new case
         typeTurbModel is variables definding type of turbulence model
                 LES
                 kEpsilon
@@ -59,7 +59,7 @@ class SetConstantParam:
         """"The fucntion serves to set required turbulent model for solving task. For this purpose, one of list
           of wrriten files with given settings will be renamed into turbulenceProperties to system folder of adjusted case
         acording required type of rubulence model
-        path_new_case is the path of the new case
+        path_new_case is the name of the new case
         typeTurbModel is variables definding type of turbulence model
                 LES
                 kEpsilon
@@ -93,7 +93,7 @@ class SetConstantParam:
                       nameFileNew='turbulenceProperties')
 
     def setAnyConstantFiles(self, *lists_var, files=['controlDict'], path_case=None):
-        """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
+        """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
 
         path = self._priority_path(path_case)
         os.chdir(path)
@@ -103,10 +103,10 @@ class SetConstantParam:
                     change_var_fun(var, list_var[var], nameFile=file)
 
     def _priority_path(self, path_case):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
         Input :
         basePath, newPath is checkoing pathes
         Output:
@@ -117,6 +117,6 @@ class SetConstantParam:
             if self.pathCase is not None:
                 return self.path
             else:
-                sys.exit('Error: You do not enter the base path!!!')
+                sys.exit('Error: You do not enter the base name!!!')
         else:
             return os.path.join(path_case, 'constant')

@@ -10,7 +10,7 @@ class Mesh:
     """
 
     def __init__(self, pathCase=None):
-        """PathCase is path where the class will be doing any manipulation"""
+        """PathCase is name where the class will be doing any manipulation"""
         self.pathCase = pathCase
         if pathCase == None:
             self.path = None
@@ -55,10 +55,10 @@ class Mesh:
             change_var_fun(keys, meshList[keys], nameFile=f'{self.elmerMeshName}.geo')
 
     def priorityPath(self, pathCase):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
         Input :
         basePath, newPath is checkoing pathes
         Output:
@@ -68,15 +68,15 @@ class Mesh:
             if self.pathCase != None:
                 return self.path
             else:
-                sys.exit('Error: You do not enter the base path!!!')
+                sys.exit('Error: You do not enter the base name!!!')
         else:
             return os.path.join(pathCase, 'system')
 
     def priorityPath2(self, pathCase):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
         Input :
         basePath, newPath is checkoing pathes
         Output:
@@ -86,6 +86,6 @@ class Mesh:
             if self.pathCase != None:
                 return self.pathCase
             else:
-                sys.exit('Error: You do not enter the base path!!!')
+                sys.exit('Error: You do not enter the base name!!!')
         else:
             return pathCase

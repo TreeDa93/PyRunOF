@@ -1,5 +1,5 @@
 import sys # import library
-libpath = '/home/ivan/mySolvers/pyFoamRun/' #write path to pyRunOF library
+libpath = '/home/ivan/mySolvers/pyFoamRun/' #write name to pyRunOF library
 sys.path.append(libpath)  # add the library into system pathes
 /home/ivan/mySolvers/pyFoamRun/step1_solved
 from data import * # import variables from data
@@ -33,7 +33,7 @@ def step1():
     newName = mc.get_name('newName')
     mc.create_path_dir(dirname=os.getcwd(), case_name=newName)
     runPath = mc.get_path('newPath')
-    mc.duplicate_case(base_path=basePathStep1, new_path=runPath, mode='rewrite')
+    mc.duplicate_case(src_path=basePathStep1, dist_path=runPath, mode='rewrite')
 
     sc = SetSystem(pathCase=runPath)
     sc.setControlDict(controlDict)
@@ -72,7 +72,7 @@ def step2(oldPath):
     mc.create_path_dir(dirname=os.getcwd(), case_name=oldPath, path_key='oldPath')
     runPath = mc.get_path('newPath')
     oldPath = mc.get_path('oldPath')
-    mc.duplicate_case(base_path=basePathStep2, new_path=runPath, mode=modeManipul2)
+    mc.duplicate_case(src_path=basePathStep2, dist_path=runPath, mode=modeManipul2)
 
     sc = SetSystem(pathCase=runPath)
     sc.setControlDict(controlDict)

@@ -20,7 +20,7 @@ if __name__ == "__main__":
     newName = mc.get_name('newName')
     mc.create_path_dir(dirname=os.getcwd(), case_name=newName)
     newPath = mc.get_path('newPath')
-    mc.duplicate_case(base_path=basePath, new_path=newPath, mode='rewrite')
+    mc.duplicate_case(src_path=basePath, dist_path=newPath, mode='rewrite')
 
 
     sc = SetSystem(pathCase=newPath)
