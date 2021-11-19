@@ -151,6 +151,7 @@ class Priority:
         else:
             raise SystemExit(f'You write wrong key!!!')
 
+    @staticmethod
     def check_key(self, key, where):
         """The method is used for selection of given path
         the first priority is given path by methods
