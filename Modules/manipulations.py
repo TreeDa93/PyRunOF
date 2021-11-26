@@ -13,18 +13,18 @@ class Manipulations:
     paths is the dictionary consist of paths
     case_names is the dictionary of names of cases
 
-    run_path is the path for key 'run
+    run_path is the system_path for key 'run
     new_path is
     name is the name of the class
 
     methods:
     duplicate_case is the function make copy or duplicate ot existing folder
     create_name is the function to create new name of case in self.case_names
-    create_path_dir is the function creating path from director and folder
+    create_path_dir is the function creating system_path from director and folder
                         name in self.paths
-    create_path is the method to create new path in self.paths
-    change_path is the function serving to change existing path in self.path
-    get_path is the function to get path by key
+    create_path is the method to create new system_path in self.paths
+    change_path is the function serving to change existing system_path in self.system_path
+    get_path is the function to get system_path by key
     get_name is the function to get name by key
     create_folder is function create new folder
     """

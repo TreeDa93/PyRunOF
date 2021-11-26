@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
 
 
-    systemClass = SetSystem(pathCase=newPath)
+    systemClass = SetSystem()
     systemClass.setControlDict(controlDict)
     systemClass.setfvSolution(controlDict) #test method
     systemClass.setfvSchemes(controlDict) #test method

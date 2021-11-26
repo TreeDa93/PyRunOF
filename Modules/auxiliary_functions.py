@@ -49,7 +49,7 @@ def copyFiele(root_src_dir, root_dst_dir, nameFilesOld='', nameFileNew=''):
     shutil.copy2(src_file, dst_file)
 
 
-class AddtionalFun:
+class Files:
     """
     Discription of class
     FIXME
@@ -73,22 +73,44 @@ class AddtionalFun:
     def __init__(self):
         pass
 
-    def change_text(self, dist_var, sour_var, name_file=''):
+    @staticmethod
+    def change_var_fun(dist_var, sour_var, case_path=None, file_name=''):
         """Function to find and replace required text part at given file
-        dist_var is the depicts finding variables
-        sour_var depicts replacing variables
-        nameFile is the name of file where the procedure will be done
+                dist_var is the depicts finding variables
+                sour_var depicts replacing variables
+                nameFile is the name of file where the procedure will be done
 
         """
-
-        if os.path.isfile(dist_var):
-            with open(sour_var, 'r') as f:
+        path = os.path.join(case_path, file_name)
+        if os.path.isfile(path):
+            with open(path, 'r') as f:
                 oldData = f.read()
             newData = oldData.replace(str(dist_var), str(sour_var))
-            with open(name_file, 'w') as f:
+            with open(path, 'w') as f:
                 f.write(newData)
         else:
-            print(f'Warning: The file {name_file} is not exist!')
+            print(f'Warning: The file {file_name} is not exist!')
+
+    @staticmethod
+    def change_text_line(var_name, var_value, var_excl_name, path=None, file_name=''):
+        path = os.path.join(path, file_name)
+        new_data = ''
+        with open(path, 'r') as f1:
+            for line in f1:
+                if (var_name in line) and (var_excl_name not in line):
+                    new_line = f'{var_name} \t\t {var_value}; \n'
+                    new_data += new_line
+                    print(new_line)
+                else:
+                    new_data+=line
+        with open(path, 'w') as f:
+            f.write(new_data)
+
+
+
+
+
+
 
 
 class Priority:
