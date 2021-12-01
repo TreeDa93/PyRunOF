@@ -5,9 +5,9 @@ sys.path.append(modulesPath)
 from Modules.manipulations import Manipulations
 from Modules.run import Runner
 from Modules.meshes import Mesh
-from Modules.set_system import SetSystem
+from Modules.set_system import System
 from Modules.initial_value import InitialValue
-from Modules.constant import SetConstantParam
+from Modules.constant import Constant
 
 
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
 
 
-    systemClass = SetSystem()
+    systemClass = System()
     systemClass.setControlDict(controlDict)
     systemClass.setfvSolution(controlDict) #test method
     systemClass.setfvSchemes(controlDict) #test method
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     #initValueClass.setVar(constDictVar, newDict, nameFiels=['U', 'k'], var=newPath)
  ######
 
-    constantClass = SetConstantParam(pathCase=newPath)
+    constantClass = Constant(pathCase=newPath)
     constantClass.set_transportProp(tranPropDict)
     constantClass.setTurbModel(typeTurbModel='kEpsilon')
 

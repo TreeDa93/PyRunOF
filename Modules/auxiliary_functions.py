@@ -74,14 +74,14 @@ class Files:
         pass
 
     @staticmethod
-    def change_var_fun(dist_var, sour_var, case_path=None, file_name=''):
+    def change_var_fun(dist_var, sour_var, path=None, file_name=''):
         """Function to find and replace required text part at given file
                 dist_var is the depicts finding variables
                 sour_var depicts replacing variables
                 nameFile is the name of file where the procedure will be done
 
         """
-        path = os.path.join(case_path, file_name)
+        path = os.path.join(path, file_name)
         if os.path.isfile(path):
             with open(path, 'r') as f:
                 oldData = f.read()
@@ -92,7 +92,11 @@ class Files:
             print(f'Warning: The file {file_name} is not exist!')
 
     @staticmethod
-    def change_text_line(var_name, var_value, var_excl_name, path=None, file_name=''):
+    def change_text_line(var_value, var_name, var_excl_name, path=None, file_name=''):
+        """ The function is served to find the variable named var_name in th file_name
+        which has directory path. If the variable has been founded and
+        variable var_excl_name does not exist in the line then the value of the variable
+        is changed by var_value"""
         path = os.path.join(path, file_name)
         new_data = ''
         with open(path, 'r') as f1:
@@ -105,12 +109,6 @@ class Files:
                     new_data+=line
         with open(path, 'w') as f:
             f.write(new_data)
-
-
-
-
-
-
 
 
 class Priority:

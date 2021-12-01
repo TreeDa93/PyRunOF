@@ -5,9 +5,9 @@ sys.path.append(libpath)
 from Modules.manipulations import Manipulations
 from Modules.run import Runner
 from Modules.meshes import Mesh
-from Modules.set_system import SetSystem
+from Modules.set_system import System
 from Modules.initial_value import InitialValue
-from Modules.constant import SetConstantParam
+from Modules.constant import Constant
 
 
 from data import *
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     mc.duplicate_case(src_path=basePath, dist_path=newPath, mode='rewrite')
 
 
-    sc = SetSystem()
+    sc = System()
     sc.setControlDict(controlDict)
 
 
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     ic.setVarAllFiles(constDictVar, newDict)
 
 
-    cc = SetConstantParam(pathCase=newPath)
+    cc = Constant(pathCase=newPath)
     cc.set_transportProp(tranPropDict)
     cc.setTurbModel(typeTurbModel='kEpsilon')
 

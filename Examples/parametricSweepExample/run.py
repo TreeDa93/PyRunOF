@@ -7,9 +7,9 @@ from data import * # import variables from data
 # add require modules from pyRunOF library
 from Modules.manipulations import Manipulations
 from Modules.meshes import Mesh
-from Modules.set_system import SetSystem
+from Modules.set_system import System
 from Modules.initial_value import IntiailValue
-from Modules.constant import SetConstantParam
+from Modules.constant import Constant
 from Modules.run import Runner
 from Modules.parametric_sweep import ParametricSweep
 
@@ -40,14 +40,14 @@ def step1(name):
     runPath = mc.get_path('newPath')
     mc.duplicate_case(src_path=basePathStep1, dist_path=runPath, mode='rewrite')
 
-    sc = SetSystem()
+    sc = System()
     sc.setControlDict(controlDict)
 
     initialClass = IntiailValue(pathCase=runPath)
     initialDictCalculated= initialClass.calcInitVal(A, B, Uin, nu)
     initialClass.setVarAllFiels(initialDictConst, initialDictCalculated)
 
-    cpClass = SetConstantParam(pathCase=runPath)
+    cpClass = Constant(pathCase=runPath)
     cpClass.setTurbModel(turbType)
     cpClass.setTransportProp(tranPropDict)
 

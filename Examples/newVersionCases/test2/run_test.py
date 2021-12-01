@@ -4,7 +4,7 @@ import os
 libpath = '/home/ivan/PyRunOF'
 sys.path.append(libpath)  # add the library into system pathes
 from Modules.manipulations import Manipulations
-from Modules.set_system import SetSystem
+from Modules.set_system import System
 from Modules.run import Run
 
 
@@ -20,7 +20,7 @@ def main():
 
     #sc = SetSystem(case_path=mc.get_path('run'))
     #sc.set_control_dict({'end_time_var': 5})
-    sc2 = SetSystem()
+    sc2 = System()
     sc2.set_control_dict_test({'endTime': 25}, case_path=mc.get_path('run'))
 
     run = Run(name='my_test', path_case=mc.get_path('run'),

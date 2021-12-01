@@ -7,9 +7,9 @@ from dataLES import * # import variables from data
 # add require modules from pyRunOF library
 from Modules.manipulations import Manipulations
 from Modules.meshes import Mesh
-from Modules.set_system import SetSystem
+from Modules.set_system import System
 from Modules.initial_value import InitialValue
-from Modules.constant import SetConstantParam
+from Modules.constant import Constant
 from Modules.run import Runner
 from Modules.elmer import Elmer
 
@@ -35,9 +35,9 @@ def step1():
     runPath = mc.get_path('newPath')
     mc.duplicate_case(src_path=basePathStep1, dist_path=runPath, mode='rewrite')
 
-    sc = SetSystem()
+    sc = System()
     initialClass = InitialValue(pathCase=runPath)
-    cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
+    cpClass = Constant(pathCase=runPath, pathLib=libpath)
     meshClass = Mesh(case_path=runPath)
 
 
@@ -77,8 +77,8 @@ def hartmann(oldPath):
     mc.duplicate_case(src_path=basePathStep2, dist_path=runPath, mode=modeManipul2)
 
     # initialization all required classes
-    sc = SetSystem()
-    cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
+    sc = System()
+    cpClass = Constant(pathCase=runPath, pathLib=libpath)
     initialClass = InitialValue(pathCase=runPath)
     meshClass = Mesh(case_path=runPath)
     eClass = Elmer(pathCase=runPath, sifName='case.sif')
@@ -91,7 +91,7 @@ def hartmann(oldPath):
 
     meshClass.set_blockMesh(meshList)   # настраиваем BlockMeshDict
     meshClass.run_blockMesh()             # запускаем BlockMesh
-    meshClass.settingsElmerMesh(elmerMeshDict, pathCase=None, elmerMeshName='Elmer_EOF')
+    meshClass.set_gMesh(elmerMeshDict, case_path=None, mesh_name='Elmer_EOF')
     meshClass.run_gMesh_to_Elmer()
 
     initialDictCalculated= initialClass.calcInitVal(A, B, Uin, nu)
@@ -105,7 +105,7 @@ def hartmann(oldPath):
 
     eClass.setElmerVar(elmerDict) # Устанавливаем значения в sif файле
 
-    rc.setCoresEOF(coreOF=coreOF2, coreElmer=coreElmer2, elmerMeshName=meshClass.elmerMeshName) # set core for Eler and OF
+    rc.setCoresEOF(coreOF=coreOF2, coreElmer=coreElmer2, elmerMeshName=meshClass.elmer_mesh_name) # set core for Eler and OF
     rc.set_solver_name()  # set name of solver
     rc.set_mode(mode=mode2)  # set mode to run
     rc.set_pyFoam_settings(pyFoam=False)          # set to run pyFoam

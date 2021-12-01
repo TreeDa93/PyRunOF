@@ -3,7 +3,7 @@ import sys
 from Modules.auxiliary_functions import change_var_fun, copyFiele
 
 
-class SetConstantParam:
+class Constant:
     """
         FIXME
 
