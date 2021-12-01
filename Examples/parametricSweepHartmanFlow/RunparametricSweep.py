@@ -7,9 +7,9 @@ from data import * # import variables from data
 # add require modules from pyRunOF library
 from Modules.manipulations import Manipulations
 from Modules.meshes import Mesh
-from Modules.set_system import SetSystem
+from Modules.set_system import System
 from Modules.initial_value import IntiailValue
-from Modules.constant import SetConstantParam
+from Modules.constant import Constant
 from Modules.run import Runner
 from Modules.elmer import Elmer
 from Modules.parametric_sweep import ParametricSweep
@@ -38,10 +38,10 @@ def developedFlow(name):
     runPath = mc.get_path('newPath')
     mc.duplicate_case(src_path=basePathStep1, dist_path=runPath, mode='rewrite')
 
-    sc = SetSystem()
+    sc = System()
     initialClass = IntiailValue(pathCase=runPath)
-    cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
-    meshClass = Mesh(pathCase=runPath)
+    cpClass = Constant(pathCase=runPath, pathLib=libpath)
+    meshClass = Mesh(case_path=runPath)
 
 
     sc.setControlDict(controlDict1)
@@ -53,8 +53,8 @@ def developedFlow(name):
     cpClass.setTransportProp(tranPropDict)
 
 
-    meshClass.setBlockMesh(meshList)
-    meshClass.runBlockMesh()
+    meshClass.set_blockMesh(meshList)
+    meshClass.run_blockMesh()
 
     rc = Runner(path_case=runPath)
     rc.setCoresOF(coreOF=coreOFstep1)
@@ -80,10 +80,10 @@ def hartmann(oldPath, name):
     mc.duplicate_case(src_path=basePathStep2, dist_path=runPath, mode=modeManipul2)
 
     # initialization all required classes
-    sc = SetSystem()
-    cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
+    sc = System()
+    cpClass = Constant(pathCase=runPath, pathLib=libpath)
     initialClass = IntiailValue(pathCase=runPath)
-    meshClass = Mesh(pathCase=runPath)
+    meshClass = Mesh(case_path=runPath)
     eClass = Elmer(pathCase=runPath, sifName='case.sif')
     rc = Runner(path_case=runPath)
 
@@ -92,10 +92,10 @@ def hartmann(oldPath, name):
     cpClass.setTurbModel2(turbType1)  # настраиваем модель турбулентности
     cpClass.setTransportProp(tranPropDict)  # настраиваем transportProperties in constant
 
-    meshClass.setBlockMesh(meshList)   # настраиваем BlockMeshDict
-    meshClass.runBlockMesh()             # запускаем BlockMesh
-    meshClass.settingsElmerMesh(elmerMeshDict, pathCase=None, elmerMeshName='Elmer_EOF')
-    meshClass.runElmerMesh()
+    meshClass.set_blockMesh(meshList)   # настраиваем BlockMeshDict
+    meshClass.run_blockMesh()             # запускаем BlockMesh
+    meshClass.set_gMesh(elmerMeshDict, case_path=None, mesh_name='Elmer_EOF')
+    meshClass.run_gMesh_to_Elmer()
 
     # устанавиваем настрйоки источника и назначение кейсов
     initialClass.setMappSettings(sourcePath=oldPath, distPath=runPath, source='0.25', dist='0')
@@ -106,7 +106,7 @@ def hartmann(oldPath, name):
 
     eClass.setElmerVar(elmerDict) # Устанавливаем значения в sif файле
 
-    rc.setCoresEOF(coreOF=coreOF2, coreElmer=coreElmer2, elmerMeshName=meshClass.elmerMeshName) # set core for Eler and OF
+    rc.setCoresEOF(coreOF=coreOF2, coreElmer=coreElmer2, elmerMeshName=meshClass.elmer_mesh_name) # set core for Eler and OF
     rc.set_solver_name()  # set name of solver
     rc.set_mode(mode=mode2)  # set mode to run
     rc.set_pyFoam_settings(pyFoam=False)          # set to run pyFoam

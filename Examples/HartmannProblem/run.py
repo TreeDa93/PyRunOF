@@ -7,9 +7,9 @@ from data import * # import variables from data
 # add require modules from pyRunOF library
 from Modules.manipulations import Manipulations
 from Modules.meshes import Mesh
-from Modules.set_system import SetSystem
+from Modules.set_system import System
 from Modules.initial_value import InitialValue
-from Modules.constant import SetConstantParam
+from Modules.constant import Constant
 from Modules.run import Run
 
 def main():
@@ -35,20 +35,20 @@ def step1():
     runPath = mc.get_path('newPath')
     mc.duplicate_case(src_path=basePathStep1, dist_path=runPath, mode='rewrite')
 
-    sc = SetSystem()
+    sc = System()
     sc.setControlDict(controlDict)
 
     initialClass = InitialValue(pathCase=runPath)
     initialDictCalculated= initialClass.calcInitVal(A, B, Uin, nu)
     initialClass.setVarAllFiles(initialDictConst, initialDictCalculated)
 
-    cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
+    cpClass = Constant(pathCase=runPath, pathLib=libpath)
     cpClass.setTurbModel2(turbType1)
     cpClass.set_transportProp(tranPropDict)
 
-    meshClass = Mesh(pathCase=runPath)
-    meshClass.setBlockMesh(meshList)
-    meshClass.runBlockMesh()
+    meshClass = Mesh(case_path=runPath)
+    meshClass.set_blockMesh(meshList)
+    meshClass.run_blockMesh()
 
     rc = Runner(path_case=runPath)
     rc.setCoresOF(coreOF=coreOFstep1)
@@ -74,7 +74,7 @@ def step2(oldPath):
     oldPath = mc.get_path('oldPath')
     mc.duplicate_case(src_path=basePathStep2, dist_path=runPath, mode=modeManipul2)
 
-    sc = SetSystem()
+    sc = System()
     sc.setControlDict(controlDict)
 
     initialClass = InitialValue(pathCase=runPath)
@@ -84,14 +84,14 @@ def step2(oldPath):
     initialClass.reconstruct(oldPath)
     initialClass.setMappValues()
 
-    cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
+    cpClass = Constant(pathCase=runPath, pathLib=libpath)
     cpClass.setTurbModel2(turbType1)
     cpClass.set_transportProp(tranPropDict)
 
 
-    meshClass = Mesh(pathCase=runPath)
-    meshClass.setBlockMesh(meshList)
-    meshClass.runBlockMesh()
+    meshClass = Mesh(case_path=runPath)
+    meshClass.set_blockMesh(meshList)
+    meshClass.run_blockMesh()
 
     rc = Runner(path_case=runPath)
     rc.setCoresOF(coreOF=coreOF)

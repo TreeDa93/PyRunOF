@@ -5,9 +5,9 @@ sys.path.append(libpath)
 from Modules.manipulations import Manipulations
 from Modules.run import Runner
 from Modules.meshes import Mesh
-from Modules.set_system import SetSystem
+from Modules.set_system import System
 from Modules.initial_value import InitialValue
-from Modules.constant import SetConstantParam
+from Modules.constant import Constant
 
 
 from data import *
@@ -23,17 +23,17 @@ if __name__ == "__main__":
     mc.duplicate_case(src_path=basePath, dist_path=runPath, mode='rewrite')
 
 
-    sc = SetSystem()
+    sc = System()
     sc.setControlDict(controlDict)
 
 
-    Mesh().runBlockMesh(pathCase=runPath)
+    Mesh().run_blockMesh(case_path=runPath)
 
 
     ic = InitialValue(pathCase=runPath)
     ic.setVarAllFiles(constDictVar)
 
-    cc = SetConstantParam(pathCase=runPath)
+    cc = Constant(pathCase=runPath)
     cc.set_transportProp(tranPropDict)   # write viscosity in transportProperies
 
 
