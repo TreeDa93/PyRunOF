@@ -23,7 +23,7 @@ if __name__ == "__main__":
     mc.duplicate_case(src_path=basePath, dist_path=runPath, mode='rewrite')
 
 
-    sc = SetSystem(pathCase=runPath)
+    sc = SetSystem()
     sc.setControlDict(controlDict)
 
 

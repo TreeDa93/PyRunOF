@@ -1,17 +1,17 @@
-import sys # import library
+import sys  # import library
 import os
-#libpath = 'C:\\Users\\Ivan\\science\\works\\PyFoam\\PyRunOF' #write name to pyRunOF library
-libpath = '/home/ivan/PyRunOF'
-sys.path.append(libpath)  # add the library into system pathes
 from Modules.manipulations import Manipulations
 from Modules.run import Run
+# libpath = 'C:\\Users\\Ivan\\science\\works\\PyFoam\\PyRunOF' #write name to pyRunOF library
+libpath = '/home/ivan/PyRunOF'
+sys.path.append(libpath)  # add the library into system pathes
 
 
 def main():
     mc = Manipulations(dir_path=os.getcwd())
     mc.create_name('run', name_base='run_case', name_key='run', only_base=True)
     mc.create_name('base', name_base='pitzDaily', name_key='base', only_base=True)
-    run_path = mc.create_path_dir(dir_path=os.getcwd(), case_name=mc.get_name('run'), path_key='run')
+    mc.create_path_dir(dir_path=os.getcwd(), case_name=mc.get_name('run'), path_key='run')
     mc.create_path_dir(dir_path=os.getcwd(), case_name=mc.get_name('base'), path_key='base')
     print(mc.paths['run'])
     print(mc.paths['base'])
@@ -22,6 +22,8 @@ def main():
               )
     run.set_decomposeParDict()
     run.run()
-    #mc.duplicate_case(src_path=mc.get_path('base'), dist_path=mc.get_path('run'))
+    # mc.duplicate_case(src_path=mc.get_path('base'), dist_path=mc.get_path('run'))
+
+
 if __name__ == "__main__":
     main()

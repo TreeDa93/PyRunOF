@@ -35,7 +35,7 @@ def step1():
     runPath = mc.get_path('newPath')
     mc.duplicate_case(src_path=basePathStep1, dist_path=runPath, mode='rewrite')
 
-    sc = SetSystem(pathCase=runPath)
+    sc = SetSystem()
     sc.setControlDict(controlDict)
 
     initialClass = InitialValue(pathCase=runPath)
@@ -74,7 +74,7 @@ def step2(oldPath):
     oldPath = mc.get_path('oldPath')
     mc.duplicate_case(src_path=basePathStep2, dist_path=runPath, mode=modeManipul2)
 
-    sc = SetSystem(pathCase=runPath)
+    sc = SetSystem()
     sc.setControlDict(controlDict)
 
     initialClass = InitialValue(pathCase=runPath)

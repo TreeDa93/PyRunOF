@@ -35,7 +35,7 @@ def step1():
     runPath = mc.get_path('newPath')
     mc.duplicate_case(src_path=basePathStep1, dist_path=runPath, mode='rewrite')
 
-    sc = SetSystem(pathCase=runPath)
+    sc = SetSystem()
     initialClass = InitialValue(pathCase=runPath)
     cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
     meshClass = Mesh(case_path=runPath)
@@ -77,7 +77,7 @@ def hartmann(oldPath):
     mc.duplicate_case(src_path=basePathStep2, dist_path=runPath, mode=modeManipul2)
 
     # initialization all required classes
-    sc = SetSystem(pathCase=runPath)
+    sc = SetSystem()
     cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
     initialClass = InitialValue(pathCase=runPath)
     meshClass = Mesh(case_path=runPath)
