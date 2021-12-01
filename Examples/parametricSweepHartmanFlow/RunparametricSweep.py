@@ -1,5 +1,5 @@
 import sys # import library
-libpath = '/home/ivan/mySolvers/pyFoamRun/' #write path to pyRunOF library
+libpath = '/home/ivan/mySolvers/pyFoamRun/' #write name to pyRunOF library
 sys.path.append(libpath)  # add the library into system pathes
 
 from data import * # import variables from data
@@ -7,9 +7,9 @@ from data import * # import variables from data
 # add require modules from pyRunOF library
 from Modules.manipulations import Manipulations
 from Modules.meshes import Mesh
-from Modules.set_system import SetSystem
+from Modules.set_system import System
 from Modules.initial_value import IntiailValue
-from Modules.constant import SetConstantParam
+from Modules.constant import Constant
 from Modules.run import Runner
 from Modules.elmer import Elmer
 from Modules.parametric_sweep import ParametricSweep
@@ -31,17 +31,17 @@ def parametricSweepFun(name):
 
 def developedFlow(name):
     generalPath= os.getcwd()
-    mc = Manipulations(basePath=basePathStep1)
-    mc.generatorNewName(name, 'solved', baseNewName=baseName1) #return name
-    newName = mc.getName('newName')
-    mc.createNewPath(dirmame=os.getcwd(), newCaseName=newName)
-    runPath = mc.getPath('newPath')
-    mc.dublicateCase(basePath=basePathStep1, newPath=runPath, mode='rewrite')
+    mc = Manipulations(base_path=basePathStep1)
+    mc.create_name(name, 'solved', name_base=baseName1)  #return name
+    newName = mc.get_name('newName')
+    mc.create_path_dir(dirname=os.getcwd(), case_name=newName)
+    runPath = mc.get_path('newPath')
+    mc.duplicate_case(src_path=basePathStep1, dist_path=runPath, mode='rewrite')
 
-    sc = SetSystem(pathCase=runPath)
+    sc = System()
     initialClass = IntiailValue(pathCase=runPath)
-    cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
-    meshClass = Mesh(pathCase=runPath)
+    cpClass = Constant(pathCase=runPath, pathLib=libpath)
+    meshClass = Mesh(case_path=runPath)
 
 
     sc.setControlDict(controlDict1)
@@ -53,14 +53,14 @@ def developedFlow(name):
     cpClass.setTransportProp(tranPropDict)
 
 
-    meshClass.setBlockMesh(meshList)
-    meshClass.runBlockMesh()
+    meshClass.set_blockMesh(meshList)
+    meshClass.run_blockMesh()
 
-    rc = Runner(pathCase=runPath)
+    rc = Runner(path_case=runPath)
     rc.setCoresOF(coreOF=coreOFstep1)
-    rc.setNameSolver(solverName=solverName1)
-    rc.setModeRunner(mode=modeStep1)
-    rc.setPyFoamSettings(pyFoam=False)
+    rc.set_solver_name()
+    rc.set_mode(mode=modeStep1)
+    rc.set_pyFoam_settings(pyFoam=False)
     rc.setDecomposeParDict(nameVar=nameCoreOF)
     rc.runCase()
 
@@ -70,32 +70,32 @@ def developedFlow(name):
 
 def hartmann(oldPath, name):
     generalPath = os.getcwd()
-    mc = Manipulations(basePath=basePathStep2) # initialize manipulation class
-    mc.generatorNewName(name, 'solved', baseNewName=baseName2)
-    newName = mc.getName('newName')
-    mc.createNewPath(dirmame=os.getcwd(), newCaseName=newName, keyPath='newPath')
-    mc.createNewPath(dirmame=os.getcwd(), newCaseName=oldPath, keyPath='oldPath')
-    runPath = mc.getPath('newPath')
-    oldPath = mc.getPath('oldPath')
-    mc.dublicateCase(basePath=basePathStep2, newPath=runPath, mode=modeManipul2)
+    mc = Manipulations(base_path=basePathStep2)  # initialize manipulation class
+    mc.create_name(name, 'solved', name_base=baseName2)
+    newName = mc.get_name('newName')
+    mc.create_path_dir(dirname=os.getcwd(), case_name=newName, path_key='newPath')
+    mc.create_path_dir(dirname=os.getcwd(), case_name=oldPath, path_key='oldPath')
+    runPath = mc.get_path('newPath')
+    oldPath = mc.get_path('oldPath')
+    mc.duplicate_case(src_path=basePathStep2, dist_path=runPath, mode=modeManipul2)
 
     # initialization all required classes
-    sc = SetSystem(pathCase=runPath)
-    cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
+    sc = System()
+    cpClass = Constant(pathCase=runPath, pathLib=libpath)
     initialClass = IntiailValue(pathCase=runPath)
-    meshClass = Mesh(pathCase=runPath)
+    meshClass = Mesh(case_path=runPath)
     eClass = Elmer(pathCase=runPath, sifName='case.sif')
-    rc = Runner(pathCase=runPath)
+    rc = Runner(path_case=runPath)
 
 
     sc.setControlDict(controlDict2) # настраиваем controlDict
     cpClass.setTurbModel2(turbType1)  # настраиваем модель турбулентности
     cpClass.setTransportProp(tranPropDict)  # настраиваем transportProperties in constant
 
-    meshClass.setBlockMesh(meshList)   # настраиваем BlockMeshDict
-    meshClass.runBlockMesh()             # запускаем BlockMesh
-    meshClass.settingsElmerMesh(elmerMeshDict, pathCase=None, elmerMeshName='Elmer_EOF')
-    meshClass.runElmerMesh()
+    meshClass.set_blockMesh(meshList)   # настраиваем BlockMeshDict
+    meshClass.run_blockMesh()             # запускаем BlockMesh
+    meshClass.set_gMesh(elmerMeshDict, case_path=None, mesh_name='Elmer_EOF')
+    meshClass.run_gMesh_to_Elmer()
 
     # устанавиваем настрйоки источника и назначение кейсов
     initialClass.setMappSettings(sourcePath=oldPath, distPath=runPath, source='0.25', dist='0')
@@ -106,10 +106,10 @@ def hartmann(oldPath, name):
 
     eClass.setElmerVar(elmerDict) # Устанавливаем значения в sif файле
 
-    rc.setCoresEOF(coreOF=coreOF2, coreElmer=coreElmer2, elmerMeshName=meshClass.elmerMeshName) # set core for Eler and OF
-    rc.setNameSolver(solverName=solverName)    # set name of solver
-    rc.setModeRunner(mode=mode2)                 # set mode to run
-    rc.setPyFoamSettings(pyFoam=False)          # set to run pyFoam
+    rc.setCoresEOF(coreOF=coreOF2, coreElmer=coreElmer2, elmerMeshName=meshClass.elmer_mesh_name) # set core for Eler and OF
+    rc.set_solver_name()  # set name of solver
+    rc.set_mode(mode=mode2)  # set mode to run
+    rc.set_pyFoam_settings(pyFoam=False)          # set to run pyFoam
     rc.setDecomposeParDict(nameVar=varcoreOF)       # write core to decomposeParDict
 
     # write settings for mapFields
@@ -120,8 +120,8 @@ def hartmann(oldPath, name):
     # run mapFields
     initialClass.mapFieldsRun(check=True)
 
-    rc.decompose(True)
-    rc.decomposeElmer(True)
+    rc.decompose_OF(True)
+    rc.decompose_Elmer(True)
 
     rc.runCase()   # run case
     os.chdir(generalPath)

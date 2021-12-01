@@ -5,9 +5,9 @@ sys.path.append(modulesPath)
 from Modules.manipulations import Manipulations
 from Modules.run import Runner
 from Modules.meshes import Mesh
-from Modules.set_system import SetSystem
+from Modules.set_system import System
 from Modules.initial_value import InitialValue
-from Modules.constant import SetConstantParam
+from Modules.constant import Constant
 
 
 
@@ -66,35 +66,35 @@ turbType = 'kOmegaSST'
 
 if __name__ == "__main__":
 
-    manipulationClass = Manipulations(basePath=basePath)
+    manipulationClass = Manipulations(base_path=basePath)
 
     #here just test functions###
-    manipulationClass.createYourPath(basePath, keyPath='SecondPath')
-    manipulationClass.createYourPath(basePath, keyPath='test')
-    manipulationClass.getPath('basePath')
-    manipulationClass.getPath('1223') # it should be error for test
-    manipulationClass.changePath('tesPathh', keyPath='test')
-    manipulationClass.changePath('tesPathh', keyPath='123235') # it should be error for test
-    manipulationClass.generatorNewName('test', baseNewName=basePath, keyName='testName')
+    manipulationClass.create_path(basePath, path_key='SecondPath')
+    manipulationClass.create_path(basePath, path_key='test')
+    manipulationClass.get_path('basePath')
+    manipulationClass.get_path('1223')  # it should be error for test
+    manipulationClass.change_path('tesPathh', pat_key='test')
+    manipulationClass.change_path('tesPathh', pat_key='123235')  # it should be error for test
+    manipulationClass.create_name('test', name_base=basePath, name_key='testName')
     ###
-    manipulationClass.generatorNewName('solved', baseNewName=basePath)
-    newName = manipulationClass.getName('newName')
-    manipulationClass.createNewPath(dirmame=os.getcwd(), newCaseName=newName)
-    newPath = manipulationClass.getPath('newPath')
-    manipulationClass.dublicateCase(basePath=basePath, newPath=newPath, mode='rewrite')
+    manipulationClass.create_name('solved', name_base=basePath)
+    newName = manipulationClass.get_name('newName')
+    manipulationClass.create_path_dir(dirname=os.getcwd(), case_name=newName)
+    newPath = manipulationClass.get_path('newPath')
+    manipulationClass.duplicate_case(src_path=basePath, dist_path=newPath, mode='rewrite')
 
 
 
-    systemClass = SetSystem(pathCase=newPath)
+    systemClass = System()
     systemClass.setControlDict(controlDict)
     systemClass.setfvSolution(controlDict) #test method
     systemClass.setfvSchemes(controlDict) #test method
     systemClass.setAnyFiles(controlDict) #test method
 
 
-    meshClass = Mesh(pathCase=newPath)
-    meshClass.setBlockMesh(meshList)
-    meshClass.runBlockMesh()
+    meshClass = Mesh(case_path=newPath)
+    meshClass.set_blockMesh(meshList)
+    meshClass.run_blockMesh()
 
 
     initValueClass = InitialValue(pathCase=newPath)
@@ -103,10 +103,10 @@ if __name__ == "__main__":
 ###tests
     #initValueClass.setVarAllFiles()  # test
     #initValueClass.setVar(constDictVar, newDict)
-    #initValueClass.setVar(constDictVar, newDict, nameFiels=['U', 'k'], path_case=newPath)
+    #initValueClass.setVar(constDictVar, newDict, nameFiels=['U', 'k'], var=newPath)
  ######
 
-    constantClass = SetConstantParam(pathCase=newPath)
+    constantClass = Constant(pathCase=newPath)
     constantClass.set_transportProp(tranPropDict)
     constantClass.setTurbModel(typeTurbModel='kEpsilon')
 
@@ -114,9 +114,9 @@ if __name__ == "__main__":
     runClass = Runner()
     runClass.setCores()
     runClass.setPathCase(newPath)
-    runClass.setNameSolver(solverName='pimpleFoam')
-    runClass.setModeRunner(mode='common')
-    runClass.setPyFoamSettings(pyFoam=False)
+    runClass.set_solver_name()
+    runClass.set_mode(mode='common')
+    runClass.set_pyFoam_settings(pyFoam=False)
     runClass.runCase()
 
 

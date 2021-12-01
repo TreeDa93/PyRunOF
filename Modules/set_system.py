@@ -1,74 +1,69 @@
 import os
-import sys
-from Modules.auxiliary_functions import change_var_fun
+from Modules.auxiliary_functions import Priority
+from Modules.auxiliary_functions import Files
+from typing import List, Optional, Dict
 
 
-class SetSystem:
+class System:
     """
     #FIXIT
 
     """
 
-    def __init__(self, path_case=None):
-        """PathCase is path where the class will be doing any manipulation"""
-        self.path_case = path_case
-        if path_case is None:
-            self.path = None
+    def __init__(self, case_path: Optional[str] = None) -> None:
+        """PathCase is name where the class will be doing any manipulation"""
+        self.case_path = case_path
+        if case_path is None:
+            self.system_path = case_path
         else:
-            self.path = os.path.join(path_case, 'system')
+            self.system_path = os.path.join(case_path, 'system')
 
-    def set_control_dict(self, *lists_controlDicts, path_case=None):
-        """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
-        path = self._priorityPath(path_case)
-        os.chdir(path)
-        for list_var in lists_controlDicts:
-            for var in list_var:
-                change_var_fun(var, list_var[var], nameFile='controlDict')
+    def set_control_dict(self, var_dict: dict, case_path: Optional[str] = None) -> None:
+        """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
 
-    def set_fvSolution(self, *listsfvSolution, path_case=None):
-        """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
-        path = self._priorityPath(path_case)
-        os.chdir(path)
+        case_path = Priority.path2(case_path, None, self.case_path)
+        system_path = os.path.join(case_path, 'system')
+        for var in var_dict:
+            Files.change_var_fun(var, var_dict[var], path=system_path,
+                                 file_name='controlDict')
+
+    def set_fvSolution(self, *listsfvSolution: dict, case_path: Optional[str] = None) -> None:
+        """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
+        case_path = Priority.path2(case_path, None, self.case_path)
+        system_path = os.path.join(case_path, 'system')
         for list_var in listsfvSolution:
             for var in list_var:
-                change_var_fun(var, list_var[var], nameFile='fvSolution')
+                Files.change_var_fun(var, list_var[var], path=system_path,
+                                     file_name='fvSolution')
 
-    def set_fvSchemes(self, *listsfvSchemes, path_case=None):
-        """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
-        path = self._priorityPath(path_case)
-        os.chdir(path)
+    def set_fvSchemes(self, *listsfvSchemes: dict, case_path: Optional[str] = None) -> None:
+        """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
+        case_path = Priority.path2(case_path, None, self.case_path)
+        system_path = os.path.join(case_path, 'system')
         for list_var in listsfvSchemes:
             for var in list_var:
-                change_var_fun(var, list_var[var], nameFile='fvSchemes')
+                Files.change_var_fun(var, list_var[var], path=system_path,
+                                     file_name='fvSchemes')
 
-    def set_any_files(self, *listsVar, files=['controlDict'], path_case=None):
-        """The function serves to set *list of variables at controlDict for case with path of pathNewCase"""
-
-        path = self._priorityPath(path_case)
-        os.chdir(path)
+    def set_any_files(self, *listsVar: dict, files: List[str] = ['controlDict'],
+                      case_path: Optional[str] = None) -> None:
+        """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
+        case_path = Priority.path2(case_path, None, self.case_path)
+        system_path = os.path.join(case_path, 'system')
         for file in files:
             for list_var in listsVar:
                 for var in list_var:
-                    change_var_fun(var, list_var[var], nameFile=file)
+                    Files.change_var_fun(var, list_var[var], path=system_path,
+                                         file_name=file)
 
-    def _priorityPath(self, path_case):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
-        Input :
-        basePath, newPath is checkoing pathes
-        Output:
-        retrunBasePath, returnNewPath is selected pathes acording priority
+    def set_control_dict2(self, var_dict: dict, excl_dict: dict, case_path: Optional[str] = None) -> None:
+        """Функция ищет заданную переменную в строчке var_dict
+        var_dict = {var_name: value of the variable}
+        excl_dict = {var_name: str} - str sholde be exclude in the line
         """
 
-        if path_case is None:
-            if self.path_case is not None:
-                return self.path
-            else:
-                sys.exit('Error: You do not enter the base path!!!')
-        else:
-            return os.path.join(path_case, 'system')
-
-
-
+        case_path = Priority.path2(case_path, None, self.case_path)
+        system_path = os.path.join(case_path, 'system')
+        for var_name in var_dict:
+            Files.change_text_line(var_name, var_dict[var_name], excl_dict[var_name], path=system_path,
+                                   file_name='controlDict')

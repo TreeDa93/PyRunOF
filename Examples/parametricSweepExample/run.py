@@ -1,5 +1,5 @@
 import sys # import library
-libpath = '/home/ivan/mySolvers/RunnerForCases/' #write path to pyRunOF library
+libpath = '/home/ivan/mySolvers/RunnerForCases/' #write name to pyRunOF library
 sys.path.append(libpath)  # add the library into system pathes
 
 from data import * # import variables from data
@@ -7,9 +7,9 @@ from data import * # import variables from data
 # add require modules from pyRunOF library
 from Modules.manipulations import Manipulations
 from Modules.meshes import Mesh
-from Modules.set_system import SetSystem
+from Modules.set_system import System
 from Modules.initial_value import IntiailValue
-from Modules.constant import SetConstantParam
+from Modules.constant import Constant
 from Modules.run import Runner
 from Modules.parametric_sweep import ParametricSweep
 
@@ -33,33 +33,33 @@ def main():
 
 def step1(name):
 
-    mc = Manipulations(basePath=basePathStep1)
-    mc.generatorNewName(name, initialDictConst['Uin_var'], baseNewName='step1')
-    newName = mc.getName('newName')
-    mc.createNewPath(dirmame=os.getcwd(), newCaseName=newName)
-    runPath = mc.getPath('newPath')
-    mc.dublicateCase(basePath=basePathStep1, newPath=runPath, mode='rewrite')
+    mc = Manipulations(base_path=basePathStep1)
+    mc.create_name(name, initialDictConst['Uin_var'], name_base='step1')
+    newName = mc.get_name('newName')
+    mc.create_path_dir(dirname=os.getcwd(), case_name=newName)
+    runPath = mc.get_path('newPath')
+    mc.duplicate_case(src_path=basePathStep1, dist_path=runPath, mode='rewrite')
 
-    sc = SetSystem(pathCase=runPath)
+    sc = System()
     sc.setControlDict(controlDict)
 
     initialClass = IntiailValue(pathCase=runPath)
     initialDictCalculated= initialClass.calcInitVal(A, B, Uin, nu)
     initialClass.setVarAllFiels(initialDictConst, initialDictCalculated)
 
-    cpClass = SetConstantParam(pathCase=runPath)
+    cpClass = Constant(pathCase=runPath)
     cpClass.setTurbModel(turbType)
     cpClass.setTransportProp(tranPropDict)
 
-    meshClass = Mesh(pathCase=runPath)
-    meshClass.setBlockMesh(meshList)
-    meshClass.runBlockMesh()
+    meshClass = Mesh(case_path=runPath)
+    meshClass.set_blockMesh(meshList)
+    meshClass.run_blockMesh()
 
-    rc = Runner(pathCase=runPath)
+    rc = Runner(path_case=runPath)
     rc.setCoresOF(coreOF=coreOF)
-    rc.setNameSolver(solverName=solverName)
-    rc.setModeRunner(mode=mode)
-    rc.setPyFoamSettings(pyFoam=False)
+    rc.set_solver_name()
+    rc.set_mode(mode=mode)
+    rc.set_pyFoam_settings(pyFoam=False)
     rc.setDecomposeParDict(coreOF, nameVar='core_OF')
     rc.runCase()
 

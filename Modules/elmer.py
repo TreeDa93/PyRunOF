@@ -29,10 +29,10 @@ class Elmer(Priority):
                 change_var_fun(var, var_list[var], nameFile=sif_name)
 
     def _priority_path(self, path_case):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
         Input :
         basePath, newPath is checkoing pathes
         Output:
@@ -42,15 +42,15 @@ class Elmer(Priority):
             if self.path_case is not None:
                 return self.path_case
             else:
-                sys.exit('Error: You do not enter the base path!!!')
+                sys.exit('Error: You do not enter the base name!!!')
         else:
             return path_case
 
     def _priority_sif_file(self, sif_name):
-        """The method is used for selection of given path
-        the first priority is given path by methods
-        the second priority is given path by class constructor
-        If both path is None, the program is interupted
+        """The method is used for selection of given name
+        the first priority is given name by methods
+        the second priority is given name by class constructor
+        If both name is None, the program is interupted
         Input :
         basePath, newPath is checkoing pathes
         Output:
