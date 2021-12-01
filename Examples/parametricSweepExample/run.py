@@ -51,9 +51,9 @@ def step1(name):
     cpClass.setTurbModel(turbType)
     cpClass.setTransportProp(tranPropDict)
 
-    meshClass = Mesh(pathCase=runPath)
-    meshClass.setBlockMesh(meshList)
-    meshClass.runBlockMesh()
+    meshClass = Mesh(case_path=runPath)
+    meshClass.set_blockMesh(meshList)
+    meshClass.run_blockMesh()
 
     rc = Runner(path_case=runPath)
     rc.setCoresOF(coreOF=coreOF)

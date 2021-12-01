@@ -92,9 +92,9 @@ if __name__ == "__main__":
     systemClass.setAnyFiles(controlDict) #test method
 
 
-    meshClass = Mesh(pathCase=newPath)
-    meshClass.setBlockMesh(meshList)
-    meshClass.runBlockMesh()
+    meshClass = Mesh(case_path=newPath)
+    meshClass.set_blockMesh(meshList)
+    meshClass.run_blockMesh()
 
 
     initValueClass = InitialValue(pathCase=newPath)

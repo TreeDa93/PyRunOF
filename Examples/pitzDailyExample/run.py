@@ -29,7 +29,7 @@ if __name__ == "__main__":
     sc.setControlDict(controlDict)
 
 
-    Mesh().runBlockMesh(pathCase=runPath)
+    Mesh().run_blockMesh(case_path=runPath)
 
 
     ic = InitialValue(pathCase=runPath)

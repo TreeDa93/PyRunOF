@@ -39,7 +39,7 @@ def step1():
     sc = SetSystem(pathCase=runPath)
     initialClass = InitialValue(pathCase=runPath)
     cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
-    meshClass = Mesh(pathCase=runPath)
+    meshClass = Mesh(case_path=runPath)
 
 
     sc.setControlDict(controlDict)
@@ -51,8 +51,8 @@ def step1():
     cpClass.set_transportProp(tranPropDict)
 
 
-    meshClass.setBlockMesh(meshList)
-    meshClass.runBlockMesh()
+    meshClass.set_blockMesh(meshList)
+    meshClass.run_blockMesh()
 
     rc = Runner(path_case=runPath)
     rc.setCoresOF(coreOF=coreOFstep1)
@@ -81,7 +81,7 @@ def hartmann(oldPath):
     sc = SetSystem(pathCase=runPath)
     cpClass = SetConstantParam(pathCase=runPath, pathLib=libpath)
     initialClass = InitialValue(pathCase=runPath)
-    meshClass = Mesh(pathCase=runPath)
+    meshClass = Mesh(case_path=runPath)
     eClass = Elmer(pathCase=runPath, sifName='case.sif')
     rc = Runner(path_case=runPath)
 
@@ -90,10 +90,10 @@ def hartmann(oldPath):
     cpClass.setTurbModel2(turbType1)  # настраиваем модель турбулентности
     cpClass.set_transportProp(tranPropDict)  # настраиваем transportProperties in constant
 
-    meshClass.setBlockMesh(meshList)   # настраиваем BlockMeshDict
-    meshClass.runBlockMesh()             # запускаем BlockMesh
+    meshClass.set_blockMesh(meshList)   # настраиваем BlockMeshDict
+    meshClass.run_blockMesh()             # запускаем BlockMesh
     meshClass.settingsElmerMesh(elmerMeshDict, pathCase=None, elmerMeshName='Elmer_EOF')
-    meshClass.runElmerMesh()
+    meshClass.run_gMesh_to_Elmer()
 
     # устанавиваем настрйоки источника и назначение кейсов
     initialClass.setMappSettings(sourcePath=oldPath, distPath=runPath, source='0.25', dist='0')

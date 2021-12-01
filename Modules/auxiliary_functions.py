@@ -212,7 +212,7 @@ class Priority:
             return path_case
 
     @staticmethod
-    def name(name,name_key, where):
+    def name(name, name_key, where):
         """The method is used for selection of given name
         the first priority is given name by methods
         the second priority is given name by class constructor

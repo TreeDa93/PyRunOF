@@ -27,9 +27,9 @@ if __name__ == "__main__":
     sc.setControlDict(controlDict)
 
 
-    meshClass = Mesh(pathCase=newPath)
-    meshClass.setBlockMesh(meshList)
-    meshClass.runBlockMesh()
+    meshClass = Mesh(case_path=newPath)
+    meshClass.set_blockMesh(meshList)
+    meshClass.run_blockMesh()
 
 
     ic = InitialValue(pathCase=newPath)
