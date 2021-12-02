@@ -2,56 +2,70 @@ import os
 import sys
 import shutil
 import traceback
+from typing import List, Optional, Dict
 
 
 class Files:
     """
-    Discription of class
-    FIXME
+    The class is intended to fulfill a number operations on files, for example, changing text ...
+
     Note:
-        Возможны проблемы с кодировкой в Windows
+        Probably, it is possible problems with coding for OS Windows
 
     Attributes
         ----------
-        file_path : str
-            полный путь до текстового файла
-        lines : list
-            список строк исходного файла
-
     Methods
         -------
         change_text(self, dist_var, sour_var, name_file='')
-            Разделяет строки списка по указанному разделителю
-            и возвращает результат в виде списка
+             is the method to find and replace required text part at given file
+
+        change_text_line(var_value, var_name, var_excl_name, path_dict=None, file_name='')
+            The method fulfills row searching of the given variable var_name to change it to var_value
+            if in the line there are not variable named as var_excl_name
     """
 
     def __init__(self):
         pass
 
     @staticmethod
-    def change_var_fun(dist_var, sour_var, path=None, file_name=''):
+    def change_var_fun(dist_var: str, sour_var: any, path: str = None, file_name: str = '') -> None:
         """Function to find and replace required text part at given file
+            Attributes:
+                 --------------
                 dist_var is the depicts finding variables
                 sour_var depicts replacing variables
-                nameFile is the name of file where the procedure will be done
+                file_name is the name of file where the procedure will be done
 
         """
         path = os.path.join(path, file_name)
         if os.path.isfile(path):
             with open(path, 'r') as f:
-                oldData = f.read()
-            newData = oldData.replace(str(dist_var), str(sour_var))
+                old_data = f.read()
+            new_data = old_data.replace(str(dist_var), str(sour_var))
             with open(path, 'w') as f:
-                f.write(newData)
+                f.write(new_data)
         else:
             print(f'Warning: The file {file_name} is not exist!')
 
     @staticmethod
-    def change_text_line(var_value, var_name, var_excl_name, path=None, file_name=''):
+    def change_text_line(var_value: any, var_name: any, var_excl_name: any,
+                         path: str = None, file_name: str = '') -> None:
         """ The function is served to find the variable named var_name in th file_name
-        which has directory path. If the variable has been founded and
+        which has directory path_dict. If the variable has been founded and
         variable var_excl_name does not exist in the line then the value of the variable
-        is changed by var_value"""
+        is changed by var_value
+        Attributes:
+        --------------
+                var_value [string or numbers] is the value to be written instead var_name
+
+                var_name depicts place in the given file where should be written var_value
+
+                var_excl_name is the name to be absented in the text line in order to change founded variable var_name.
+
+                path_dict is the path_dict with the required file for searching of given variable.
+
+                file_name is the name of the file  where the method will fulfil searching.
+        """
         path = os.path.join(path, file_name)
         new_data = ''
         with open(path, 'r') as f1:
@@ -67,26 +81,54 @@ class Files:
 
 
 class Priority:
-    """The class is designed to chose priority between some objects
+    """
+    The class is designed to choose priority between the sent variable in the executing method and
+    its object attributes. The general sense of priority choosing is firstly to check the given variable in
+    executing method, if the variable is None then to check the variable in the attributes of the object serving for
+    execution of the method.
 
+    Note:
+        ---
+        In the current version there are attributes. Their appointment is doubtful because highly likely
+        the attribute will be deleted in the future.
+
+    Attributes
+        ----------
+        paths is the dictionary of paths
+        name_case is the dictionary of names
+        sif_name is the name of elmer file with sif extension
+        file is the name of file
+
+    Methods
+        -------
+        variable(var, key, where)
+        path_dict(path_dict, path_key, where)
+        path(path_dict, path_key, where)
+        name(name, name_key, where)
+        check_key(key, where)
+        check_name(name, where)
+        check_key_path(path_dict, key, where)
+        check_key_name
+        check_path_existence
+        check_path_existence_only
+        error_create_folder
     """
 
-    def __init__(self, names_cases=None, paths=None, sif_name='.sif', file=None):
+    def __init__(self, names_cases: str = None, paths: str = None, sif_name: str = '.sif', file: str = None) -> None:
         self.paths = paths
         self.names_cases = names_cases
-        self.sifName = sif_name
+        self.sif_name = sif_name
         self.file = file
 
-    @staticmethod
-    def variable(var, key, where):
-        """The method is used for selection of given name
-        the first priority is given name by methods
-        the second priority is given name by class constructor
-        If both name is None, the program is interupted
-        Input :
-        basePath, newPath is checkoing pathes
-        Output:
-        retrun BasePath, returnNewPath is selected pathes acording priority
+    def variable(self, var, key, where):
+        """The method is intended to priority between the sent variable in the executing method and
+            its object attributes.
+            Input :
+                var is the evaluating variable if the var is None then
+                key is the key of the dictionary storing value of required variable
+                where is the object where the method will be finding required variable by key
+            Output:
+                return var according priority
         """
 
         if var is None:
@@ -94,211 +136,157 @@ class Priority:
                 if where[key] is not None:
                     return where[key]
                 else:
-                    error_message = f''' 
-                    ------------------------------------------
-                    You did not specify either in the object or 
-                    in the method.
-                    Above information can help you find where is it.
-                    ------------------------------------------
-                    '''
-                    print(repr(traceback.format_stack()))
-                    raise SystemExit(error_message)
+                    self._raise_error(type_error='var_1')
             else:
                 if where is not None:
                     return where
                 else:
-                    error_message = f''' 
-                    ------------------------------------------
-                    You did not specify either in the object or 
-                    in the method.
-                    Above information can help you find where is it.
-                    ------------------------------------------
-                    '''
-                    print(repr(traceback.format_stack()))
-                    raise SystemExit(error_message)
+                    self._raise_error(type_error='var_2')
         else:
             return var
 
-    @staticmethod
-    def path(path_case, path_key, where):
-        """The method is used for selection of given name
-        the first priority is given name by methods
-        the second priority is given name by class constructor
-        If both name is None, the program is interupted
-        Input :
-        basePath, newPath is checkoing pathes
-        Output:
-        retrun BasePath, returnNewPath is selected pathes acording priority
+    def path_dict(self, path, path_key, where):
+        """The method is intended to priority between the sent path_dict in the executing method and
+            its object attributes of paths.
+            Input :
+                path_dict is the evaluating path_dict if the path_dict is None then
+                path_key is the key of the dictionary storing value of required variable
+                where: dict is the object where the method will be finding required variable by key
+            Output:
+                return var according priority
+            Notice: The method is working only for dictionaries objects. If you need find second priority
+                    in no dictionary object and as just variables you can use path method.
         """
-        if path_case is None:
+        if path is None:
             if where[path_key] is not None:
                 return where[path_key]
             else:
-                error_message = f''' 
-                ------------------------------------------
-                You did not specify either in the object or 
-                in the method.
-                Above information can help you find where is it.
-                ------------------------------------------
-                '''
-                print(repr(traceback.format_stack()))
-                raise SystemExit(error_message)
+                self._raise_error(type_error='path_error')
         else:
-            return path_case
-    @staticmethod
-    def path2(path_case, path_key, where):
-        """The method is used for selection of given name
-        the first priority is given name by methods
-        the second priority is given name by class constructor
-        If both name is None, the program is interupted
-        Input :
-        basePath, newPath is checkoing pathes
-        Output:
-        retrun BasePath, returnNewPath is selected pathes acording priority
+            return path
+
+    def path(self, path, path_key, where):
+        """The method is intended to priority between the sent path_dict in the executing method and
+            its object attributes of paths.
+            Input :
+                path_dict is the evaluating path_dict if the path_dict is None then
+                path_key is the key of the dictionary storing value of required variable
+                where: dict is the object where the method will be finding required variable by key
+            Output:
+                return var according priority
+            Notice: The method is working as with dictionaries and so variables.
         """
-        if path_case is None:
+        if path is None:
             if type(where) is dict:
-                if path_case[path_key] is not None:
-                    return path_case[path_key]
+                if path[path_key] is not None:
+                    return path[path_key]
                 else:
-                    error_message = f''' 
-                    ------------------------------------------
-                    You did not specify either in the object or 
-                    in the method.
-                    Above information can help you find where is it.
-                    ------------------------------------------
-                    '''
-                    print(repr(traceback.format_stack()))
-                    raise SystemExit(error_message)
+                    self._raise_error(type_error='path_error')
             else:
                 if where is not None:
                     return where
                 else:
-                    error_message = f''' 
-                    ------------------------------------------
-                    You did not specify either in the object or 
-                    in the method.
-                    Above information can help you find where is it.
-                    ------------------------------------------
-                    '''
-                    print(repr(traceback.format_stack()))
-                    raise SystemExit(error_message)
+                    self._raise_error(type_error='path_error')
         else:
-            return path_case
+            return path
 
-    @staticmethod
-    def name(name, name_key, where):
-        """The method is used for selection of given name
-        the first priority is given name by methods
+    def name(self, name, name_key, where):
+        """The method is used for selection of given name the first priority is given name by methods
         the second priority is given name by class constructor
         If both name is None, the program is interupted
         Input :
-        basePath, newPath is checkoing pathes
+            name is the checking name
+            name_key is the key of the dictionary storing value of required name
+            where is the object where the method will be finding required name by key
         Output:
-        retrun BasePath, returnNewPath is selected pathes acording priority
+            return name according priority
         """
         if name is None:
             if where[name_key] is not None:
                 return where[name_key]
             else:
-                error_message = f''' 
-                ------------------------------------------
-                You did not specify either in the object or 
-                in the method.
-                Above information can help you find where is it.
-                ------------------------------------------
-                '''
-                print(repr(traceback.format_stack()))
-                raise SystemExit(error_message)
+                self._raise_error(type_error='name_error')
         else:
             return name
 
-    @staticmethod
-    def check_key(key, where):
-        """The method is used for selection of given name
-        the first priority is given name by methods
-        the second priority is given name by class constructor
-        If both name is None, the program is interupted
+    def check_key(self, key, where):
+        """The method is used to check existence of the key in object named where
+        If both key is not existence in where then program raise error!
         Input :
-        basePath, newPath is checkoing pathes
+            key is checking key
+            where is the object [dict] for checking
         Output:
-        retrun BasePath, returnNewPath is selected pathes acording priority
+            return pass or error
         """
         if key in where:
             pass
         else:
-            error_message = f''' 
-            ------------------------------------------
-            You write wrong key {key}. Please check it.
-            Above information can help you find where is it.
-            ------------------------------------------
-            '''
-            print(repr(traceback.format_stack()))
-            raise SystemExit(error_message)
+            self._raise_error(key, type_error='check_key_error')
 
-    @staticmethod
-    def check_name(name, where):
-        """The method is used for selection of given name
-        the first priority is given name by methods
-        the second priority is given name by class constructor
-        If both name is None, the program is interupted
+    def check_name(self, name, where):
+        """The method is used to check existence of the name in object named where
+        If both name is not existence in where then program raise error!
         Input :
-        basePath, newPath is checkoing pathes
+             name is checking name
+             where is the object [dict] for checking
         Output:
-        retrun BasePath, returnNewPath is selected pathes acording priority
+            return pass or error
         """
         if name in where:
             pass
         else:
-            error_message = f''' 
-                ------------------------------------------
-                You write wrong name {name}. Please check it.
-                Above information can help you find where is it.
-                ------------------------------------------
-                '''
-            print(repr(traceback.format_stack()))
-            raise SystemExit(error_message)
+            self._raise_error(name, type_error='check_name_error')
 
-    @staticmethod
-    def check_key_path(path, key, where):
+    def check_key_path(self, path, key, where):
+        """This method is used to check whether the path was specified in
+         the method or there is this path in the attributes of the object where.
+            If both case is False then the method raise error!
+                Input :
+                     path is checking path
+                     key is the key of path which can be existed in where
+                     where is the object [dict] for checking
+                Output:
+                    return path or error
+                """
         if path is None:
             if key is None:
-                error_message = f''' 
-                ------------------------------------------
-                You have set neither the name nor the key to the name. 
-                Above information can help you find where is it.
-                ------------------------------------------
-                '''
-                print(repr(traceback.format_stack()))
-                raise SystemExit(error_message)
+                self._raise_error(type_error='check_key_path_error')
             else:
                 return where[key]
         else:
             return path
 
-    @staticmethod
-    def check_key_name(name, key, where):
+    def check_key_name(self, name, key, where):
+        """This method is used to check whether the path was specified in
+         the method or there is this path in the attributes of the object where.
+            If both case is False then the method raise error!
+                Input :
+                     path is checking path
+                     key is the key of path which can be existed in where
+                     where is the object [dict] for checking
+                Output:
+                    return path or error
+                """
         if name is None:
             if key is None:
-                error_message = f''' 
-                    ------------------------------------------
-                    You have set neither the name nor the key to the name. 
-                    Above information can help you find where is it.
-                    ------------------------------------------
-                    '''
-                print(repr(traceback.format_stack()))
-                raise SystemExit(error_message)
+                self._raise_error(type_error='check_key_name_error')
             else:
                 return where[key]
         else:
             return name
 
-    @staticmethod
-    def check_path_existence(check_path, make_new=False):
-        """The method supports to find out existing gotten pathes
-        If one of the gotten pathes is not exist, program is interupted
-        """
+    def check_path_existence(self, check_path, make_new=False):
+        """The method is used for checking existing of given path.
+        The method can check one lower level of the path as directory for existing if the directory is existent
+        you can create new folder of your path by changing flag mane_new on True.
+        FIXME : improve description
+        Input :
+             check_path is checking path
+             make_new is logical variable to define crate new folder if directory of the file exist.
 
+        Output:
+            return path or error
+        """
         if os.path.exists(check_path):
             return check_path
         else:
@@ -308,32 +296,18 @@ class Priority:
                     os.mkdir(case_name)
                     return check_path
                 else:
-                    error_message = f''' 
-                    ------------------------------------------
-                    Your name {check_path} and is not exist! But directory 
-                    {dir_path} is exist! You can create folder {case_name} 
-                    yourself or set flag make_new as True to make the Folder
-                    by the script with name {case_name}! 
-                    Above information can help you find where is it.
-                    ------------------------------------------
-                    '''
-                    print(repr(traceback.format_stack()))
-                    raise SystemExit(error_message)
+                    self._raise_error(check_path, dir_path, case_name, type_error='check_path_existence_error_1')
             else:
-                error_message = f''' 
-                ------------------------------------------
-                The given name is not exist and directory {dir_path}
-                of the folder {case_name} is not exist as well.  
-                Above information can help you find where is it.
-                ------------------------------------------
-                '''
-                print(repr(traceback.format_stack()))
-                raise SystemExit(error_message)
+                self._raise_error(dir_path, case_name, type_error='check_path_existence_error_2')
 
-    @staticmethod
-    def check_path_existence_only(check_path):
-        """The method supports to find out existing gotten pathes
-        If one of the gotten pathes is not exist, program is interupted
+    def check_path_existence_only(self, check_path):
+        """The method checks existing of given path.
+        #FIXME : improve description
+        Input:
+            check_path is the checking path
+        Output:
+            If the path exist the method return full
+            if there is only directory of the final folder the method return 'dir'
         """
 
         if os.path.exists(check_path):
@@ -343,26 +317,7 @@ class Priority:
             if os.path.exists(dir_path):
                 return 'dir'
             else:
-                error_message = f''' 
-                    ------------------------------------------
-                    The given name is not exist and directory {dir_path}
-                    of the folder {case_name} is not exist as well.  
-                    Above information can help you find where is it.
-                    ------------------------------------------
-                    '''
-                print(repr(traceback.format_stack()))
-                raise SystemExit(error_message)
-    @staticmethod
-    def error_create_folder():
-        error_message = f''' 
-        ------------------------------------------
-        The folder is already exist and your moder 
-        of writing is available to make copy.
-        Above information can help you find where is it.
-        ------------------------------------------
-        '''
-        print(repr(traceback.format_stack()))
-        raise SystemExit(error_message)
+                self._raise_error(dir_path, case_name, type_error='check_path_existence_error_2')
 
     def file(self, file):
         """The method is used for selection of given name
@@ -399,6 +354,7 @@ class Priority:
                 sys.exit('Error: You do not enter the name of the sif file!!!')
         else:
             return sif_file
+
     @staticmethod
     def cores(core_OF, where):
         if core_OF is None:
@@ -447,6 +403,108 @@ class Priority:
         else:
             pass
 
+    @staticmethod
+    def _raise_error(*vargs, type_error=0):
+        if type_error == 'var_1':
+            error_message = f''' 
+                            ------------------------------------------
+                            You did not specify either in the object or 
+                            in the method.
+                            Above information can help you find where is it.
+                            ------------------------------------------
+                            '''
+        elif type_error == 'var_2':
+            error_message = f''' 
+                            ------------------------------------------
+                            You did not specify either in the object or 
+                            in the method.
+                            Above information can help you find where is it.
+                            ------------------------------------------
+                            '''
+        elif type_error == 'path_error':
+            error_message = f''' 
+                            ------------------------------------------
+                            You did not specify path_dict either in the object or 
+                            in the method.
+                            Above information can help you find where is it.
+                            ------------------------------------------
+                            '''
+        elif type_error == 'name_error':
+            error_message = f''' 
+                            ------------------------------------------
+                            You did not specify name either in the object or 
+                            in the method.
+                            Above information can help you find where is it.
+                            ------------------------------------------
+                            '''
+        elif type_error == 'check_key_error':
+            error_message = f''' 
+                            ------------------------------------------
+                            You write wrong key {vargs[0]}. Please check it.
+                            Above information can help you find where is it.
+                            ------------------------------------------
+                            '''
+        elif type_error == 'check_name_error':
+            error_message = f''' 
+                            ------------------------------------------
+                            You write wrong name {vargs[0]}. Please check it.
+                            Above information can help you find where is it.
+                            ------------------------------------------
+                            '''
+        elif type_error == 'check_key_path':
+            error_message = f''' 
+                            ------------------------------------------
+                            You have set neither the name nor the key to the name. 
+                            Above information can help you find where is it.
+                            ------------------------------------------
+                            '''
+
+        elif type_error == 'check_path_existence_error_1':
+            error_message = f''' 
+                                ------------------------------------------
+                                Your name {vargs[0]} and is not exist! But directory 
+                                {vargs[1]} is exist! You can create folder {vargs[2]} 
+                                yourself or set flag make_new as True to make the Folder
+                                by the script with name {vargs[2]}! 
+                                Above information can help you find where is it.
+                                ------------------------------------------
+                                '''
+        elif type_error == 'check_path_existence_error_2':
+            error_message = f''' 
+                            ------------------------------------------
+                            The given name is not exist and directory {vargs[0]}
+                            of the folder {vargs[1]} is not exist as well.  
+                            Above information can help you find where is it.
+                            ------------------------------------------
+                            '''
+        elif type_error == 'check_key_name_error':
+            error_message = f''' 
+                            ------------------------------------------
+                            You have set neither the name nor the key to the name. 
+                            Above information can help you find where is it.
+                            ------------------------------------------
+                            '''
+        else:
+            error_message = f''' 
+                            ------------------------------------------
+                            YI do not know the error! The developer should it check!
+                            ------------------------------------------
+                            '''
+
+        print(repr(traceback.format_stack()))
+        raise SystemExit(error_message)
+
+    @staticmethod
+    def error_create_folder():
+        error_message = f''' 
+            ------------------------------------------
+            The folder is already exist and your moder 
+            of writing is available to make copy.
+            Above information can help you find where is it.
+            ------------------------------------------
+            '''
+        print(repr(traceback.format_stack()))
+        raise SystemExit(error_message)
 
 def copy_fun(root_src_dir, root_dst_dir):
     for src_dir, dirs, files in os.walk(root_src_dir):
@@ -470,7 +528,7 @@ def copy_files(root_src_dir, root_dst_dir):
         shutil.copy(src_file, dst_file)
 
 
-def copyFiele(root_src_dir, root_dst_dir, nameFilesOld='', nameFileNew=''):
+def copy_file(root_src_dir, root_dst_dir, nameFilesOld='', nameFileNew=''):
     src_file = os.path.join(root_src_dir, nameFilesOld)
     dst_file = os.path.join(root_dst_dir, nameFileNew)
     shutil.copy2(src_file, dst_file)
