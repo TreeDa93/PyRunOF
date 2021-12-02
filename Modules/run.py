@@ -36,7 +36,6 @@ class Run:
         return f'It is my collection of objects {self.name}'
 
     def run(self, path_case: Optional[str] = None,
-            path_key: Optional[str] = None,
             decompose_OF: Optional[bool] = True,
             decompose_Elmer: Optional[bool] = False) -> None:
         """The function runs the case to calculation
@@ -45,34 +44,47 @@ class Run:
             NUMBER_OF_PROC_OF - is the number of processor cores involved to calculation of OpenFOAM problem
             NUMBER_OF_PROC_Elmer - is the number of processor cores involved to calculation of Elmer problem
             """
-        run_path = Priority.path(path_case, path_key, self.path_case)
-        os.chdir(run_path)
         self.decompose_run(decompose_OF, decompose_Elmer)
+        self.run_of(path_case)
+        
+    def run_of(self, path_case):
+        """The method is used for run OpenFOAM
+        """
+        path_case = Priority.path(path_case, None, self.path_case)
+        cur_path = os.getcwd()
+        os.chdir(path_case)
         os.system(self._collect_name_solver())
-
-    def decompose_run(self, decompose_OF: bool, decompose_Elmer: bool):
+        os.chdir(cur_path)
+        
+    def decompose_run(self, decompose_OF: bool, decompose_Elmer: bool, path_case=None):
         if self.mode == 'common':
             if decompose_OF is True:
                 print('You do not need to run decompasition for common mode')
         elif self.mode == 'parallel':
-            self.decompose_OF(decompose_OF)
+            self.decompose_OF(decompose_OF, path_case=None)
         elif self.mode == 'EOF':
-            self.decompose_OF(decompose_OF)
-            self.decompose_Elmer(decompose_Elmer)
+            self.decompose_OF(decompose_OF, path_case=None)
+            self.decompose_Elmer(decompose_Elmer, path_case=None)
 
-    def decompose_OF(self, decompose_OF: bool) -> None:
-        os.chdir(self.path_case)
+    def decompose_OF(self, decompose_OF: bool, path_case=None) -> None:
         if decompose_OF is True:
+            cur_path = os.getcwd()
+            path_case = Priority.path(path_case, None, self.path_case)
+            os.chdir(path_case)
             os.system('decomposePar -force')
+            os.chdir(cur_path)
         elif decompose_OF is False:
             print('Decompose procedure is pass')
         else:
             sys.exit('The decompose status is no boolean')
 
-    def decompose_Elmer(self, decompose_Elmer: bool):
-        os.chdir(self.path_case)
+    def decompose_Elmer(self, decompose_Elmer: bool, path_case=None):
         if decompose_Elmer is True:
+            path_case = Priority.path(path_case, None, self.path_case)
+            cur_path = os.getcwd()
+            os.chdir(path_case)
             os.system(f'ElmerGrid 2 2 {self.mesh_Elmer} -metis {self.coreElmer} -force')
+            os.chdir(cur_path)
         elif decompose_Elmer is False:
             print('Decompose procedure is pass')
         else:
@@ -104,7 +116,7 @@ class Run:
                              name_var: str = 'core_OF',
                              path_case: str = None):
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
-        path_case = Priority.variable(path_case, '', self.path_case)
+        path_case = Priority.variable(path_case, None, self.path_case)
         sys_path = os.path.join(path_case, 'system')
         core_OF = Priority.cores(core_OF, self.coreOF)
         Files.change_var_fun(name_var, core_OF, path=sys_path, file_name='decomposeParDict')
@@ -127,8 +139,10 @@ class Run:
 
     def set_fields(self, path_case: str = None) -> None:
         run_path = Priority.variable(path_case, '', self.path_case)
+        cur_path = os.getcwd()
         os.chdir(run_path)
         os.system('setFields')
+        os.chdir(cur_path)
 
     def set_all_settings(self, dic_settings: dict):
         """
@@ -159,11 +173,7 @@ class Run:
             run_command = f'mpirun -np {self.coreOF} {self.solver_name} -parallel : ' \
                           f'-np {self.coreElmer} ElmerSolver_mpi'
         else:
-            sys.exit('''you write not correct mode
-             Please chose from following modes:
-             common - general mode only for OpenFOAM;
-             parallel is the mode to run your case in parallel calculations
-             EOF is the mode to run your case with Elmer together''')
+            self._raise_error(True)
 
         if self.pyFoam is True:
             run_command = 'pyFoamPlotRunner.py ' + run_command
@@ -172,3 +182,11 @@ class Run:
 
         self.run_command = run_command
         return self.run_command
+
+    def _raise_error(self, status):
+        if status is True:
+            sys.exit('''you write not correct mode
+                        Please chose from following modes:
+                        common - general mode only for OpenFOAM;
+                        parallel is the mode to run your case in parallel calculations
+                        EOF is the mode to run your case with Elmer together''')

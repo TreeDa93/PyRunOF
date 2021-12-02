@@ -355,13 +355,12 @@ class Priority:
         else:
             return sif_file
 
-    @staticmethod
-    def cores(core_OF, where):
+    def cores(self, core_OF, where):
         if core_OF is None:
             if where is not None:
                 return where
             else:
-                sys.exit('You have to set numbers of cores for OpenFOAM')
+                self._raise_error_run()
         else:
             return core_OF
 
@@ -505,6 +504,10 @@ class Priority:
             '''
         print(repr(traceback.format_stack()))
         raise SystemExit(error_message)
+
+    @staticmethod
+    def _raise_error_run():
+        sys.exit('You have to set numbers of cores for OpenFOAM')
 
 def copy_fun(root_src_dir, root_dst_dir):
     for src_dir, dirs, files in os.walk(root_src_dir):
