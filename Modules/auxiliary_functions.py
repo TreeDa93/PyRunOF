@@ -16,7 +16,7 @@ class Files:
         ----------
     Methods
         -------
-        change_text(self, dist_var, sour_var, name_file='')
+        change_text(cls, dist_var, sour_var, name_file='')
              is the method to find and replace required text part at given file
 
         change_text_line(var_value, var_name, var_excl_name, path_dict=None, file_name='')
@@ -120,7 +120,8 @@ class Priority:
         self.sif_name = sif_name
         self.file = file
 
-    def variable(self, var, key, where):
+    @classmethod
+    def variable(cls, var, key, where):
         """The method is intended to priority between the sent variable in the executing method and
             its object attributes.
             Input :
@@ -136,16 +137,17 @@ class Priority:
                 if where[key] is not None:
                     return where[key]
                 else:
-                    self._raise_error(type_error='var_1')
+                    cls._raise_error(type_error='var_1')
             else:
                 if where is not None:
                     return where
                 else:
-                    self._raise_error(type_error='var_2')
+                    cls._raise_error(type_error='var_2')
         else:
             return var
 
-    def path_dict(self, path, path_key, where):
+    @classmethod
+    def path_dict(cls, path, path_key, where):
         """The method is intended to priority between the sent path_dict in the executing method and
             its object attributes of paths.
             Input :
@@ -161,11 +163,12 @@ class Priority:
             if where[path_key] is not None:
                 return where[path_key]
             else:
-                self._raise_error(type_error='path_error')
+                cls._raise_error(type_error='path_error')
         else:
             return path
 
-    def path(self, path, path_key, where):
+    @classmethod
+    def path(cls, path, path_key, where):
         """The method is intended to priority between the sent path_dict in the executing method and
             its object attributes of paths.
             Input :
@@ -181,16 +184,17 @@ class Priority:
                 if path[path_key] is not None:
                     return path[path_key]
                 else:
-                    self._raise_error(type_error='path_error')
+                    cls._raise_error(type_error='path_error')
             else:
                 if where is not None:
                     return where
                 else:
-                    self._raise_error(type_error='path_error')
+                    cls._raise_error(type_error='path_error')
         else:
             return path
 
-    def name(self, name, name_key, where):
+    @classmethod
+    def name(cls, name, name_key, where):
         """The method is used for selection of given name the first priority is given name by methods
         the second priority is given name by class constructor
         If both name is None, the program is interupted
@@ -205,11 +209,12 @@ class Priority:
             if where[name_key] is not None:
                 return where[name_key]
             else:
-                self._raise_error(type_error='name_error')
+                cls._raise_error(type_error='name_error')
         else:
             return name
 
-    def check_key(self, key, where):
+    @classmethod
+    def check_key(cls, key, where):
         """The method is used to check existence of the key in object named where
         If both key is not existence in where then program raise error!
         Input :
@@ -221,9 +226,10 @@ class Priority:
         if key in where:
             pass
         else:
-            self._raise_error(key, type_error='check_key_error')
+            cls._raise_error(key, type_error='check_key_error')
 
-    def check_name(self, name, where):
+    @classmethod
+    def check_name(cls, name, where):
         """The method is used to check existence of the name in object named where
         If both name is not existence in where then program raise error!
         Input :
@@ -235,9 +241,10 @@ class Priority:
         if name in where:
             pass
         else:
-            self._raise_error(name, type_error='check_name_error')
+            cls._raise_error(name, type_error='check_name_error')
 
-    def check_key_path(self, path, key, where):
+    @classmethod
+    def check_key_path(cls, path, key, where):
         """This method is used to check whether the path was specified in
          the method or there is this path in the attributes of the object where.
             If both case is False then the method raise error!
@@ -250,13 +257,14 @@ class Priority:
                 """
         if path is None:
             if key is None:
-                self._raise_error(type_error='check_key_path_error')
+                cls._raise_error(type_error='check_key_path_error')
             else:
                 return where[key]
         else:
             return path
 
-    def check_key_name(self, name, key, where):
+    @classmethod
+    def check_key_name(cls, name, key, where):
         """This method is used to check whether the path was specified in
          the method or there is this path in the attributes of the object where.
             If both case is False then the method raise error!
@@ -269,13 +277,14 @@ class Priority:
                 """
         if name is None:
             if key is None:
-                self._raise_error(type_error='check_key_name_error')
+                cls._raise_error(type_error='check_key_name_error')
             else:
                 return where[key]
         else:
             return name
 
-    def check_path_existence(self, check_path, make_new=False):
+    @classmethod
+    def check_path_existence(cls, check_path, make_new=False):
         """The method is used for checking existing of given path.
         The method can check one lower level of the path as directory for existing if the directory is existent
         you can create new folder of your path by changing flag mane_new on True.
@@ -296,11 +305,12 @@ class Priority:
                     os.mkdir(case_name)
                     return check_path
                 else:
-                    self._raise_error(check_path, dir_path, case_name, type_error='check_path_existence_error_1')
+                    cls._raise_error(check_path, dir_path, case_name, type_error='check_path_existence_error_1')
             else:
-                self._raise_error(dir_path, case_name, type_error='check_path_existence_error_2')
+                cls._raise_error(dir_path, case_name, type_error='check_path_existence_error_2')
 
-    def check_path_existence_only(self, check_path):
+    @classmethod
+    def check_path_existence_only(cls, check_path):
         """The method checks existing of given path.
         #FIXME : improve description
         Input:
@@ -317,7 +327,7 @@ class Priority:
             if os.path.exists(dir_path):
                 return 'dir'
             else:
-                self._raise_error(dir_path, case_name, type_error='check_path_existence_error_2')
+                cls._raise_error(dir_path, case_name, type_error='check_path_existence_error_2')
 
     def file(self, file):
         """The method is used for selection of given name
@@ -355,12 +365,13 @@ class Priority:
         else:
             return sif_file
 
-    def cores(self, core_OF, where):
+    @classmethod
+    def cores(cls, core_OF, where):
         if core_OF is None:
             if where is not None:
                 return where
             else:
-                self._raise_error_run()
+                cls._raise_error_run()
         else:
             return core_OF
 

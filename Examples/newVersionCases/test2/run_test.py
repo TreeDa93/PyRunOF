@@ -21,15 +21,13 @@ def main():
     #sc = SetSystem(case_path=mc.get_path('run'))
     #sc.set_control_dict({'end_time_var': 5})
     sc2 = System()
-    sc2.set_control_dict_test({'endTime': 25}, case_path=mc.get_path('run'))
+    sc2.set_control_dict2({'endTime': 25}, {'endTime': 'stopAt'}, case_path=mc.get_path('run'))
 
     run = Run(name='my_test', path_case=mc.get_path('run'),
               solver_name='pimpleFoam', mode='parallel'
               )
     run.set_decomposeParDict()
-    #run.run()
-    # mc.duplicate_case(src_path=mc.get_path('base'), dist_path=mc.get_path('run'))
-
+    run.run()
 
 if __name__ == "__main__":
     main()

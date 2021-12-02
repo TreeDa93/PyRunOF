@@ -19,11 +19,11 @@ class Manipulations:
 
     methods:
     duplicate_case is the function make copy or duplicate ot existing folder
-    create_name is the function to create new name of case in self.case_names
+    create_name is the function to create new name of case in cls.case_names
     create_path_dir is the function creating system_path from director and folder
-                        name in self.paths
-    create_path is the method to create new system_path in self.paths
-    change_path is the function serving to change existing system_path in self.system_path
+                        name in cls.paths
+    create_path is the method to create new system_path in cls.paths
+    change_path is the function serving to change existing system_path in cls.system_path
     get_path is the function to get system_path by key
     get_name is the function to get name by key
     create_folder is function create new folder
@@ -133,7 +133,7 @@ class Manipulations:
 
     def create_path(self, path, path_key='testPath'):
         """The function is used to create your own name
-        The created name will be written into dictionary self.addtionaldictionary with key  = name
+        The created name will be written into dictionary cls.addtionaldictionary with key  = name
         Input name is name of your new given name
         name is the key of dictionary storaged all addtional pathes"""
         self.paths[path_key] = path

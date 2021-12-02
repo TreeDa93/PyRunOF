@@ -163,7 +163,7 @@ def GetUpdateTimestep(algorithm):
 # This is the requested time-step. This may not be exactly equal to the
 # timesteps published in RequestInformation(). Your code must handle that
 # correctly.
-req_time = GetUpdateTimestep(self)
+req_time = GetUpdateTimestep(cls)
 
 # Now, use req_time to determine which CSV file to read and read it as before.
 # Remember req_time need not match the time values put out in

@@ -65,5 +65,5 @@ class System:
         case_path = Priority.path(case_path, None, self.case_path)
         system_path = os.path.join(case_path, 'system')
         for var_name in var_dict:
-            Files.change_text_line(var_name, var_dict[var_name], excl_dict[var_name], path=system_path,
+            Files.change_text_line(var_dict[var_name], var_name, excl_dict[var_name], path=system_path,
                                    file_name='controlDict')

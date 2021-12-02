@@ -1,11 +1,10 @@
 import sys  # import library
 import os
-from Modules.manipulations import Manipulations
-from Modules.run import Run
 # libpath = 'C:\\Users\\Ivan\\science\\works\\PyFoam\\PyRunOF' #write name to pyRunOF library
 libpath = '/home/ivan/PyRunOF'
 sys.path.append(libpath)  # add the library into system pathes
-
+from Modules.manipulations import Manipulations
+from Modules.run import Run
 
 def main():
     mc = Manipulations(dir_path=os.getcwd())
