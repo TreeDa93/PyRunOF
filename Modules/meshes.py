@@ -5,8 +5,18 @@ from typing import List, Optional, Dict
 
 class Mesh:
     """
-    FIXME
-
+    The class is intended to perform operations on OpenFOAM and Elmer meshes.
+    Attributes
+        ----------
+        case_path is the path of the case required providing manipulations with meshes
+        elmer_mesh_nam is the name of Elmer mesh folder
+    Methods
+        -------
+        set_blockMesh is the method to set parameters for blockMesh utility implemented in OpenFOAM to
+        build mesh. The settings of the utility is stored in blockMesh file in system folder of your OpenFOAM case
+        run_blockMesh is the method to run meshBlock utility for the chosen case.
+        run_gMesh_to_Elmer is the method to transforms gmsh format of mesh (.geo) to Elmer mesh.
+        set_gMesh si the method to set parameters in geo file of the mesh for gMesh software.
     """
 
     def __init__(self, case_path=None):
