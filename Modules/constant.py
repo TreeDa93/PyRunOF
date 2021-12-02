@@ -1,6 +1,6 @@
 import os
 import sys
-from Modules.auxiliary_functions import change_var_fun, copyFiele
+from Modules.auxiliary_functions import change_var_fun, copy_file
 
 
 class Constant:
@@ -69,27 +69,27 @@ class Constant:
                 """
         path = self._priority_path(pathCase)
         if typeTurbModel == 'LES':
-            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_LES', nameFileNew='turbulenceProperties')
+            copy_file(self.addPath, path, nameFilesOld='turbulenceProperties_LES', nameFileNew='turbulenceProperties')
         elif typeTurbModel == 'kEpsilon':
-            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_kEpsilon',
+            copy_file(self.addPath, path, nameFilesOld='turbulenceProperties_kEpsilon',
                       nameFileNew='turbulenceProperties')
         elif typeTurbModel == 'realizableKE':
 
-            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_realizableKE',
+            copy_file(self.addPath, path, nameFilesOld='turbulenceProperties_realizableKE',
                       nameFileNew='turbulenceProperties')
         elif typeTurbModel == 'kOmega':
 
-            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_kOmega',
+            copy_file(self.addPath, path, nameFilesOld='turbulenceProperties_kOmega',
                       nameFileNew='turbulenceProperties')
         elif typeTurbModel == 'kOmegaSST':
-            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_kOmegaSST',
+            copy_file(self.addPath, path, nameFilesOld='turbulenceProperties_kOmegaSST',
                       nameFileNew='turbulenceProperties')
 
         elif typeTurbModel == 'laminar':
-            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_Laminar',
+            copy_file(self.addPath, path, nameFilesOld='turbulenceProperties_Laminar',
                       nameFileNew='turbulenceProperties')
         elif typeTurbModel == 'LESSmag':
-            copyFiele(self.addPath, path, nameFilesOld='turbulenceProperties_LESdynamicSmag',
+            copy_file(self.addPath, path, nameFilesOld='turbulenceProperties_LESdynamicSmag',
                       nameFileNew='turbulenceProperties')
 
     def setAnyConstantFiles(self, *lists_var, files=['controlDict'], path_case=None):

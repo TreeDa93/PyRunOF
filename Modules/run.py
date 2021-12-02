@@ -1,8 +1,9 @@
 import os
 import sys
-from Modules.auxiliary_functions import change_var_fun
-from Modules.auxiliary_functions import Priority
+from Modules.auxiliary_functions import Priority, Files
 from typing import List, Optional, Dict
+
+
 class Run:
     """
         FIXME
@@ -28,7 +29,6 @@ class Run:
         self.coreElmer = coreElmer
         self.mesh_Elmer = mesh_Elmer
 
-
     def __str__(self):
         return f'It is myClass with var1 {self.name}'
 
@@ -45,7 +45,7 @@ class Run:
             NUMBER_OF_PROC_OF - is the number of processor cores involved to calculation of OpenFOAM problem
             NUMBER_OF_PROC_Elmer - is the number of processor cores involved to calculation of Elmer problem
             """
-        run_path = Priority.path2(path_case, path_key, self.path_case)
+        run_path = Priority.path(path_case, path_key, self.path_case)
         os.chdir(run_path)
         self.decompose_run(decompose_OF, decompose_Elmer)
         os.system(self._collect_name_solver())
@@ -104,11 +104,10 @@ class Run:
                              name_var: str = 'core_OF',
                              path_case: str = None):
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
-        run_path = Priority.variable(path_case, '', self.path_case)
-        sys_path = os.path.join(run_path, 'system')
+        path_case = Priority.variable(path_case, '', self.path_case)
+        sys_path = os.path.join(path_case, 'system')
         core_OF = Priority.cores(core_OF, self.coreOF)
-        os.chdir(sys_path)
-        change_var_fun(name_var, core_OF, nameFile='decomposeParDict')
+        Files.change_var_fun(name_var, core_OF, path=sys_path, file_name='decomposeParDict')
 
     def set_solver_name(self, solver_name: str ='pimpleFoam') -> None:
         self.solver_name = solver_name

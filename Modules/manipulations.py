@@ -126,7 +126,7 @@ class Manipulations:
 
         newPath is the name of new case
         """
-        cur_path = Priority.path(dir_path, dir_path_key, self.paths)
+        cur_path = Priority.path_dict(dir_path, dir_path_key, self.paths)
         cur_name = Priority.name(case_name, name_key, self.case_names)
         self.paths[path_key] = os.path.join(cur_path, cur_name)
         return self.paths[path_key]

@@ -21,7 +21,7 @@ class System:
     def set_control_dict(self, var_dict: dict, case_path: Optional[str] = None) -> None:
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
 
-        case_path = Priority.path2(case_path, None, self.case_path)
+        case_path = Priority.path(case_path, None, self.case_path)
         system_path = os.path.join(case_path, 'system')
         for var in var_dict:
             Files.change_var_fun(var, var_dict[var], path=system_path,
@@ -29,7 +29,7 @@ class System:
 
     def set_fvSolution(self, *listsfvSolution: dict, case_path: Optional[str] = None) -> None:
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
-        case_path = Priority.path2(case_path, None, self.case_path)
+        case_path = Priority.path(case_path, None, self.case_path)
         system_path = os.path.join(case_path, 'system')
         for list_var in listsfvSolution:
             for var in list_var:
@@ -38,7 +38,7 @@ class System:
 
     def set_fvSchemes(self, *listsfvSchemes: dict, case_path: Optional[str] = None) -> None:
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
-        case_path = Priority.path2(case_path, None, self.case_path)
+        case_path = Priority.path(case_path, None, self.case_path)
         system_path = os.path.join(case_path, 'system')
         for list_var in listsfvSchemes:
             for var in list_var:
@@ -48,7 +48,7 @@ class System:
     def set_any_files(self, *listsVar: dict, files: List[str] = ['controlDict'],
                       case_path: Optional[str] = None) -> None:
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
-        case_path = Priority.path2(case_path, None, self.case_path)
+        case_path = Priority.path(case_path, None, self.case_path)
         system_path = os.path.join(case_path, 'system')
         for file in files:
             for list_var in listsVar:
@@ -62,7 +62,7 @@ class System:
         excl_dict = {var_name: str} - str sholde be exclude in the line
         """
 
-        case_path = Priority.path2(case_path, None, self.case_path)
+        case_path = Priority.path(case_path, None, self.case_path)
         system_path = os.path.join(case_path, 'system')
         for var_name in var_dict:
             Files.change_text_line(var_name, var_dict[var_name], excl_dict[var_name], path=system_path,
