@@ -4,51 +4,6 @@ import shutil
 import traceback
 
 
-def change_var_fun(dist_var, sour_var, nameFile=''):
-    """Function to find and replace required text part at given file
-            dist_var is the depicts finding variables
-            sour_var depicts replacing variables
-            nameFile is the name of file where the procedure will be done
-
-    """
-    if os.path.isfile(nameFile):
-        with open(nameFile, 'r') as f:
-            oldData = f.read()
-        newData = oldData.replace(str(dist_var), str(sour_var))
-        with open(nameFile, 'w') as f:
-            f.write(newData)
-    else:
-        print(f'Warning: The file {nameFile} is not exist!')
-
-
-def copy_fun(root_src_dir, root_dst_dir):
-    for src_dir, dirs, files in os.walk(root_src_dir):
-        dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
-        if not os.path.exists(dst_dir):
-            os.makedirs(dst_dir)
-        for file_ in files:
-            src_file = os.path.join(src_dir, file_)
-            dst_file = os.path.join(dst_dir, file_)
-            if os.path.exists(dst_file):
-                os.remove(dst_file)
-            shutil.copy(src_file, dst_dir)
-
-
-def copy_files(root_src_dir, root_dst_dir):
-    for file_ in os.listdir(root_src_dir):
-        src_file = os.path.join(root_src_dir, file_)
-        dst_file = os.path.join(root_dst_dir, file_)
-        if os.path.exists(dst_file):
-            os.remove(dst_file)
-        shutil.copy(src_file, dst_file)
-
-
-def copyFiele(root_src_dir, root_dst_dir, nameFilesOld='', nameFileNew=''):
-    src_file = os.path.join(root_src_dir, nameFilesOld)
-    dst_file = os.path.join(root_dst_dir, nameFileNew)
-    shutil.copy2(src_file, dst_file)
-
-
 class Files:
     """
     Discription of class
@@ -491,3 +446,31 @@ class Priority:
                 sys.exit('Error: You do not enter the name of the sif file!!!')
         else:
             pass
+
+
+def copy_fun(root_src_dir, root_dst_dir):
+    for src_dir, dirs, files in os.walk(root_src_dir):
+        dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
+        if not os.path.exists(dst_dir):
+            os.makedirs(dst_dir)
+        for file_ in files:
+            src_file = os.path.join(src_dir, file_)
+            dst_file = os.path.join(dst_dir, file_)
+            if os.path.exists(dst_file):
+                os.remove(dst_file)
+            shutil.copy(src_file, dst_dir)
+
+
+def copy_files(root_src_dir, root_dst_dir):
+    for file_ in os.listdir(root_src_dir):
+        src_file = os.path.join(root_src_dir, file_)
+        dst_file = os.path.join(root_dst_dir, file_)
+        if os.path.exists(dst_file):
+            os.remove(dst_file)
+        shutil.copy(src_file, dst_file)
+
+
+def copyFiele(root_src_dir, root_dst_dir, nameFilesOld='', nameFileNew=''):
+    src_file = os.path.join(root_src_dir, nameFilesOld)
+    dst_file = os.path.join(root_dst_dir, nameFileNew)
+    shutil.copy2(src_file, dst_file)
