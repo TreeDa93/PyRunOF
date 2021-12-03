@@ -106,7 +106,7 @@ if __name__ == "__main__":
     #initValueClass.setVar(constDictVar, newDict, nameFiels=['U', 'k'], var=newPath)
  ######
 
-    constantClass = Constant(pathCase=newPath)
+    constantClass = Constant(case_path=newPath)
     constantClass.set_transportProp(tranPropDict)
     constantClass.setTurbModel(typeTurbModel='kEpsilon')
 

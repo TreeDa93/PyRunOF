@@ -47,7 +47,7 @@ def step1(name):
     initialDictCalculated= initialClass.calcInitVal(A, B, Uin, nu)
     initialClass.setVarAllFiels(initialDictConst, initialDictCalculated)
 
-    cpClass = Constant(pathCase=runPath)
+    cpClass = Constant(case_path=runPath)
     cpClass.setTurbModel(turbType)
     cpClass.setTransportProp(tranPropDict)
 

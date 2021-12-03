@@ -16,7 +16,7 @@ class Files:
         ----------
     Methods
         -------
-        change_text(cls, dist_var, sour_var, name_file='')
+        change_text(cls, name_var, value_var, name_file='')
              is the method to find and replace required text part at given file
 
         change_text_line(var_value, var_name, var_excl_name, path_dict=None, file_name='')
@@ -28,12 +28,12 @@ class Files:
         pass
 
     @staticmethod
-    def change_var_fun(dist_var: str, sour_var: any, path: str = None, file_name: str = '') -> None:
+    def change_var_fun(name_var: str, value_var: any, path: str = None, file_name: str = '') -> None:
         """Function to find and replace required text part at given file
             Attributes:
                  --------------
-                dist_var is the depicts finding variables
-                sour_var depicts replacing variables
+                name_var depicts finding variables
+                value_var depicts replacing variables
                 file_name is the name of file where the procedure will be done
 
         """
@@ -41,7 +41,7 @@ class Files:
         if os.path.isfile(path):
             with open(path, 'r') as f:
                 old_data = f.read()
-            new_data = old_data.replace(str(dist_var), str(sour_var))
+            new_data = old_data.replace(str(name_var), str(value_var))
             with open(path, 'w') as f:
                 f.write(new_data)
         else:
@@ -78,6 +78,22 @@ class Files:
                     new_data+=line
         with open(path, 'w') as f:
             f.write(new_data)
+
+    @staticmethod
+    def copy_file(root_src_dir, root_dst_dir, old_name='', new_name=''):
+        """The method make copy of a file and move it to new path with new name.
+        Attributes:
+            -------------
+        root_src_dir is path of directory consisting of  file required for copy
+        root_dst_dir is the path of directory intended for new file
+        old_name is the name of copying file
+        new_name is the name of new copied file
+        Out:
+            None
+        """
+        src_file = os.path.join(root_src_dir, old_name)
+        dst_file = os.path.join(root_dst_dir, new_name)
+        shutil.copy2(src_file, dst_file)
 
 
 class Priority:
@@ -542,7 +558,3 @@ def copy_files(root_src_dir, root_dst_dir):
         shutil.copy(src_file, dst_file)
 
 
-def copy_file(root_src_dir, root_dst_dir, nameFilesOld='', nameFileNew=''):
-    src_file = os.path.join(root_src_dir, nameFilesOld)
-    dst_file = os.path.join(root_dst_dir, nameFileNew)
-    shutil.copy2(src_file, dst_file)

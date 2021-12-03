@@ -42,8 +42,8 @@ def step1():
     initialDictCalculated= initialClass.calcInitVal(A, B, Uin, nu)
     initialClass.setVarAllFiles(initialDictConst, initialDictCalculated)
 
-    cpClass = Constant(pathCase=runPath, pathLib=libpath)
-    cpClass.setTurbModel2(turbType1)
+    cpClass = Constant(case_path=runPath, lib_path=libpath)
+    cpClass.turbulent_model(turbType1)
     cpClass.set_transportProp(tranPropDict)
 
     meshClass = Mesh(case_path=runPath)
@@ -84,8 +84,8 @@ def step2(oldPath):
     initialClass.reconstruct(oldPath)
     initialClass.setMappValues()
 
-    cpClass = Constant(pathCase=runPath, pathLib=libpath)
-    cpClass.setTurbModel2(turbType1)
+    cpClass = Constant(case_path=runPath, lib_path=libpath)
+    cpClass.turbulent_model(turbType1)
     cpClass.set_transportProp(tranPropDict)
 
 

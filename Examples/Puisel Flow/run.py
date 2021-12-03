@@ -37,7 +37,7 @@ if __name__ == "__main__":
     ic.setVarAllFiles(constDictVar, newDict)
 
 
-    cc = Constant(pathCase=newPath)
+    cc = Constant(case_path=newPath)
     cc.set_transportProp(tranPropDict)
     cc.setTurbModel(typeTurbModel='kEpsilon')
 

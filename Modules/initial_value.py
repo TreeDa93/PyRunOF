@@ -269,9 +269,6 @@ class InitialValue:
         else:
             return os.path.join(pathCase)
 
-
-
-
     def checkOption(self, option):
         if option == None:
             if self.option != None:

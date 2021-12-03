@@ -1,7 +1,7 @@
 import os
 import sys
 from Modules.auxiliary_functions import Priority, Files
-from typing import List, Optional, Dict
+from typing import Optional
 
 
 class Run:
@@ -30,9 +30,11 @@ class Run:
         self.mesh_Elmer = mesh_Elmer
 
     def __str__(self):
+        #FIXME
         return f'It is myClass with var1 {self.name}'
 
     def __repr__(self):
+        #FIXME
         return f'It is my collection of objects {self.name}'
 
     def run(self, path_case: Optional[str] = None,
@@ -44,7 +46,7 @@ class Run:
             NUMBER_OF_PROC_OF - is the number of processor cores involved to calculation of OpenFOAM problem
             NUMBER_OF_PROC_Elmer - is the number of processor cores involved to calculation of Elmer problem
             """
-        self.decompose_run(decompose_OF, decompose_Elmer)
+        self.decompose_run(decompose_OF, decompose_Elmer, path_case=path_case)
         self.run_of(path_case)
         
     def run_of(self, path_case):
@@ -59,12 +61,12 @@ class Run:
     def decompose_run(self, decompose_OF: bool, decompose_Elmer: bool, path_case=None):
         if self.mode == 'common':
             if decompose_OF is True:
-                print('You do not need to run decompasition for common mode')
+                print('You do not need to run decomposition for common mode')
         elif self.mode == 'parallel':
-            self.decompose_OF(decompose_OF, path_case=None)
+            self.decompose_OF(decompose_OF, path_case=path_case)
         elif self.mode == 'EOF':
-            self.decompose_OF(decompose_OF, path_case=None)
-            self.decompose_Elmer(decompose_Elmer, path_case=None)
+            self.decompose_OF(decompose_OF, path_case=path_case)
+            self.decompose_Elmer(decompose_Elmer, path_case=path_case)
 
     def decompose_OF(self, decompose_OF: bool, path_case=None) -> None:
         if decompose_OF is True:

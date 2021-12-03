@@ -1,67 +1,44 @@
 import sys
 import os
-from Modules.auxiliary_functions import Priority
+from Modules.auxiliary_functions import Priority, Files
 
 
-class Elmer(Priority):
+class Elmer:
     """
-    FIXME
+    The clss is designed to provide manipulations on elmer settings in .sif file
+    Attributes:
+        ---------------
+        path_case is the path of case where sif file is put
+        sif_name is the name of sif file put in path_case and containing settings of elmer case
     """
 
-    def __init__(self, path_case=None, sif_name='.sif'):
+    def __init__(self, path_case=None, sif_name=None):
         self.path_case = path_case
         self.sif_name = sif_name
 
-    def set_elmer_var(self, *elmerDictioaries, path_case=None, sif_name=None):
+    def set_elmer_var(self, *elmer_dicts: dict, path_case: str = None, sif_name: str = None):
         """
-        FIXME need add description
-        :param elmerDictioaries:
-        :param path_case:
-        :param sif_name:
-        :return:
-        """
-        path = self._priority_path(path_case)
-        sif_name = self._priority_sif_file(sif_name)
-        os.chdir(path)
-        for var_list in elmerDictioaries:
-            for var in var_list:
-                change_var_fun(var, var_list[var], nameFile=sif_name)
-
-    def _priority_path(self, path_case):
-        """The method is used for selection of given name
-        the first priority is given name by methods
-        the second priority is given name by class constructor
-        If both name is None, the program is interupted
-        Input :
-        basePath, newPath is checkoing pathes
+        The method to set given parameters in the file with sif extension.
+        The general idea of the method is to find given part of text in sif file and to change
+        the part of text on given value. You have to set the flags, keys of elmer_dicts,
+        in the sif file yourselves for purpose of the method can find them and change it.
+        It should be noted the flag to be unique.
+        Input:
+            elmer_dicts is a set of dictionaries with keys as names or flags of variable in sif file
+            and values of the dictionaries as value to be set instead of the flags.
+            paths_case is path of case where you need to provide tuning of sif file
+            sif_name is the name of sif file put in path_case and containing settings of elmer case
         Output:
-        retrunBasePath, returnNewPath is selected pathes acording priority
-        """
-        if path_case is None:
-            if self.path_case is not None:
-                return self.path_case
-            else:
-                sys.exit('Error: You do not enter the base name!!!')
-        else:
-            return path_case
 
-    def _priority_sif_file(self, sif_name):
-        """The method is used for selection of given name
-        the first priority is given name by methods
-        the second priority is given name by class constructor
-        If both name is None, the program is interupted
-        Input :
-        basePath, newPath is checkoing pathes
-        Output:
-        retrunBasePath, returnNewPath is selected pathes acording priority
         """
-        if sif_name is None:
-            if self.sif_name is None:
-                return self.sif_name
-            else:
-                sys.exit('Error: You do not enter the name of the sif file!!!')
-        else:
-            return sif_name
+        path_case = Priority.path(path_case, None, self.path_case)
+        sif_name = Priority.name(sif_name, None, self.sif_name)
+        if '.sif' not in sif_name:
+            sif_name += '.sif'
+
+        for elmer_dict in elmer_dicts:
+            for var in elmer_dict:
+                Files.change_var_fun(var, elmer_dict[var], path=path_case, file_name=sif_name)
 
 
 

@@ -40,7 +40,7 @@ def developedFlow(name):
 
     sc = System()
     initialClass = IntiailValue(pathCase=runPath)
-    cpClass = Constant(pathCase=runPath, pathLib=libpath)
+    cpClass = Constant(case_path=runPath, lib_path=libpath)
     meshClass = Mesh(case_path=runPath)
 
 
@@ -49,7 +49,7 @@ def developedFlow(name):
     initialDictCalculated= initialClass.calcInitVal(A, B, Uin, nu)
     initialClass.setVarAllFiels(initialDictConst, initialDictCalculated)
 
-    cpClass.setTurbModel2(turbType1)
+    cpClass.turbulent_model(turbType1)
     cpClass.setTransportProp(tranPropDict)
 
 
@@ -81,7 +81,7 @@ def hartmann(oldPath, name):
 
     # initialization all required classes
     sc = System()
-    cpClass = Constant(pathCase=runPath, pathLib=libpath)
+    cpClass = Constant(case_path=runPath, lib_path=libpath)
     initialClass = IntiailValue(pathCase=runPath)
     meshClass = Mesh(case_path=runPath)
     eClass = Elmer(pathCase=runPath, sifName='case.sif')
@@ -89,7 +89,7 @@ def hartmann(oldPath, name):
 
 
     sc.setControlDict(controlDict2) # настраиваем controlDict
-    cpClass.setTurbModel2(turbType1)  # настраиваем модель турбулентности
+    cpClass.turbulent_model(turbType1)  # настраиваем модель турбулентности
     cpClass.setTransportProp(tranPropDict)  # настраиваем transportProperties in constant
 
     meshClass.set_blockMesh(meshList)   # настраиваем BlockMeshDict

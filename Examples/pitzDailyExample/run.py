@@ -35,7 +35,7 @@ if __name__ == "__main__":
     ic = InitialValue(pathCase=runPath)
     ic.setVarAllFiles(constDictVar)
 
-    cc = Constant(pathCase=runPath)
+    cc = Constant(case_path=runPath)
     cc.set_transportProp(tranPropDict)
 
 
