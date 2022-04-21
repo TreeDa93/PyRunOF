@@ -2,6 +2,7 @@ import os
 import sys
 import shutil
 import traceback
+import pathlib as pl
 from typing import List, Optional, Dict
 
 
@@ -37,12 +38,12 @@ class Files:
                 file_name is the name of file where the procedure will be done
 
         """
-        path = os.path.join(path, file_name)
-        if os.path.isfile(path):
-            with open(path, 'r') as f:
-                old_data = f.read()
-            new_data = old_data.replace(str(name_var), str(value_var))
-            with open(path, 'w') as f:
+        path = pl.Path(path) / file_name  # -> path = os.path.join(path, file_name)
+        #path = pl.Path.joinpath(pl.Path(path), *[file_name]) # -> path = os.path.join(path, file_name)
+        if path.is_file():
+            with path.open(mode='r') as f:
+                new_data = f.read().replace(str(name_var), str(value_var))
+            with path.open(mode='w') as f:
                 f.write(new_data)
         else:
             print(f'Warning: The file {file_name} is not exist!')
@@ -66,17 +67,15 @@ class Files:
 
                 file_name is the name of the file  where the method will fulfil searching.
         """
-        path = os.path.join(path, file_name)
+        path = pl.Path(path)/file_name  # -> path = os.path.join(path, file_name)
         new_data = ''
-        with open(path, 'r') as f1:
-            for line in f1:
+        with path.open(mode='r') as f:
+            for line in f:
                 if (var_name in line) and (var_excl_name not in line):
-                    new_line = f'{var_name} \t\t {var_value}; \n'
-                    new_data += new_line
-                    print(new_line)
+                    new_data += f'{var_name} \t\t {var_value}; \n'
                 else:
-                    new_data+=line
-        with open(path, 'w') as f:
+                    new_data += line
+        with path.open(mode='w') as f:
             f.write(new_data)
 
     @staticmethod
@@ -91,9 +90,10 @@ class Files:
         Out:
             None
         """
-        src_file = os.path.join(root_src_dir, old_name)
-        dst_file = os.path.join(root_dst_dir, new_name)
-        shutil.copy2(src_file, dst_file)
+
+        src_file_path = pl.Path(root_src_dir)/old_name  # -> src_file = os.path.join(root_src_dir, old_name)
+        dst_file_path = pl.Path(root_dst_dir)/new_name  # -> dst_file = os.path.join(root_dst_dir, new_name)
+        shutil.copy2(str(src_file_path), str(dst_file_path))
 
 
 class Priority:
@@ -312,18 +312,21 @@ class Priority:
         Output:
             return path or error
         """
-        if os.path.exists(check_path):
+        check_path = pl.Path(check_path)
+        if check_path.exists(): #  os.path.exists(check_path):
             return check_path
         else:
-            dir_path, case_name = os.path.split(check_path)
-            if os.path.exists(dir_path):
+            #dir_path, case_name = os.path.split(check_path)
+            if check_path.parent.exists():  # -> os.path.exists(dir_path):
                 if make_new is True:
-                    os.mkdir(case_name)
+                    check_path.parent.mkdir(check_path.stem)  # -> os.mkdir(check_path.stem)
                     return check_path
                 else:
-                    cls._raise_error(check_path, dir_path, case_name, type_error='check_path_existence_error_1')
+                    cls._raise_error(check_path, check_path.parent, check_path.stem,
+                                     type_error='check_path_existence_error_1')
             else:
-                cls._raise_error(dir_path, case_name, type_error='check_path_existence_error_2')
+                cls._raise_error(check_path.parent, check_path.stem,
+                                 type_error='check_path_existence_error_2')
 
     @classmethod
     def check_path_existence_only(cls, check_path):
@@ -335,15 +338,15 @@ class Priority:
             If the path exist the method return full
             if there is only directory of the final folder the method return 'dir'
         """
-
-        if os.path.exists(check_path):
+        check_path = pl.Path(check_path)
+        if check_path.exists():  # ->os.path.exists(check_path):
             return 'full'
         else:
-            dir_path, case_name = os.path.split(check_path)
-            if os.path.exists(dir_path):
+            #dir_path, case_name = os.path.split(check_path)
+            if check_path.parent.exists():  # -> os.path.exists(check_path.parent):
                 return 'dir'
             else:
-                cls._raise_error(dir_path, case_name, type_error='check_path_existence_error_2')
+                cls._raise_error(check_path.parent, check_path.stem, type_error='check_path_existence_error_2')
 
     def file(self, file):
         """The method is used for selection of given name
@@ -359,7 +362,7 @@ class Priority:
             if self.file is not None:
                 return self.file
             else:
-                sys.exit('Error: You do not enter the name of the sif file!!!')
+                sys.exit('Error: You do not enter the name of the file!!!')
         else:
             return file
 
@@ -425,7 +428,7 @@ class Priority:
             if self.file is not None:
                 return self.file
             else:
-                sys.exit('Error: You do not enter the name of the sif file!!!')
+                sys.exit('Error: You do not enter the name of the file!!!')
         else:
             pass
 
@@ -535,26 +538,3 @@ class Priority:
     @staticmethod
     def _raise_error_run():
         sys.exit('You have to set numbers of cores for OpenFOAM')
-
-def copy_fun(root_src_dir, root_dst_dir):
-    for src_dir, dirs, files in os.walk(root_src_dir):
-        dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
-        if not os.path.exists(dst_dir):
-            os.makedirs(dst_dir)
-        for file_ in files:
-            src_file = os.path.join(src_dir, file_)
-            dst_file = os.path.join(dst_dir, file_)
-            if os.path.exists(dst_file):
-                os.remove(dst_file)
-            shutil.copy(src_file, dst_dir)
-
-
-def copy_files(root_src_dir, root_dst_dir):
-    for file_ in os.listdir(root_src_dir):
-        src_file = os.path.join(root_src_dir, file_)
-        dst_file = os.path.join(root_dst_dir, file_)
-        if os.path.exists(dst_file):
-            os.remove(dst_file)
-        shutil.copy(src_file, dst_file)
-
-

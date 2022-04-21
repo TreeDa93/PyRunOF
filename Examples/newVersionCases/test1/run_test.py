@@ -21,8 +21,8 @@ def main():
               )
     run.set_decomposeParDict()
     run.run()
-    # mc.duplicate_case(src_path=mc.get_path('base'), dist_path=mc.get_path('run'))
 
+    mc.delete_case(full_path=mc.paths['run'])
 
 if __name__ == "__main__":
     main()

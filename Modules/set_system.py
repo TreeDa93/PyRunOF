@@ -27,6 +27,18 @@ class System:
             Files.change_var_fun(var, var_dict[var], path=system_path,
                                  file_name='controlDict')
 
+    def set_control_dict2(self, var_dict: dict, excl_dict: dict, case_path: Optional[str] = None) -> None:
+        """Функция ищет заданную переменную в строчке var_dict
+        var_dict = {var_name: value of the variable}
+        excl_dict = {var_name: str} - str sholde be exclude in the line
+        """
+
+        case_path = Priority.path(case_path, None, self.case_path)
+        system_path = os.path.join(case_path, 'system')
+        for var_name in var_dict:
+            Files.change_text_line(var_dict[var_name], var_name, excl_dict[var_name], path=system_path,
+                                   file_name='controlDict')
+
     def set_fvSolution(self, *listsfvSolution: dict, case_path: Optional[str] = None) -> None:
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
         case_path = Priority.path(case_path, None, self.case_path)
@@ -56,14 +68,4 @@ class System:
                     Files.change_var_fun(var, list_var[var], path=system_path,
                                          file_name=file)
 
-    def set_control_dict2(self, var_dict: dict, excl_dict: dict, case_path: Optional[str] = None) -> None:
-        """Функция ищет заданную переменную в строчке var_dict
-        var_dict = {var_name: value of the variable}
-        excl_dict = {var_name: str} - str sholde be exclude in the line
-        """
 
-        case_path = Priority.path(case_path, None, self.case_path)
-        system_path = os.path.join(case_path, 'system')
-        for var_name in var_dict:
-            Files.change_text_line(var_dict[var_name], var_name, excl_dict[var_name], path=system_path,
-                                   file_name='controlDict')

@@ -10,45 +10,23 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "system";
-    object      controlDict;
+    object      turbulenceProperties;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     pimpleFoam;
+simulationType laminar;
 
-startFrom       latestTime;
+laminar
+{
+    laminarModel        Maxwell;
 
-startTime       0;
+    MaxwellCoeffs
+    {
+        nuM             0.002;
+        lambda          0.03;
+    }
 
-stopAt          endTime;
-
-endTime         5;
-
-deltaT          0.0001;
-
-writeControl    adjustableRunTime;
-
-writeInterval   0.01;
-
-purgeWrite      0;
-
-writeFormat     ascii;
-
-writePrecision  6;
-
-writeCompression off;
-
-timeFormat      general;
-
-timePrecision   6;
-
-runTimeModifiable yes;
-
-adjustTimeStep  yes;
-
-maxCo           5;
-
-
+    printCoeffs         on;
+}
 
 // ************************************************************************* //

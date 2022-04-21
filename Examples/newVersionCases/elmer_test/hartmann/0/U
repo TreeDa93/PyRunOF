@@ -1,0 +1,50 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+Uinlet          (0 0 0);
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    outlet
+    {
+        type            pressureInletOutletVelocity;
+        value           uniform $Uinlet;
+    }
+    inlet
+    {
+        type            timeVaryingMappedFixedValue;
+		offset          (0 0 0); //  домножает текущее значение
+        setAverage      false;
+		perturb         0.0;
+		interpolationScheme cellPointFace;
+		mapMethod 		nearest;  // it is important for the problem planarInterpolation 
+		dataDir         dataDir_var; //"../step1_solved/postProcessing/outletSurf";
+        points          points_var;   //"0.25/outlet/points";
+        sample          sample_var;   //outlet;
+    }
+    ".*"
+    {
+        type            noSlip;
+    }
+}
+
+
+// ************************************************************************* //

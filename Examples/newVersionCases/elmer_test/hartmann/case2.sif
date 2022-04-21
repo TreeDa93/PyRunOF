@@ -1,0 +1,266 @@
+Check Keywords "Warn"
+
+Header 1
+   Mesh DB "." "Elmer_EOF"
+End
+
+INCLUDE Elmer_EOF/mesh.names
+
+!Parameters
+$ omega = 0
+$ tau = 0.15
+$ psi = 0.1
+$ sigma = 3.838e6
+$ Hm = 20/(4e-7*pi)
+$ Bm = Bm_var
+$ Bhf = Bm/2
+
+Simulation
+   Max Output Level = 3
+   Coordinate System = Cartesian 3D
+   Coordinate Mapping(3) = 1 2 3
+   Coordinate Scaling = 1
+   Simulation Type = Steady
+  Steady State Max Iterations = 100000
+  Steady State Min Iterations = 100000
+  Output Intervals(1) = 100000
+End
+
+Constants
+  Permittivity of Vacuum = 8.8542e-12
+  Permeability of Vacuum = Real $ pi*4e-07
+End
+
+!###############################################################################
+!##################################### Materials ###############################
+!###############################################################################
+
+Material 1
+  Name = air
+   Relative Permittivity = Real 1
+   Relative Permeability = Real 1
+   Electric Conductivity = Real 1
+   Mapping = Logical True
+End
+
+
+!###############################################################################
+!##################################### Bodies ##################################
+!###############################################################################
+
+Body 1
+  Target Bodies(1) = $ Duct
+  Equation = 1
+  Material = 1
+  Name = "Air"
+  Body Force = 1
+  Initial Condition = 1
+End
+
+
+!###############################################################################
+!#######################------ Solver section -----#######################!
+!###############################################################################
+Solver 1
+! openfoam2elmer
+
+Equation = OpenFOAM2Elmer
+Procedure = "OpenFOAM2Elmer" "OpenFOAM2ElmerSolver"
+
+! next 3 lines are needed if OpenFOAM sends velocity to Elmer
+Target Variable 1 = String "OF U1"
+Target Variable 2 = String "OF U2"
+Target Variable 3 = String "OF U3"
+
+
+
+End
+
+Solver 2
+! em solver
+Equation = "MGDynamics"
+Variable = "A[A re:1 A im:1]"
+Procedure = "MagnetoDynamics" "WhitneyAVHarmonicSolver"
+!Fix Input Current Density = Logical True
+!Automated Source Projection BCs = Logical False
+Angular Frequency = $ omega
+Linear System Symmetric = Logical True
+Linear System Complex = Logical True
+Linear System Solver = Iterative
+Linear System Iterative Method = BicgStabL
+BicgStabL Polynomial Degree = 4
+Linear System preconditioning = none
+Linear System Convergence Tolerance = 1.e-8
+Linear System Max Iterations = 50000
+Linear System Residual Output = 500
+Linear System Abort not Converged = True
+Nonlinear System Convergence Tolerance = 1.e-7
+Steady State Convergence Tolerance = 1e-6
+
+! Next 3 variables in this solver are needed
+! if OpenFOAM sends velocity to Elmer
+Exported Variable 1 = -dg "OF U1"
+Exported Variable 1 Mask = String "material: mapping"
+Exported Variable 2 = -dg "OF U2"
+Exported Variable 2 Mask = String "material: mapping"
+Exported Variable 3 = -dg "OF U3"
+Exported Variable 3 Mask = String "material: mapping"
+
+End
+
+
+Solver 3
+! em postprocessing
+
+! electromagnetics postprocessor
+! calculates j, B etc from vector potential
+Equation = "MGDynamicsCalc"
+Procedure = "MagnetoDynamics" "MagnetoDynamicsCalcFields"
+Potential Variable = String "A"
+Calculate Current Density = Logical True
+Calculate Electric Field = Logical False
+Calculate Magnetic Field Strength = Logical False
+Calculate Joule Heating = Logical False
+Calculate JxB = Logical True
+Calculate Magnetic Vector Potential = Logical True
+Steady State Convergence Tolerance = 0
+Linear System Solver = "Iterative"
+Linear System Preconditioning = None
+Linear System Residual Output = 1000
+Linear System Max Iterations = 5000
+Linear System Iterative Method = CG
+Steady State Convergence Tolerance = 1e-9
+Linear System Convergence Tolerance = 1.0e-9
+End
+
+
+
+
+Solver 4
+! elmer2openfoam
+
+
+! this solver sends data to OpenFOAM and must be after all other solvers
+Equation = ElmerToOpenFOAM
+Procedure = "Elmer2OpenFOAM" "Elmer2OpenFOAMSolver"
+! the order of the following must be as in the relevant OpenFOAM solver
+! if OpenFOAM has receiving.recvVector(Jim), here you will write:
+Target Variable 1 = Current Density re 1
+Target Variable 2 = Current Density re 2
+Target Variable 3 = Current Density re 3
+
+Target Variable 4 = Current Density im 1
+Target Variable 5 = Current Density im 2
+Target Variable 6 = Current Density im 3
+!!!!!!!!!!!!!!!!!!!!
+
+! vecotor B  receiving.recvVector(Bre)
+
+
+Target Variable 7 = Magnetic Flux Density re 1
+Target Variable 8 = Magnetic Flux Density re 2
+Target Variable 9 = Magnetic Flux Density re 3
+
+Target Variable 10 = Magnetic Flux Density im 1
+Target Variable 11 = Magnetic Flux Density im 2
+Target Variable 12 = Magnetic Flux Density im 3
+
+
+! if OpenFOAM has receiving.recvVector(JxB), here you will write:
+Target Variable 13 = jxb re 1
+Target Variable 14 = jxb re 2
+Target Variable 15 = jxb re 3
+
+End
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Solver 5
+   Exec Solver = After simulation
+   Equation = "ResultOutput"
+   Procedure = "ResultOutputSolve" "ResultOutputSolver"
+   Output File Name = elmer_results
+   Vtu format = Logical True
+   Save Geometry Ids = Logical True
+   Output Directory = "results"
+End
+
+Equation 1
+  Name = "MGDyn"
+  Active Solvers(4) = 1 2 3 4
+  !Magnetic Induction = Logical True
+End
+
+
+
+!###############################################################################
+!#######################------ Body Force Section ----#######################
+!###############################################################################
+
+Body Force 1
+    Lorentz velocity 1 = Equals "OF U1"
+    Lorentz velocity 2 = Equals "OF U2"
+    Lorentz velocity 3 = Equals "OF U3"
+End
+
+
+
+
+!###############################################################################
+!#######################------ Boundary section -----#######################!
+!###############################################################################
+
+Boundary Condition 1
+   Name = "Conductive"
+   Target Boundaries(2) = $ upperWall lowerWall
+  A re {e} 1 = Variable Coordinate 3
+	Real MATC "Bhf*tx" ! 
+  A re {e} 2 = Real 0
+  A re {e} 3 = Variable Coordinate 1
+	Real MATC "-Bhf*tx"
+  
+  Electric Current Density = Real 0 ! super insulation
+  !A re = Real 0 !super conductivity
+  !Electric Transfer Coefficient = Real 0.5 ! зависит от коэффициента
+
+
+End
+
+Boundary Condition 2
+   Name = "Dielectric"
+   Target Boundaries(2) = $ inlet outlet
+  A re {e} 1 = Variable Coordinate 3
+	Real MATC "Bhf*tx" ! 
+  A re {e} 2 = Real 0
+  A re {e} 3 = Variable Coordinate 1
+	Real MATC "-Bhf*tx"
+
+ 
+  Electric Current Density = Real 0 ! super insulation
+  !A re = Real 0 !super conductivity
+  !Magnetic Transfer Coefficient = Real 0
+  !Electric Transfer Coefficient = Real 0.5 ! зависит от коэффициента	
+
+End
+    
+Boundary Condition 3
+   Name = "bf"
+   Target Boundaries(1) = $ frontAndBack
+  A re {e} 1 = Variable Coordinate 3
+	Real MATC "Bhf*tx" ! 
+  A re {e} 2 = Real 0
+  A re {e} 3 = Variable Coordinate 1
+	Real MATC "-Bhf*tx"
+  !Magnetic Transfer Coefficient = Real 0
+
+
+  Electric Current Density = Real 0 ! super insulation
+  !A re = Real 0 !super conductivity
+  !Electric Transfer Coefficient = Real 0.5 ! зависит от коэффициента	
+
+
+End
+
+
+
+
+

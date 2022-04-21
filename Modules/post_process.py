@@ -10,7 +10,7 @@ class PostProcess:
         self.rebuild_data = {}
         self.newData = {}
 
-    def load_scv_file(self, name_file, dir=os.getcwd(), key='1'):
+    def load_csv_file(self, name_file, dir=os.getcwd(), key='1'):
         filePath = os.path.join(dir, name_file)
         self.data[key] = pd.read_csv(filePath)
         return self.data[key]

@@ -1,7 +1,6 @@
-import os
-import sys
 import shutil
-import datetime
+import pathlib as pl
+from time import strftime, sleep
 from typing import List, Optional, Dict
 from Modules.auxiliary_functions import Priority
 
@@ -41,8 +40,8 @@ class Manipulations:
                       'run': run_path,
                       'dir': dir_path}
         self.case_names = {'new': None,
-                            'base': None,
-                            'run': None}
+                           'base': None,
+                           'run': None}
 
     def __repr__(self):
         return f"Name of manipulation node ({self.name}, run name {self.paths['run']}, base name " \
@@ -64,26 +63,30 @@ class Manipulations:
            mode defines how the procedure of copying will be done.
                    a) rewrite mode is the mode when folder of new case already being existed, then the folder
                    will delited by the function and base case folder will be copied to the folder being the same name
-                   b) copy mode is the mode when folder of new case already being existed, then the folder will be copied
+                   b) copy mode is the mode when folder of new case already being existed, then the folder
+                   will be copied
                    to the folder being old name with prefix of current time of copying. And new case will be copied
                     to folder being name of pathNewCase variables."""
 
-        src_path = Priority.check_key_path(src_path, src_key, self.paths)
-        dist_path = Priority.check_key_path(dist_path, dist_key, self.paths)
+        src_path = pl.Path(Priority.check_key_path(src_path, src_key, self.paths))
+        dist_path = pl.Path(Priority.check_key_path(dist_path, dist_key, self.paths))
         Priority.check_path_existence(src_path, make_new=False)
 
         if mode == 'rewrite':
-            if Priority.check_path_existence_only(dist_path) is 'full':
+            if Priority.check_path_existence_only(dist_path) == 'full':
                 shutil.rmtree(dist_path)
             shutil.copytree(src_path, dist_path)
         elif mode == 'copy':
-            if Priority.check_path_existence_only(dist_path) is 'full':
-                now = datetime.datetime.now()
-                old_file = dist_path + '_' + 'old' + '_' + now.strftime("%d-%m-%Y %H:%M:%S")
-                try:
-                    shutil.move(dist_path, old_file)
-                except shutil.Error:
-                    print('You run the script is often. There is exception old case')
+            if Priority.check_path_existence_only(dist_path) == 'full':
+                old_name = dist_path.stem + '_' + 'old' + '_' + strftime('%d-%m-%Y %H-%M')
+                old_path = dist_path.parent / old_name
+                if old_path.exists():
+                    sleep(1)
+                    old_name = dist_path.stem + '_' + 'old' + '_' + strftime('%d-%m-%Y %H-%M-%S')
+                    old_path = dist_path.parent / old_name
+                    dist_path.replace(old_path)
+                else:
+                    dist_path.replace(old_path)
                 shutil.copytree(src_path, dist_path)
             else:
                 shutil.copytree(src_path, dist_path)
@@ -128,7 +131,7 @@ class Manipulations:
         """
         cur_path = Priority.path_dict(dir_path, dir_path_key, self.paths)
         cur_name = Priority.name(case_name, name_key, self.case_names)
-        self.paths[path_key] = os.path.join(cur_path, cur_name)
+        self.paths[path_key] = pl.Path(cur_path) / cur_name
         return self.paths[path_key]
 
     def create_path(self, path, path_key='testPath'):
@@ -180,13 +183,81 @@ class Manipulations:
         directory = Priority.check_key_path(directory, dir_key, self.paths)
         folder_name = Priority.check_key_name(folder_name, name_key, self.case_names)
 
-        full_path = os.path.join(directory, folder_name)
+        full_path = pl.Path(directory) / folder_name
         test = Priority.check_path_existence_only(full_path)
-        if test is 'full':
+        if test == 'full':
             if rewrite is True:
                 shutil.rmtree(full_path)
-                os.mkdir(full_path)
+                full_path.mkdir()
             else:
                 Priority.error_create_folder()
         else:
-            os.mkdir(full_path)
+            full_path.mkdir()
+
+    def delete_case(self, full_path: Optional[str] = None,
+                    dir_key: Optional[str] = None,
+                    directory: Optional[str] = None,
+                    folder_name: Optional[str] = None,
+                    name_key: Optional[str] = None,
+                    ) -> None:
+        """ The function is designed to delete a case
+                :param full_path:
+                :param dir_key:
+                :param directory:
+                :param folder_name:
+                :param name_key:
+                :return:
+                """
+        if full_path is None:
+            print('I am here!!!!')
+            directory = Priority.check_key_path(directory, dir_key, self.paths)
+            folder_name = Priority.check_key_name(folder_name, name_key, self.case_names)
+            full_path = pl.Path(directory) / folder_name
+            test = Priority.check_path_existence_only(full_path)
+            if test == 'full':
+                shutil.rmtree(full_path)
+            else:
+                print(f'Warning: The directory ({full_path.parent}) is exist'
+                      f'but the file to be deleted ({full_path.stem}) is missing!!!')
+        else:
+            full_path = pl.Path(full_path)
+            if Priority.check_path_existence_only(full_path) == 'full':
+                shutil.rmtree(full_path)
+            else:
+                print(f'Warning: The directory ({full_path.parent}) is exist'
+                      f'but the file to be deleted ({full_path.stem}) is missing!!!')
+
+    def delete_cases(self, full_pathes: Optional[list] = None,
+                     words: Optional[list]= None, directory: Optional[str] = None,
+                             dir_key: Optional[str] = None) -> None:
+        """ The function is designed to delete a case
+                :param full_path:
+                :param dir_key:
+                :param folder_name:
+                :param name_key:
+                :param rewrite:
+                :return:
+                """
+        if full_pathes is not None:
+            for full_path in full_pathes:
+                full_path = pl.Path(full_path)
+                if Priority.check_path_existence_only(full_path) == 'full':
+                    shutil.rmtree(full_path)
+                else:
+                    print(f'Warning: The directory ({full_path.parent}) is exist'
+                          f'but the file to be deleted ({full_path.stem}) is missing!!!')
+        elif words is not None:
+            for word in words:
+                full_pathes, _ = self.find_folders_by_word(word=word, directory=directory, dir_key=dir_key)
+                for full_path in full_pathes:
+                    shutil.rmtree(full_path)
+        else:
+            print('ERROR: You have to enter or the list of full_pathes either'
+                  'the list of words')
+
+    def find_folders_by_word(self, word: [str], directory: Optional[str] = None,
+                             dir_key: Optional[str] = None):
+        directory = pl.Path(Priority.check_key_path(directory, dir_key, self.paths))
+        full_find_path = [folder for folder in directory.iterdir() if word in folder.stem]
+        name_find_file = [folder.stem for folder in directory.iterdir() if word in folder.stem]
+        return full_find_path, name_find_file
