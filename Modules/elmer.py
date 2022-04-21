@@ -65,6 +65,7 @@ class Elmer_new:
         ---------------
         path_case is the path of case where sif file is put
         sif_name is the name of sif file put in path_case and containing settings of elmer case
+    TEST
     """
 
     def __init__(self, key: Optional[str] = 'general',
