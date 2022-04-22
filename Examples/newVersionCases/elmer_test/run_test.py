@@ -28,10 +28,10 @@ def main():
     mc.delete_cases(words=['old'], dir_key='dir')
     #mc.delete_case(full_path=mc.paths['dublicate'])
 
-    #elmer.set_path(path_case='new_path', info_key='new_key') #  test fun to set path in info
+    #elmer.set_path(path_case='new_path', info_key='new_key') #  test fun to set path in elmer_info
     #print(elmer.get_path(info_key='new_key'))
     #elmer.set_new_parameter(parameter='test_new_param', parameter_name='test_value_new_param')
-    #print(elmer.info)
+    #print(elmer.elmer_info)
     #print(elmer.get_any_parameter(parameter_name='test_value_new_param'))
 
 

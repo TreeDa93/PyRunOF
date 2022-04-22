@@ -23,7 +23,7 @@ class Mesh:
         """PathCase is name where the class will be doing any manipulation"""
         self.case_path = case_path
         self.elmer_mesh_name = ''
-        #self.info = {}
+        #self.elmer_info = {}
 
     def set_blockMesh(self, mesh_var_dict: dict, case_path: Optional[str] = None) -> None:
         """The method to set given parameters in blockMeshDict files for blockMesh utility.

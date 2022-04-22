@@ -1,7 +1,7 @@
-import os
 import pathlib as pl
 from Modules.auxiliary_functions import Priority, Files
 from typing import List, Optional, Dict, Any
+from Modules.information import Information
 
 
 class Elmer:
@@ -58,14 +58,13 @@ class Elmer:
             sif_name += '.sif'
 
 
-class Elmer_new:
+class Elmer_new(Information):
     """
     The clss is designed to provide manipulations on elmer settings in .sif file
     Attributes:
         ---------------
         path_case is the path of case where sif file is put
         sif_name is the name of sif file put in path_case and containing settings of elmer case
-    TEST
     """
 
     def __init__(self, key: Optional[str] = 'general',
@@ -74,6 +73,7 @@ class Elmer_new:
         self.info = dict.fromkeys([key], dict(path=pl.Path(case_path),
                                               name=sif_name))
         self.general_key = key
+
 
     def set_var(self, *elmer_dicts: dict,
                 path_case: Optional[str] = None,
@@ -101,58 +101,3 @@ class Elmer_new:
         for elmer_dict in elmer_dicts:
             for var in elmer_dict:
                 Files.change_var_fun(var, elmer_dict[var], path=path_case, file_name=sif_name)
-
-    def set_case(self, sif_name: str = 'magnetic.sif',
-                 info_key: Optional[str] = None) -> None:
-        info_key = self._check_key(info_key)
-        self.info[info_key]['name'] = sif_name
-
-    def get_case(self, info_key: Optional[str] = None):
-        info_key = self._check_key(info_key)
-        return self.info[info_key]
-
-    def set_path(self, path_case: Optional[str] = os.getcwd(),
-                 info_key: Optional[str] = None):
-        info_key = self._check_key(info_key)
-        self.info[info_key] = dict(path=pl.Path(path_case),
-                                              name=sif_name)
-
-    def get_path(self, info_key: Optional[str] = None):
-        info_key = self._check_key(info_key)
-        return self.info[info_key]['path']
-
-    def set_new_parameter(self, parameter: Any,
-                          info_key: Optional[str] = None,
-                          parameter_name: Optional[str] = 'new_parameter'):
-        info_key = self._check_key(info_key)
-        self.info[info_key][parameter_name] = parameter
-
-    def get_any_parameter(self, parameter_name: Optional[str] = 'new_parameter',
-                          info_key: Optional[str] = None,
-                          ):
-        info_key = self._check_key(info_key)
-        return self.info[info_key][parameter_name]
-
-    def find_all_sif(self, path_case: Optional[str] = None,
-                info_key: Optional[str] = None):
-        info_key = self._check_key(info_key)
-        path_case = pl.Path(Priority.path_dict(path_case, 'path', self.info[info_key]))
-
-        return list(path_case.glob('**/*.sif'))
-
-    def _check_key(self, key):
-        """
-        Проверка задания ключа. Если ключ не задан берется ключ
-        из аттрибута класса
-        """
-        if key is None:
-            return self.general_key
-        else:
-            return key
-
-    def _check_prefix_sif(self, sif_name):
-        if '.sif' not in sif_name:
-            sif_name += '.sif'
-        return sif_name
-
-
