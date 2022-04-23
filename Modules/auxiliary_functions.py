@@ -1,9 +1,7 @@
-import os
 import sys
 import shutil
 import traceback
 import pathlib as pl
-from typing import List, Optional, Dict
 
 
 class Files:
@@ -163,28 +161,7 @@ class Priority:
             return var
 
     @classmethod
-    def path_dict(cls, path, path_key, where):
-        """The method is intended to priority between the sent path_dict in the executing method and
-            its object attributes of paths.
-            Input :
-                path_dict is the evaluating path_dict if the path_dict is None then
-                path_key is the key of the dictionary storing value of required variable
-                where: dict is the object where the method will be finding required variable by key
-            Output:
-                return var according priority
-            Notice: The method is working only for dictionaries objects. If you need find second priority
-                    in no dictionary object and as just variables you can use path method.
-        """
-        if path is None:
-            if where[path_key] is not None:
-                return where[path_key]
-            else:
-                cls._raise_error(type_error='path_error')
-        else:
-            return path
-
-    @classmethod
-    def path(cls, path, path_key, where):
+    def path(cls, path, where, path_key=None):
         """The method is intended to priority between the sent path_dict in the executing method and
             its object attributes of paths.
             Input :
@@ -198,19 +175,23 @@ class Priority:
         if path is None:
             if type(where) is dict:
                 if path[path_key] is not None:
-                    return path[path_key]
+                    return pl.Path(path[path_key])
                 else:
                     cls._raise_error(type_error='path_error')
             else:
                 if where is not None:
-                    return where
+                    return pl.Path(where)
                 else:
                     cls._raise_error(type_error='path_error')
         else:
             return path
 
     @classmethod
-    def name(cls, name, name_key, where):
+    def path_add_folder(cls, path, where, add_folder, path_key=None):
+        return pl.Path(path(cls, path, where, path_key=path_key)) / add_folder
+
+    @classmethod
+    def name(cls, name, where, name_key=None):
         """The method is used for selection of given name the first priority is given name by methods
         the second priority is given name by class constructor
         If both name is None, the program is interupted
