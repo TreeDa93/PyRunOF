@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 from Modules.information import Information
 
 
-class Elmer_new(Information):
+class Elmer(Information):
     """
     The clss is designed to provide manipulations on elmer settings in .sif file
     Attributes:
@@ -49,7 +49,7 @@ class Elmer_new(Information):
 
 
 
-class Elmer:
+class Elmer_old:
     """
     The clss is designed to provide manipulations on elmer settings in .sif file
     Attributes:
