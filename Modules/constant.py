@@ -1,8 +1,11 @@
 import os
+import pathlib as pl
 from Modules.auxiliary_functions import Files, Priority
+from Modules.information import Information
+from typing import List, Optional, Dict, Any
 
 
-class Constant:
+class Constant(Information):
     """
     The class is intended to change settings of constant folder for OpenFOAM cases.
     Attributes:
@@ -19,31 +22,35 @@ class Constant:
         turbulent_model_old is the old version of above method.
     """
 
-    def __init__(self, case_path: str = None, lib_path: str = None):
-        self.case_path = case_path
-        self.lib_path = lib_path
+    def __init__(self, info_key: Optional[str] = 'general',
+                 case_path: Optional[str] = None,
+                 lib_path: Optional[str] = None):
+        Information.__init_constant__(self, info_key=info_key,
+                 case_path=case_path, lib_path=lib_path)
 
-    def set_transportProp(self, *lists: dict, case_path=None) -> None:
+
+    def set_transportProp(self, *lists: dict, case_path: Optional[str] = None,
+                          info_key: Optional[str] = None) -> None:
         """The function sets given variables to transportProperties file
         patheNewCase is the name where transportProperties will be modificated
         lists are a number of dictionaries with keys, which called as name of variables to transportProperties,
         and values"""
-        path = Priority.path(case_path, None, self.case_path)
-        constant_path = os.path.join(path, 'constant')
+        constant_path = Priority.path_add_folder(case_path, self.info[info_key], 'constant', path_key='path')
         for dict_var in lists:
             for var in dict_var:
                 Files.change_var_fun(var, dict_var[var], path=constant_path, file_name='transportProperties')
 
-    def set_any_file(self, *lists_var: dict, files: list[str] = ['controlDict'], case_path: str = None) -> None:
+    def set_any_file(self, *lists_var: dict, files: list[str] = ['transportProperties'], case_path: str = None,
+                     info_key: Optional[str] = None) -> None:
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
-        path = Priority.path(case_path, None, self.case_path)
-        constant_path = os.path.join(path, 'constant')
+        constant_path = Priority.path_add_folder(case_path, self.info[info_key], 'constant', path_key='path')
         for file_name in files:
             for dict_var in lists_var:
                 for var in dict_var:
                     Files.change_var_fun(var, dict_var[var], path=constant_path, file_name=file_name)
 
-    def turbulent_model(self, turbulent_type='kEpsilon', case_path=None, lib_path=None, add_file_path=None):
+    def turbulent_model(self, turbulent_type='kEpsilon', case_path=None,
+                        lib_path=None, add_file_path=None, info_key=None):
         """"The fucntion serves to set required turbulent model for solving task. For this purpose, one of list
           of wrriten files with given settings will be renamed into turbulenceProperties to system folder of adjusted case
         acording required type of rubulence model
@@ -58,15 +65,14 @@ class Constant:
                 LESSmag
                 your_any ...
                 """
-        case_path = Priority.path(case_path, None, self.case_path)
-        constant_path = os.path.join(case_path, 'constant')
+        constant_path = Priority.path_add_folder(case_path, self.info[info_key], 'constant', path_key='path')
         if add_file_path is None:
-            lib_path = Priority.path(lib_path, None, self.lib_path)
-            turbulent_files_path = os.path.join(lib_path, 'AdditinalFiles', 'TurbulenceFiles')
+            lib_path = Priority.path(lib_path, self.info[info_key], path_key='lib_path')
+            turbulent_files_path = lib_path / 'AdditinalFiles' / 'TurbulenceFiles'
         Files.copy_file(turbulent_files_path, constant_path,
                         old_name=f'turbulenceProperties_{turbulent_type}', new_name='turbulenceProperties')
 
-    def turbulent_model_old(self, turbulent_type='kEpsilon', case_path=None):
+    def turbulent_model_old(self, turbulent_type='kEpsilon', case_path=None, info_key=None):
         """"The fucntion serves to set required turbulent model for solving task. For this purpose, one of list
           of wrriten files with given settings will be renamed into turbulenceProperties to system folder of adjusted case
         acording required type of rubulence model
@@ -78,8 +84,7 @@ class Constant:
                 kOmega
                 kOmegaSST
                 """
-        case_path = Priority.path(case_path, None, self.case_path)
-        constant_path = os.path.join(case_path, 'constant')
+        constant_path = Priority.path_add_folder(case_path, self.info[info_key], 'constant', path_key='path')
         Files.copy_file(constant_path, constant_path,
                         old_name=f'turbulenceProperties_{turbulent_type}', new_name='turbulenceProperties')
 
