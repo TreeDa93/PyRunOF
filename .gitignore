@@ -1,2 +1,5 @@
 venv/
 .idea
+/Examples/newVersionCases/
+/Examples/old_cases/
+/solvers/
