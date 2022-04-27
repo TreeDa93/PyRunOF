@@ -20,6 +20,7 @@ class Constant(Information):
         set_any_file is the method to rewrite any variables to ant files of constant folder of OpenFOAM case.
         turbulent_model is the model to move settings of chosen turbulent models to constant folder for OpenFOAM case.
         turbulent_model_old is the old version of above method.
+        test
     """
 
     def __init__(self, info_key: Optional[str] = 'general',
@@ -56,7 +57,7 @@ class Constant(Information):
         acording required type of rubulence model
         path_new_case is the name of the new case
         turbulent_type is variables definding type of turbulence model
-                LES
+                LES - Large eddy simulation
                 kEpsilon
                 realizablekE
                 kOmega
