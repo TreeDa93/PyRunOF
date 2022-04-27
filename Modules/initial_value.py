@@ -2,73 +2,80 @@ import os
 import sys
 import shutil
 from distutils.dir_util import copy_tree
-from Modules.auxiliary_functions import change_var_fun, copy_fun
+
+import pylab as pl
+
+from Modules.information import Information
+from typing import List, Optional, Dict, Any
+from Modules.auxiliary_functions import Priority, Files, Executer
 
 
-class InitialValue:
+class InitialValue(Information):
     """
     FIXME
 
     """
 
-    def __init__(self, pathCase=None,  dictionary=None):
-        self.pathCase = pathCase
-        if pathCase == None:
-            self.path = None
-        else:
-            self.path = os.path.join(pathCase, '0')
-        self.dictionary = dictionary
+    def __init__(self, info_key: Optional[str] = 'general',
+                 case_path: Optional[str] = None):
+        Information.__init_iv__(info_key=info_key, case_path=case_path)
 
-    def setVarAllFiles(self, *varDict, pathCase=None):
+    def set_var(self, *zero_dicts: dict, file_names = [],
+                case_path: Optional[str] = None,
+                info_key: Optional[str] = None
+                ):
+        """
+        The method to set given parameters in the files.
+        The general idea of the method is to find given part of text in the files and to change
+        the part of text on given value. You have to set the flags, keys of elmer_dicts,
+        in the sif file yourselves for purpose of the method can find them and change it.
+        It should be noted the flag to be unique.
+        Input:
+            elmer_dicts is a set of dictionaries with keys as names or flags of variable in sif file
+            and values of the dictionaries as value to be set instead of the flags.
+            paths_case is path of case where you need to provide tuning of sif file
+            sif_name is the name of sif file put in path_case and containing settings of elmer case
+        FIXME
+        Output:
 
-        dictionary = self.priorityDictionary(varDict)
-        path = self.priorityPath(pathCase)
-        fileList = os.listdir(self.path)
-        os.chdir(path)
-        for file in fileList:
-            for list in dictionary:
-                for var in list:
-                    change_var_fun(var, list[var], nameFile=file)
+        """
 
-    def setVar(self, *varDict, nameFiels=['U', 'k'], pathCase=None):
-        """Устанавливает значение перенных из словарей *varDict в файлах из списка nameFiels
-        в кейсе var"""
-        dictionary = self.priorityDictionary(varDict)
-        path = self.priorityPath(pathCase)
+        info_key = self._check_key(info_key)
+        case_path = Priority.path(case_path, self.info[info_key], path_key='path')
+        zero_path = case_path / '0'
+        file_names = Files.find_file_by_name(zero_path, names=file_names)
 
-        os.chdir(path)
-        for file in nameFiels:
-            for list in dictionary:
-                for var in list:
-                    change_var_fun(var, list[var], nameFile=file)
+        for zero_dict in zero_dicts:
+            for var in zero_dict:
+                for file_path in file_names:
+                    Files.change_var_fun(var, zero_dict[var], path=file_path)
 
-    def setMappSettings(self, sourcePath=None, distPath=None, source='0.25', dist='0'):
-        self.mappSettings = {}
-        self.mappSettings['sPath'] = os.path.abspath(sourcePath)
-        self.mappSettings['dPath'] = os.path.abspath(distPath)
-        self.mappSettings['source'] = source
-        self.mappSettings['dist'] = dist
+    def set_mapping_settings(self, src_path, dst_path, src_time=0, dst_time=0):
+        self.mapp_settings = dict(src_path= Priority.path(src_path, None),
+                                     dst_path = Priority.path(dst_path, None),
+                                     src_time = str(src_time),
+                                     dst_time = str(dst_time))
 
-    def setMappValues(self):
-        "Копирует папку source в dist из пути source в  dist"
-        sourcePath = os.path.join(self.mappSettings['sPath'], self.mappSettings['source'])
-        distPath = os.path.join(self.mappSettings['dPath'], self.mappSettings['dist'])
-        copy_fun(sourcePath, distPath)
+    def set_map_values(self, src_path=None, dst_path=None, src_time=0, dst_time=0):
+        """
+        копирует содержимое src_time из src_path/ в dst_path с новым именем dst_time
+        """
+        src_path = Priority.path(src_path, self.mapp_settings, path_key='src_path')
+        dst_path = Priority.path(dst_path, self.mapp_settings, path_key='dst_path')
+        Files.copy_file(src_path, dst_path, old_name=src_time, new_name=dst_time)
 
-    def reconstruct(self, pathCase):
+    def reconstruct(self, case_path=None):
         "Запускает  ReconstrucPar"
-        os.chdir(pathCase)
-        os.system('reconstructPar')
+        case_path = Priority.path(case_path, self.info, path_key='path')
+        Executer.run_command('reconstructPar', case_path)
 
-    def setTimeVaryingMappedFixedValue(self, pathCase=None):
+    def setTimeVaryingMappedFixedValue(self, case_path=None):
         "Устанавливает значения для ГУ TimeVaryingMappedFixedValue"
-        path = self.priorityPath(pathCase)
-        os.chdir(path)
-
+        zero_path = Priority.path(case_path, self.info, path_key='path') / '0'
         for var in self.dicTVMF:
-            change_var_fun(var, self.dicTVMF[var], nameFile='U')
+            Files.change_var_fun(var, self.dicTVMF[var], path=zero_path, file_name='U')
 
-    def settingsTimeVaryingMappedFixedValue(self, nameSample='outletSurf', sourceTimeStep = 0.25, namePatch = 'outlet'):
+    def settingsTimeVaryingMappedFixedValue(self, nameSample='outletSurf', sourceTimeStep=0.25, namePatch='outlet'):
         "Задает значения для ГУ TimeVaryingMappedFixedValue"
         dataDirpath = os.path.join(self.mappSettings['sPath'], 'postProcessing', nameSample)
         dataDir_var = os.path.relpath(dataDirpath, self.mappSettings['dPath'])
@@ -76,10 +83,9 @@ class InitialValue:
         sample_var = namePatch
 
         self.dicTVMF = {'dataDir_var': f'\"{dataDir_var}\"',
-                      'points_var': f'\"{points_var}\"',
-                      'sample_var': f'{sample_var}'}
+                        'points_var': f'\"{points_var}\"',
+                        'sample_var': f'{sample_var}'}
         self.checkPathTVMF = dataDirpath
-
 
     def mapFieldsRun(self, pathCase=None, check=False):
 
@@ -91,7 +97,6 @@ class InitialValue:
             os.system(self.commandMapFields)
         else:
             os.system(self.commandMapFields)
-
 
     def settingsMapField(self, sourcePath=None, distPath=None, consistent=True,
                          mapMethod='mapNearest', parallelSource=True,
@@ -121,7 +126,6 @@ class InitialValue:
             -help             print the usage
           """
 
-
         if sourcePath == None:
             path_src = self.mappSettings['sPath']
         else:
@@ -135,15 +139,14 @@ class InitialValue:
         relpath_src = os.path.relpath(path_src, path_dst)
         relpath_dst = os.path.relpath(path_dst, path_dst)
 
-
         self.option = {'-case': relpath_dst,
-                  '-consistent': consistent,
-                  '-noFunctionObjects' : noFunctionObjects,
-                  '-mapMethod': mapMethod,
-                  '-parallelSource': parallelSource,
-                  '-parallelTarget': parallelTarget,
-                  '-sourceTime': sourceTime,
-                  'src': relpath_src}
+                       '-consistent': consistent,
+                       '-noFunctionObjects': noFunctionObjects,
+                       '-mapMethod': mapMethod,
+                       '-parallelSource': parallelSource,
+                       '-parallelTarget': parallelTarget,
+                       '-sourceTime': sourceTime,
+                       'src': relpath_src}
 
         return self.option
 
@@ -153,31 +156,30 @@ class InitialValue:
 
         for key in option:
             if option[key] is True:
-                command+= f' {key}'
+                command += f' {key}'
             elif option[key] is False:
                 pass
             elif key == 'src':
-                command+= f' {option[key]}'
+                command += f' {option[key]}'
             elif key == '-sourceTime':
                 if option[key] == 'latestTime':
                     command += f' {key} \'latestTime\''
                 else:
                     command += f' {key} {option[key]}'
             else:
-                command+= f' {key} {option[key]}'
+                command += f' {key} {option[key]}'
         self.commandMapFields = command
         print(self.commandMapFields)
         return command
-
 
     def copyBC(self, nameBCsource='outlet', nameBCdist='inlet', mapTimeStep=0.25, namePostFile='outletSurf'):
         """Эта функция копирует значения из postProcessing в заданном времени (mapTimeStep)
         в кейс назначения в папку constant """
 
         pathScalar = os.path.join(self.mappSettings['sPath'], 'postProcessing', namePostFile,
-                                  str(mapTimeStep), nameBCsource,'scalarField')
+                                  str(mapTimeStep), nameBCsource, 'scalarField')
         pathVector = os.path.join(self.mappSettings['sPath'], 'postProcessing', namePostFile,
-                                  str(mapTimeStep), nameBCsource,'vectorField')
+                                  str(mapTimeStep), nameBCsource, 'vectorField')
         pathPoints = os.path.join(self.mappSettings['sPath'], 'postProcessing', namePostFile,
                                   str(mapTimeStep), nameBCsource, 'points')
 
@@ -219,10 +221,8 @@ class InitialValue:
                 }
         return dict
 
-
-
     def priorityDictionary(self, varDict):
-        if varDict==None:
+        if varDict == None:
             if self.dictionary != None:
                 return self.dictionary
             else:
@@ -248,7 +248,6 @@ class InitialValue:
                 sys.exit('Error: You do not enter the base name!!!')
         else:
             return os.path.join(pathCase, '0')
-
 
     def priorityPathCase(self, pathCase):
         """The method is used for selection of given name

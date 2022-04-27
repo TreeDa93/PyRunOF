@@ -15,14 +15,14 @@ class Elmer(Information):
     def __init__(self, key: Optional[str] = 'general',
                  case_path: Optional[str] = None,
                  sif_name: Optional[str] = None):
-        Information.__init_elmer__(info_key = key, case_path = case_path,
-                                   sif_name = sif_name)
-
+        Information.__init_elmer__(info_key=key, case_path=case_path,
+                                   sif_name=sif_name)
 
     def set_var(self, *elmer_dicts: dict,
                 case_path: Optional[str] = None,
                 sif_name: Optional[str] = None,
-                info_key: Optional[str] = None):
+                info_key: Optional[str] = None,
+                var_key: Optional[str] = None):
         """
         The method to set given parameters in the file with sif extension.
         The general idea of the method is to find given part of text in sif file and to change
@@ -41,11 +41,18 @@ class Elmer(Information):
         case_path = Priority.path(case_path, self.info[info_key], path_key='path')
         sif_name = Priority.name(sif_name, self.info[info_key], name_key='name')
         sif_name = self._check_prefix_sif(sif_name)
-
+        elmer_dicts = Priority.variable(elmer_dicts, self.info, var_key=var_key)
+        if elmer_dicts is not list():
+            elmer_dicts = list(elmer_dicts)
         for elmer_dict in elmer_dicts:
             for var in elmer_dict:
                 Files.change_var_fun(var, elmer_dict[var], path=case_path, file_name=sif_name)
 
+    def set_var_by_line(self):
+        """
+        FIXME
+        """
+        pass
 
 
 class Elmer_old:

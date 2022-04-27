@@ -2,6 +2,8 @@ import sys
 import shutil
 import traceback
 import pathlib as pl
+import os
+import subprocess as sp
 
 
 class Files:
@@ -36,8 +38,7 @@ class Files:
                 file_name is the name of file where the procedure will be done
 
         """
-        path = pl.Path(path) / file_name  # -> path = os.path.join(path, file_name)
-        #path = pl.Path.joinpath(pl.Path(path), *[file_name]) # -> path = os.path.join(path, file_name)
+        path = pl.Path(path) / file_name
         if path.is_file():
             with path.open(mode='r') as f:
                 new_data = f.read().replace(str(name_var), str(value_var))
@@ -93,6 +94,55 @@ class Files:
         dst_file_path = pl.Path(root_dst_dir)/new_name  # -> dst_file = os.path.join(root_dst_dir, new_name)
         shutil.copy2(str(src_file_path), str(dst_file_path))
 
+    @staticmethod
+    def find_files(where, type = 'file') -> list:
+        """
+        type = file of directory = directory
+        all
+        """
+        dirs = pl.Path(where).iterdir()
+        if type == 'file':
+            file_list = list()
+            for cur_dir in dirs:
+                if dir.cur_dir():
+                    file_list.append(dir)
+            return file_list
+        elif type == 'directory':
+            dir_list = list()
+            for dir_list in dirs:
+                if dir.dir_list():
+                    dir_list.append(dir)
+            return dir_list
+        else:
+            return list(dirs)
+
+    def find_file_by_name(self, where, names=[]):
+        dirs = self.find_files(where)
+        if not names:
+            return dirs
+        else:
+            new_dirs = list()
+            for name in names:
+                for dir in dirs:
+                    if name == dir.stem:
+                        new_dirs.append(name)
+                    else:
+                        pass
+            return new_dirs
+
+
+class Executer:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def run_command(command: str, where, go_back=True):
+        if go_back is True:
+            path_back = pl.Path.cwd()
+        os.chdir(where)
+        os.system(command)
+        os.chdir(path_back)
 
 class Priority:
     """
@@ -135,7 +185,7 @@ class Priority:
         self.file = file
 
     @classmethod
-    def variable(cls, var, key, where):
+    def variable(cls, var, where, var_key=None):
         """The method is intended to priority between the sent variable in the executing method and
             its object attributes.
             Input :
@@ -148,15 +198,18 @@ class Priority:
 
         if var is None:
             if type(where) is dict:
-                if where[key] is not None:
-                    return where[key]
+                if var_key in where.keys():
+                    if where[var_key] is None:
+                        cls._raise_error(type_error='var_1')
+                    else:
+                        return where[var_key]
                 else:
                     cls._raise_error(type_error='var_1')
             else:
-                if where is not None:
-                    return where
+                if where is None:
+                    cls._raise_error(type_error='var_1')
                 else:
-                    cls._raise_error(type_error='var_2')
+                    return where
         else:
             return var
 
@@ -172,19 +225,25 @@ class Priority:
                 return var according priority
             Notice: The method is working as with dictionaries and so variables.
         """
-        if path is None:
+        if path is str or os.PathLike:
+            return pl.Path(path)
+        elif path is None:
             if type(where) is dict:
-                if path[path_key] is not None:
-                    return pl.Path(path[path_key])
+                if path_key in where.keys():
+                    if where[path_key] is str or os.PathLike:
+                        return pl.Path(path[path_key])
+                    else:
+                        cls._raise_error(type_error='path_error')
                 else:
                     cls._raise_error(type_error='path_error')
             else:
-                if where is not None:
+                if type(where) is str or os.PathLike:
                     return pl.Path(where)
                 else:
                     cls._raise_error(type_error='path_error')
         else:
-            return path
+            cls._raise_error(type_error='path_error')
+
 
     @classmethod
     def path_add_folder(cls, path, where, add_folder, path_key=None):
@@ -203,8 +262,16 @@ class Priority:
             return name according priority
         """
         if name is None:
-            if where[name_key] is not None:
-                return where[name_key]
+            if type(where) is dict:
+                if name_key in where.keys():
+                    if type(where[name_key]) is str:
+                        return where[name_key]
+                    else:
+                        cls._raise_error(type_error='name_error')
+                else:
+                    cls._raise_error(type_error='name_error')
+            elif type(where) is str:
+                return where
             else:
                 cls._raise_error(type_error='name_error')
         else:

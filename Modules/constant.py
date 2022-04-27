@@ -27,8 +27,7 @@ class Constant(Information):
                  case_path: Optional[str] = None,
                  lib_path: Optional[str] = None):
         Information.__init_constant__(self, info_key=info_key,
-                 case_path=case_path, lib_path=lib_path)
-
+                                      case_path=case_path, lib_path=lib_path)
 
     def set_transportProp(self, *lists: dict, case_path: Optional[str] = None,
                           info_key: Optional[str] = None) -> None:
@@ -88,4 +87,3 @@ class Constant(Information):
         constant_path = Priority.path_add_folder(case_path, self.info[info_key], 'constant', path_key='path')
         Files.copy_file(constant_path, constant_path,
                         old_name=f'turbulenceProperties_{turbulent_type}', new_name='turbulenceProperties')
-

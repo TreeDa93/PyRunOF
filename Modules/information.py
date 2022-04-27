@@ -1,3 +1,4 @@
+import os
 import pathlib as pl
 from Modules.auxiliary_functions import Priority, Files
 from typing import List, Optional, Dict, Any
@@ -17,7 +18,6 @@ class Information:
 
         self.info = dict.fromkeys([info_key], dict(path=pl.Path(case_path),
                                                    name=sif_name))
-        self.general_key = info_key
 
     def set_case(self, sif_name: str = 'magnetic.sif',
                  info_key: Optional[str] = None) -> None:
@@ -37,6 +37,9 @@ class Information:
         info_key = self._check_key(info_key)
         return self.info[info_key]['path']
 
+    def get_general_key(self):
+        return list(self.info.keys())[0]
+
     def set_new_parameter(self, parameter: Any,
                           info_key: Optional[str] = None,
                           parameter_name: Optional[str] = 'new_parameter'):
@@ -52,23 +55,48 @@ class Information:
     def find_all_sif(self, path_case: Optional[str] = None,
                      info_key: Optional[str] = None):
         info_key = self._check_key(info_key)
-        path_case = pl.Path(Priority.path_dict(path_case, 'path', self.info[info_key]))
+        path_case = Priority.path(path_case, self.info[info_key], path_key='path')
 
         return list(path_case.glob('**/*.sif'))
 
+    def find_all_zero_files(self, path_case: Optional[str] = None,
+                     info_key: Optional[str] = None):
+        info_key = self._check_key(info_key)
+        path_case = Priority.path(path_case, self.info[info_key], path_key='path')
+        zero_folder_path = path_case / '0'
+        return list(zero_folder_path.glob('**/*.sif'))
+
     def __init_elmer__(self, info_key: Optional[str] = 'general',
-                 case_path: Optional[str] = None,
-                 sif_name: Optional[str] = None):
-        self.info = dict.fromkeys([info_key], dict(path=pl.Path(case_path),
+                       case_path: Optional[str] = None,
+                       sif_name: Optional[str] = None):
+        self.info = dict.fromkeys([info_key], dict(path=self._check_type_path(case_path),
                                                    name=sif_name))
-        self.general_key = info_key
 
     def __init_constant__(self, info_key: Optional[str] = 'general',
-                 case_path: Optional[str] = None,
-                 lib_path: Optional[str] = None):
-        self.info = dict.fromkeys([info_key], dict(path=pl.Path(case_path),
-                                                   lib_path=lib_path))
-        self.general_key = info_key
+                          case_path: Optional[str] = None,
+                          lib_path: Optional[str] = None):
+        self.info = dict.fromkeys([info_key], dict(path=self._check_type_path(case_path),
+                                                   lib_path=self._check_type_path(lib_path)))
+
+    def __init_iv__(self, info_key: Optional[str] = 'general',
+                    case_path: Optional[str] = None):
+        self.info = dict.fromkeys([info_key],
+                                  dict(path=self._check_type_path(case_path)))
+
+
+    def __init_mesh__(self, info_key: Optional[str] = 'general',
+                       case_path: Optional[str] = None,
+                       elmer_mesh_name: Optional[str] = None):
+        self.info = dict.fromkeys([info_key], dict(path=self._check_type_path(case_path),
+                                                   elmer_mesh_name=elmer_mesh_name))
+
+
+    @staticmethod
+    def _check_type_path(path):
+        if path is not 'str' or os.PathLike:
+            return None
+        else:
+            return pl.Path(path)
 
     def _check_key(self, key):
         """
@@ -76,7 +104,7 @@ class Information:
         из аттрибута класса
         """
         if key is None:
-            return self.general_key
+            return self.get_general_key()
         else:
             return key
 
@@ -85,5 +113,4 @@ class Information:
         if '.sif' not in sif_name:
             sif_name += '.sif'
         return sif_name
-
 
