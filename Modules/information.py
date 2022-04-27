@@ -80,4 +80,10 @@ class Information:
         else:
             return key
 
+    @staticmethod
+    def _check_prefix_sif(sif_name):
+        if '.sif' not in sif_name:
+            sif_name += '.sif'
+        return sif_name
+
 
