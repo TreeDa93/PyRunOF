@@ -11,7 +11,7 @@ from Modules.set_system import System
 from Modules.initial_value import IntiailValue
 from Modules.constant import Constant
 from Modules.run import Runner
-from Modules.elmer import Elmer
+from Modules.elmer import Elmer_old
 from Modules.parametric_sweep import ParametricSweep
 
 def main():
@@ -84,7 +84,7 @@ def hartmann(oldPath, name):
     cpClass = Constant(case_path=runPath, lib_path=libpath)
     initialClass = IntiailValue(pathCase=runPath)
     meshClass = Mesh(case_path=runPath)
-    eClass = Elmer(pathCase=runPath, sifName='case.sif')
+    eClass = Elmer_old(pathCase=runPath, sifName='case.sif')
     rc = Runner(path_case=runPath)
 
 

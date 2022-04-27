@@ -3,7 +3,7 @@ import sys # import library
 libpath = '/home/ivan/PyRunOF/' #write name to pyRunOF library
 sys.path.append(libpath)  # add the library into system pathes
 from Modules.manipulations import Manipulations
-from Modules.elmer import Elmer_new
+from Modules.elmer import Elmer
 
 
 def main():
@@ -16,8 +16,8 @@ def main():
     print(f'Проверка опции получения пути с ключем dublicate', mc.paths['dublicate'])
 
     mc.duplicate_case(src_key='base', dist_key='dublicate', mode='copy')
-    elmer = Elmer_new(key='ElmerTest', case_path=mc.paths['dublicate'],
-                      sif_name='case.sif')
+    elmer = Elmer(key='ElmerTest', case_path=mc.paths['dublicate'],
+                  sif_name='case.sif')
     elmer_dict = {'Bm_var': 10} # создаем словарь с переменной
     elmer.set_var(elmer_dict) # проверка работы функции установки переменой в сиф файле
 

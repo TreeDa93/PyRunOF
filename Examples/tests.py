@@ -20,7 +20,7 @@ else:
      Plesease chose from following modes:
      common - general mode onlt for OpenFOAM;
      parallel is the mode to run your case in parallel calculations
-     EOF is the mode to run your case with Elmer together''')
+     EOF is the mode to run your case with Elmer_old together''')
 
 if pyFoam == True:
     run_command = 'pyFoamPlotRunner.py ' + run_command
