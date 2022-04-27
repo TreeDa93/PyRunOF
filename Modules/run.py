@@ -44,7 +44,7 @@ class Run:
             Variables:
             Name_solver is the name of the OpenFOAM solver
             NUMBER_OF_PROC_OF - is the number of processor cores involved to calculation of OpenFOAM problem
-            NUMBER_OF_PROC_Elmer - is the number of processor cores involved to calculation of Elmer problem
+            NUMBER_OF_PROC_Elmer - is the number of processor cores involved to calculation of Elmer_old problem
             """
         self.decompose_run(decompose_OF, decompose_Elmer, path_case=path_case)
         self.run_of(path_case)
@@ -191,4 +191,4 @@ class Run:
                         Please chose from following modes:
                         common - general mode only for OpenFOAM;
                         parallel is the mode to run your case in parallel calculations
-                        EOF is the mode to run your case with Elmer together''')
+                        EOF is the mode to run your case with Elmer_old together''')

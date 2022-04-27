@@ -5,17 +5,17 @@ from typing import List, Optional, Dict
 
 class Mesh:
     """
-    The class is intended to perform operations on OpenFOAM and Elmer meshes.
+    The class is intended to perform operations on OpenFOAM and Elmer_old meshes.
     Attributes
         ----------
         case_path is the path_dict of the case required providing manipulations with meshes
-        elmer_mesh_nam is the name of Elmer mesh folder
+        elmer_mesh_nam is the name of Elmer_old mesh folder
     Methods
         -------
         set_blockMesh is the method to set parameters for blockMesh utility implemented in OpenFOAM to
         build mesh. The settings of the utility is stored in blockMesh file in system folder of your OpenFOAM case
         run_blockMesh is the method to run meshBlock utility for the chosen case.
-        run_gMesh_to_Elmer is the method to transforms gmsh format of mesh (.geo) to Elmer mesh.
+        run_gMesh_to_Elmer is the method to transforms gmsh format of mesh (.geo) to Elmer_old mesh.
         set_gMesh si the method to set parameters in geo file of the mesh for gMesh software.
     """
 
@@ -62,7 +62,7 @@ class Mesh:
         os.chdir(curr_path)
 
     def run_gMesh_to_Elmer(self, case_path: Optional[str] = None) -> None:
-        """The method to execute a number of commands to transform mesh from gMesh extension to Elmer one.
+        """The method to execute a number of commands to transform mesh from gMesh extension to Elmer_old one.
             Input :
                 case_path is the path_dict for running of these commands .
                 If the path_dict is None, then the variable is taken from attributes of the object.
@@ -102,17 +102,17 @@ class Mesh:
 
 class Mesh_new:
     """
-    The class is intended to perform operations on OpenFOAM and Elmer meshes.
+    The class is intended to perform operations on OpenFOAM and Elmer_old meshes.
     Attributes
         ----------
         case_path is the path_dict of the case required providing manipulations with meshes
-        elmer_mesh_nam is the name of Elmer mesh folder
+        elmer_mesh_nam is the name of Elmer_old mesh folder
     Methods
         -------
         set_blockMesh is the method to set parameters for blockMesh utility implemented in OpenFOAM to
         build mesh. The settings of the utility is stored in blockMesh file in system folder of your OpenFOAM case
         run_blockMesh is the method to run meshBlock utility for the chosen case.
-        run_gMesh_to_Elmer is the method to transforms gmsh format of mesh (.geo) to Elmer mesh.
+        run_gMesh_to_Elmer is the method to transforms gmsh format of mesh (.geo) to Elmer_old mesh.
         set_gMesh si the method to set parameters in geo file of the mesh for gMesh software.
     """
 
@@ -160,7 +160,7 @@ class Mesh_new:
         os.chdir(curr_path)
 
     def run_gMesh_to_Elmer(self, case_path: Optional[str] = None) -> None:
-        """The method to execute a number of commands to transform mesh from gMesh extension to Elmer one.
+        """The method to execute a number of commands to transform mesh from gMesh extension to Elmer_old one.
             Input :
                 case_path is the path_dict for running of these commands .
                 If the path_dict is None, then the variable is taken from attributes of the object.
