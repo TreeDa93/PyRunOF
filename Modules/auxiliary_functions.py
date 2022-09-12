@@ -231,7 +231,7 @@ class Priority:
             if type(where) is dict:
                 if path_key in where.keys():
                     if type(where[path_key]) is (str or os.PathLike):
-                        return pl.Path(path[path_key])
+                        return pl.Path(where[path_key])
                     else:
                         cls._raise_error(type_error='path_error')
                 else:
