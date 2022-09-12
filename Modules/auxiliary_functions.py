@@ -225,19 +225,19 @@ class Priority:
                 return var according priority
             Notice: The method is working as with dictionaries and so variables.
         """
-        if path is str or os.PathLike:
+        if type(path) is (str or os.PathLike):
             return pl.Path(path)
         elif path is None:
             if type(where) is dict:
                 if path_key in where.keys():
-                    if where[path_key] is str or os.PathLike:
+                    if type(where[path_key]) is (str or os.PathLike):
                         return pl.Path(path[path_key])
                     else:
                         cls._raise_error(type_error='path_error')
                 else:
                     cls._raise_error(type_error='path_error')
             else:
-                if type(where) is str or os.PathLike:
+                if type(where) is (str or os.PathLike):
                     return pl.Path(where)
                 else:
                     cls._raise_error(type_error='path_error')
