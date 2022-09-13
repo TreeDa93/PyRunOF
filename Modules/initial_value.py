@@ -40,7 +40,7 @@ class InitialValue(Information):
 
         """
 
-        info_key = self._check_key(info_key)
+        info_key = self.get_key(info_key)
         case_path = Priority.path(case_path, self.info[info_key], path_key='path')
         zero_path = case_path / '0'
         file_names = Files.find_file_by_name(zero_path, names=file_names)

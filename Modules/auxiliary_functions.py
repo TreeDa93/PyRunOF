@@ -3,8 +3,7 @@ import shutil
 import traceback
 import pathlib as pl
 import os
-import subprocess as sp
-
+from typing import Any
 
 class Files:
     """
@@ -225,19 +224,21 @@ class Priority:
                 return var according priority
             Notice: The method is working as with dictionaries and so variables.
         """
-        if type(path) is (str or os.PathLike):
+        if Priority._check_path_type(path):
             return pl.Path(path)
         elif path is None:
             if type(where) is dict:
                 if path_key in where.keys():
-                    if type(where[path_key]) is (str or os.PathLike):
+                    if Priority._check_path_type(where[path_key]):
                         return pl.Path(where[path_key])
                     else:
                         cls._raise_error(type_error='path_error')
                 else:
                     cls._raise_error(type_error='path_error')
             else:
-                if type(where) is (str or os.PathLike):
+                print(Priority._check_path_type(where))
+                print(type(where))
+                if Priority._check_path_type(where):
                     return pl.Path(where)
                 else:
                     cls._raise_error(type_error='path_error')
@@ -247,7 +248,9 @@ class Priority:
 
     @classmethod
     def path_add_folder(cls, path, where, add_folder, path_key=None):
-        return pl.Path(path(cls, path, where, path_key=path_key)) / add_folder
+        path = cls.path(path, where, path_key=path_key)
+        print(path)
+        return pl.Path(path) / add_folder
 
     @classmethod
     def name(cls, name, where, name_key=None):
@@ -479,6 +482,16 @@ class Priority:
                 sys.exit('Error: You do not enter the name of the file!!!')
         else:
             pass
+
+    @staticmethod
+    def _check_path_type(path) -> Any:
+        """
+        The function checks belonging of input variable to
+        path is the checking variable
+        return True or False
+        """
+        return type(path) in [str, os.PathLike, pl.PosixPath, pl.WindowsPath]
+
 
     @staticmethod
     def _raise_error(*vargs, type_error=0):

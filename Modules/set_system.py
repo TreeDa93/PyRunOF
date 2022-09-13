@@ -20,8 +20,7 @@ class System:
 
     def set_control_dict(self, var_dict: dict, case_path: Optional[str] = None) -> None:
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
-
-        case_path = Priority.path(case_path, None, self.case_path)
+        case_path = Priority.path(case_path, self.case_path)
         system_path = os.path.join(case_path, 'system')
         for var in var_dict:
             Files.change_var_fun(var, var_dict[var], path=system_path,
@@ -60,7 +59,7 @@ class System:
     def set_any_files(self, *listsVar: dict, files: List[str] = ['controlDict'],
                       case_path: Optional[str] = None) -> None:
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
-        case_path = Priority.path(case_path, None, self.case_path)
+        case_path = Priority.path(case_path, self.case_path)
         system_path = os.path.join(case_path, 'system')
         for file in files:
             for list_var in listsVar:

@@ -37,7 +37,7 @@ class Elmer(Information):
         Output:
 
         """
-        info_key = self._check_key(info_key)
+        info_key = self.get_key(info_key)
         case_path = Priority.path(case_path, self.info[info_key], path_key='path')
         sif_name = Priority.name(sif_name, self.info[info_key], name_key='name')
         sif_name = self._check_prefix_sif(sif_name)
