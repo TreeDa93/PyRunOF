@@ -94,7 +94,7 @@ class Files:
         shutil.copy2(str(src_file_path), str(dst_file_path))
 
     @staticmethod
-    def find_files(where, type = 'file') -> list:
+    def find_files(where, type_files='file') -> list:
         """
         type = file of directory = directory
         all
@@ -115,8 +115,9 @@ class Files:
         else:
             return list(dirs)
 
-    def find_file_by_name(self, where, names=[]):
-        dirs = self.find_files(where)
+    @classmethod
+    def find_file_by_name(cls, where, names=[]):
+        dirs = cls.find_files(where)
         if not names:
             return dirs
         else:
@@ -128,6 +129,7 @@ class Files:
                     else:
                         pass
             return new_dirs
+
 
 
 class Executer:
@@ -599,3 +601,4 @@ class Priority:
     @staticmethod
     def _raise_error_run():
         sys.exit('You have to set numbers of cores for OpenFOAM')
+

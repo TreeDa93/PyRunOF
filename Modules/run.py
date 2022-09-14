@@ -1,189 +1,103 @@
 import os
 import sys
-from Modules.auxiliary_functions import Priority, Files
+from Modules.auxiliary_functions import Priority, Files, Executer
 from typing import Optional
+from Modules.information import Information
 
 
-class Run:
+
+class Run(Information):
     """
         FIXME
 
     """
-    def __init__(self, name='test',
+    def __init__(self, info_key: Optional[str] = 'general',
+                 solver: Optional[str] = 'pimpleFoam',
                  path_case: Optional[str] = None,
-                 solver_name: Optional[str] = 'pimpleFoam',
-                 mode: Optional[str] = 'common',
-                 coreOF: Optional[int] = 4,
-                 coreElmer: Optional[int] = 4,
-                 mesh_Elmer: Optional[str] = '',
-                 pyFoam: Optional[bool] = False,
-                 log_lag: Optional[bool] = False):
+                 mode: Optional[str] = 'common'):
+        Information.__init_runner__(self, info_key=info_key, case_path=path_case,
+                                    solver=solver, mode=mode)
+        self.info[info_key]['coreOF'] = 2  # number of cores to run openfoam
+        self.info[info_key]['coreElmer'] = 2  # number of cores to run elmer
+        self.info[info_key]['log'] = False  # flag to write log of solution procedure
+        self.info[info_key]['pyFoam'] = False  # flag to run openfoam by pyFoam
 
-        self.name = name
-        self.path_case = path_case
-        self.solver_name = solver_name
-        self.pyFoam = pyFoam
-        self.log_flag = log_lag
-        self.mode = mode
-        self.coreOF = coreOF
-        self.coreElmer = coreElmer
-        self.mesh_Elmer = mesh_Elmer
 
     def __str__(self):
         #FIXME
-        return f'It is myClass with var1 {self.name}'
+        return f'It is myClass with var1 {self.info}'
 
     def __repr__(self):
         #FIXME
-        return f'It is my collection of objects {self.name}'
+        return f'It is my collection of objects {self.info}'
 
-    def run(self, path_case: Optional[str] = None,
-            decompose_OF: Optional[bool] = True,
-            decompose_Elmer: Optional[bool] = False) -> None:
+    def run(self, path_case: Optional[str] = None, info_key=None) -> None:
         """The function runs the case to calculation
             Variables:
             Name_solver is the name of the OpenFOAM solver
-            NUMBER_OF_PROC_OF - is the number of processor cores involved to calculation of OpenFOAM problem
-            NUMBER_OF_PROC_Elmer - is the number of processor cores involved to calculation of Elmer_old problem
+
             """
-        self.decompose_run(decompose_OF, decompose_Elmer, path_case=path_case)
-        self.run_of(path_case)
-        
-    def run_of(self, path_case):
-        """The method is used for run OpenFOAM
-        """
-        path_case = Priority.path(path_case, None, self.path_case)
-        cur_path = os.getcwd()
-        os.chdir(path_case)
-        os.system(self._collect_name_solver())
-        os.chdir(cur_path)
-        
-    def decompose_run(self, decompose_OF: bool, decompose_Elmer: bool, path_case=None):
-        if self.mode == 'common':
-            if decompose_OF is True:
-                print('You do not need to run decomposition for common mode')
-        elif self.mode == 'parallel':
-            self.decompose_OF(decompose_OF, path_case=path_case)
-        elif self.mode == 'EOF':
-            self.decompose_OF(decompose_OF, path_case=path_case)
-            self.decompose_Elmer(decompose_Elmer, path_case=path_case)
 
-    def decompose_OF(self, decompose_OF: bool, path_case=None) -> None:
-        if decompose_OF is True:
-            cur_path = os.getcwd()
-            path_case = Priority.path(path_case, None, self.path_case)
-            os.chdir(path_case)
-            os.system('decomposePar -force')
-            os.chdir(cur_path)
-        elif decompose_OF is False:
-            print('Decompose procedure is pass')
-        else:
-            sys.exit('The decompose status is no boolean')
+        path_case = Priority.path(path_case, self.info[self.get_key(info_key)], path_key='case_path')
+        Executer.run_command(self._collect_name_solver(info_key), path_case)
 
-    def decompose_Elmer(self, decompose_Elmer: bool, path_case=None):
-        if decompose_Elmer is True:
-            path_case = Priority.path(path_case, None, self.path_case)
-            cur_path = os.getcwd()
-            os.chdir(path_case)
-            os.system(f'ElmerGrid 2 2 {self.mesh_Elmer} -metis {self.coreElmer} -force')
-            os.chdir(cur_path)
-        elif decompose_Elmer is False:
-            print('Decompose procedure is pass')
-        else:
-            sys.exit('The decompose status is no bolean')
+    def run_set_fields(self, path_case: str = None, info_key=None) -> None:
+        run_path = self.get_path(info_key=info_key, case_path=path_case)
+        command = 'setFields'
+        Executer.run_command(command, run_path)
 
-    def set_path_case(self, path_case: str) -> str:
-        self.path_case = path_case
-        return self.path_case
+    def set_cores(self, coreOF: int = 4, coreElmer: int = 4, info_key=None) -> tuple:
+        self.set_new_parameter(coreOF, parameter_name='coreOF', info_key=info_key)
+        self.set_new_parameter(coreElmer, parameter_name='coreElmer', info_key=info_key)
 
-    def set_cores(self, coreOF: int = 4, coreElmer: int = 4) -> tuple:
-        self.coreOF = coreOF
-        self.coreElmer = coreElmer
-        return self.coreOF, self.coreElmer
+    def set_cores_OF(self, coreOF: int = 4, info_key=None) -> int:
+        self.set_new_parameter(coreOF, parameter_name='coreOF', info_key=info_key)
 
-    def set_cores_OF(self, coreOF: int = 4) -> int:
-        self.coreOF = coreOF
-        return self.coreOF
+    def set_cores_Elmer(self, coreElmer: int = 4, info_key=None) -> int:
+        self.set_new_parameter(coreElmer, parameter_name='coreElmer', info_key=info_key)
 
-    def set_cores_Elmer(self, coreElmer: int = 4) -> int:
-        self.coreElmer = coreElmer
-        return self.coreElmer
+    def set_solver_name(self, solver_name: str ='pimpleFoam', info_key=None) -> None:
+        self.set_new_parameter(solver_name, parameter_name='solver', info_key=info_key)
 
-    def set_Elmer_mesh_name(self, mesh_name: str) -> str:
-        self.mesh_Elmer = mesh_name
-        return self.mesh_Elmer
+    def set_mode(self, mode: str = 'common', info_key=None) -> str:
+        self.set_new_parameter(mode, parameter_name='mode', info_key=info_key)
 
-    def set_decomposeParDict(self,
-                             core_OF: int = None,
-                             name_var: str = 'core_OF',
-                             path_case: str = None):
-        """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
-        path_case = Priority.variable(path_case, None, self.path_case)
-        sys_path = os.path.join(path_case, 'system')
-        core_OF = Priority.cores(core_OF, self.coreOF)
-        Files.change_var_fun(name_var, core_OF, path=sys_path, file_name='decomposeParDict')
+    def set_pyFoam(self, pyFoam: bool = False, info_key=None) -> bool:
+        self.set_new_parameter(pyFoam, parameter_name='pyFoam', info_key=info_key)
 
-    def set_solver_name(self, solver_name: str ='pimpleFoam') -> None:
-        self.solver_name = solver_name
-        print(f'You set name of solver as {self.solver_name}')
+    def set_log_flag(self, log_flag: bool = False, info_key=None) -> bool:
+        self.set_new_parameter(log_flag, parameter_name='log', info_key=info_key)
 
-    def set_mode(self, mode: str = 'common') -> str:
-        self.mode = mode
-        return self.mode
 
-    def set_pyFoam_settings(self, pyFoam: bool = False) -> bool:
-        self.pyFoam = pyFoam
-        return self.pyFoam
 
-    def set_log_flag(self, log_flag: bool = False) -> bool:
-        self.log_flag = log_flag
-        return bool
 
-    def set_fields(self, path_case: str = None) -> None:
-        run_path = Priority.variable(path_case, '', self.path_case)
-        cur_path = os.getcwd()
-        os.chdir(run_path)
-        os.system('setFields')
-        os.chdir(cur_path)
-
-    def set_all_settings(self, dic_settings: dict):
-        """
-        Dict['runPath': str,
-                    'coreOF': int, 'coreElmer': int, 'solver': str,
-                    'mode' : str,
-                    'ElmerMesh': str, 'pyFoam': bool, 'log': bool
-                    ]
-        """
-        self.set_path_case(dic_settings.get('runPath'))
-        self.set_cores(dic_settings.get('coreOF'), dic_settings.get('coreElmer'))
-        self.set_solver_name(dic_settings.get('solver'))
-        self.set_mode(dic_settings.get('mode'))
-        self.set_Elmer_mesh_name(dic_settings.get('ElmerMesh'))
-        self.set_pyFoam_settings(dic_settings.get('pyFoam'))
-        self.set_log_flag(dic_settings.get('log'))
-
-    def _collect_name_solver(self):
+    def _collect_name_solver(self, info_key):
         """The function collect and crete required according setting name of solver
 
         """
 
-        if self.mode == 'common':
-            run_command = f'{self.solver_name}'
-        elif self.mode == 'parallel':
-            run_command = f'mpirun -np {self.coreOF} {self.solver_name} -parallel :'
-        elif self.mode == 'EOF':
-            run_command = f'mpirun -np {self.coreOF} {self.solver_name} -parallel : ' \
-                          f'-np {self.coreElmer} ElmerSolver_mpi'
+        mode = self.get_any_parameter(parameter_name='mode', info_key=info_key)
+        solver = self.get_any_parameter(parameter_name='solver', info_key=info_key)
+        if mode == 'common':
+            run_command = f'{solver}'
+        elif mode == 'parallel':
+            core_of = self.get_any_parameter(parameter_name='coreOF', info_key=info_key)
+            run_command = f'mpirun -np {core_of} {solver} -parallel :'
+        elif mode == 'EOF':
+            core_of = self.get_any_parameter(parameter_name='coreOF', info_key=info_key)
+            core_elmer = self.get_any_parameter(parameter_name='coreOF', info_key=info_key)
+            run_command = f'mpirun -np {core_of} {solver} -parallel : ' \
+                          f'-np {core_elmer} ElmerSolver_mpi'
         else:
             self._raise_error(True)
 
-        if self.pyFoam is True:
+        if self.get_any_parameter(parameter_name='pyFoam') is True:
             run_command = 'pyFoamPlotRunner.py ' + run_command
-        if self.log_flag is True:
+        if self.get_any_parameter(parameter_name='log') is True:
             run_command += ' | tee log -a'
 
-        self.run_command = run_command
-        return self.run_command
+        self.set_new_parameter(run_command, parameter_name='run command', info_key=info_key)
+        return self.get_any_parameter(parameter_name='run command')
 
     def _raise_error(self, status):
         if status is True:

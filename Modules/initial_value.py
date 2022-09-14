@@ -18,7 +18,7 @@ class InitialValue(Information):
 
     def __init__(self, info_key: Optional[str] = 'general',
                  case_path: Optional[str] = None):
-        Information.__init_iv__(info_key=info_key, case_path=case_path)
+        Information.__init_iv__(self, info_key=info_key, case_path=case_path)
 
     def set_var(self, *zero_dicts: dict, file_names = [],
                 case_path: Optional[str] = None,
