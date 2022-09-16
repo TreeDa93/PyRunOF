@@ -149,12 +149,38 @@ class Mesh(Information):
         parameters_path
         """
         script_path = Priority.path(script_path, self.info, info_key)
+        script_name = script_path.stem
+        where = script_path.parent
         parameter_path = Priority.path(parameter_path, self.info, info_key)
-        command = f"salome -t {script_path} args:{parameter_path}"
-        Executer.run_command(command, script_path)
+
+        command = f"salome -t {script_name} args:{parameter_path}"
+        Executer.run_command(command, where)
 
     def set_salome_script_path(self, script_path, info_key=None):
         self.set_new_parameter(script_path, info_key=info_key, parameter_name='salome_script_path')
 
 
+    # def change_salomeMesh(self, parameters_path, changed_parameters):
+    #     """
+    #     The method changes mesh parameters and return path to new parameters
+    #     """
+    #
+    #     with open(parameters_path) as file:
+    #         parameters = json.load(file)
+    #
+    #     for key, value in parameters.items():
+    #         parameters[key] = changed_parameters.get(key, value)
+    #
+    #     with open('parameters_ch.json', 'w') as json_file:
+    #         json.dump(parameters, json_file)
+    #
+    #     return "/home/kirill/Shmakov/Verification/Scripts/obstacle/parameters_ch.json"
+    #
+    #
+    # script_name = "create_obstacle_mesh"
+    # parameters_path = "/home/kirill/Shmakov/Verification/Scripts/obstacle/parameters.json"
+    # changed_parameters = {"Ha": 500, "OFmesh_name": "obstacle_base"}
+    #
+    # changed_mesh = change_salomeMesh(parameters_path, changed_parameters)
+    # create_salomeMesh(script_name, changed_mesh)
 

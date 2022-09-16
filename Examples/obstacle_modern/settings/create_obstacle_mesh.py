@@ -6,11 +6,20 @@
 
 import sys
 import salome
+import json
 
 salome.salome_init()
 import salome_notebook
 notebook = salome_notebook.NoteBook()
-sys.path.insert(0, r'/home/ivan/science/works/obstacle')
+sys.path.insert(0, r'/home/kirill/Shmakov/Verification/Scripts/obstacle')
+
+#param_path = "/home/kirill/Shmakov/Verification/Scripts/obstacle/parameters.json"
+
+param_path = sys.argv[1]
+
+with open(param_path) as file:
+    # Load its content and make a new dictionary
+    parameters = json.load(file)
 
 ###
 ### GEOM component
@@ -24,25 +33,25 @@ import SALOMEDS
 
 ### GEOMETRY ###
 
-d = 0.01 # diameter of obstacle
-betta = 0.25
+d = parameters['d'] # diameter of obstacle
+betta = parameters['betta']
 h = d / betta # z - size of the duct, widht
 a = h # y - size of the duct, height
 Lu = 12 * d # upstream distance
 Ld = 42 * d # downstream distance
 
 ### MESH ###
-nIO = 100 # точек на входе и выходе
-nC = 360  # точек на дуге окружности
-nL = 300  # точек по длине канала
-Ha = 2160
+nIO = parameters['nIO'] # точек на входе и выходе
+nC = parameters['nC']  # точек на дуге окружности
+nL = parameters['nL']  # точек по длине канала
+Ha = parameters['Ha']
 delta_Ha = a / Ha
 delta_Sh  = a / Ha ** 0.5
 wall_layer = delta_Sh
-circle_layer = 0.01
-nWall_layer = 20
-nCircle_layer = 96
-k_wall = 1.03
+circle_layer = parameters['circle_layer']
+nWall_layer = parameters['nWall_layer']
+nCircle_layer = parameters['nCircle_layer']
+k_wall = parameters['k_wall']
 
 
 geompy = geomBuilder.New()
@@ -107,11 +116,11 @@ geompy.addToStudyInFather( diff_obstacle_2d, group_IO, 'group_IO' )
 ### SMESH component
 ###
 
-max_size_elem = 3e-4
+max_size_elem = parameters['max_size_elem']
 length_elem = max_size_elem
-min_size_elem = 1e-8
-k_global = 0.1
-quad_elem = True
+min_size_elem = parameters['min_size_elem']
+k_global = parameters['k_global']
+quad_elem = parameters['quad_elem']
 
 import  SMESH, SALOMEDS
 from salome.smesh import smeshBuilder
@@ -185,7 +194,7 @@ smesh.SetName(outlet_edge, 'outlet_edge')
 from exportMesh import exportMeshToElmer, exportMeshToOF
 
 
-exportMeshToOF(exportHDmesh, mesh=Mesh_2D, mName='OFmesh')
+exportMeshToOF(exportHDmesh, mesh=Mesh_2D, mName=parameters["OFmesh_name"])
 
 
 if salome.sg.hasDesktop():

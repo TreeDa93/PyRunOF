@@ -30,28 +30,7 @@ def create_salomeMesh(script_name, parameters_path):
 
 
 
-def change_salomeMesh(parameters_path, changed_parameters):
-    """
-    The method changes mesh parameters and return path to new parameters
-    """
-        
-    with open(parameters_path) as file:
-        parameters = json.load(file)
-  
-    for key,value in parameters.items():
-        parameters[key] = changed_parameters.get(key, value)
-    
-    with open('parameters_ch.json', 'w') as json_file:
-        json.dump(parameters, json_file)  
-    
-    return "/home/kirill/Shmakov/Verification/Scripts/obstacle/parameters_ch.json"
 
-script_name = "create_obstacle_mesh"
-parameters_path = "/home/kirill/Shmakov/Verification/Scripts/obstacle/parameters.json"
-changed_parameters = {"Ha": 500, "OFmesh_name": "obstacle_base"}
-
-changed_mesh = change_salomeMesh(parameters_path, changed_parameters)
-create_salomeMesh(script_name, changed_mesh)
 
 
 

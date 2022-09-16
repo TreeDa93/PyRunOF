@@ -61,8 +61,11 @@ def solution(name):
 
     mp.create_name(name_base='create_obstacle_mesh.py', only_base=True, name_key='salome_script')
     mp.create_path_dir(dir_path_key='settings', name_key='salome_script', path_key='salome_script_path')
-    #mesh.create_salome_mesh(script_path=mp.get_path('salome_script_path'))
+    mp.create_path_dir(dir_path_key='settings', case_name='parameters.json', path_key='parameters_path')
+    mesh.create_salome_mesh(script_path=mp.get_path('salome_script_path'),
+                            parameter_path=mp.get_path('parameters_path'))
     #mesh.set_salome_script_path(mp.get_path(path_key='salome_script_path'))
+
     print(mesh.get_any_parameter(parameter_name='salome_script_path'))
     #mesh.decompose_run_OF()
 
