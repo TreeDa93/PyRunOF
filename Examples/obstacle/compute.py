@@ -18,6 +18,9 @@ def main():
     ps.set_find_dicts(find_dicts=[zero_dict])
     ps.run(generator_names=True)
 
+
+def run_salome():
+    mp = Manipulations(dir_path=dir_path)
 def solution(name):
     ##############General manipualations ###################
     mp = Manipulations(dir_path=dir_path)

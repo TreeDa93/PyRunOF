@@ -7,7 +7,7 @@ from typing import Any
 
 class Files:
     """
-    The class is intended to fulfill a number operations on files, for example, changing text ...
+    The class is intended to fulfill a number of operations on files, for example, changing text ...
 
     Note:
         Probably, it is possible problems with coding for OS Windows
@@ -16,12 +16,17 @@ class Files:
         ----------
     Methods
         -------
+        change_var_fun is the method to find and replace required text part at given file
+
         change_text(cls, name_var, value_var, name_file='')
              is the method to find and replace required text part at given file
 
         change_text_line(var_value, var_name, var_excl_name, path_dict=None, file_name='')
             The method fulfills row searching of the given variable var_name to change it to var_value
             if in the line there are not variable named as var_excl_name
+        copy_file is the method to make copy of a file and to move it to new path with new name.
+        find_files is
+        find_file_by_name
     """
 
     def __init__(self):
@@ -95,9 +100,13 @@ class Files:
 
     @staticmethod
     def find_files(where, type_files='file') -> list:
-        """
-        type = file of directory = directory
-        all
+        """The method is intended to find all files at given directory and to sort by type file or directory.
+        Attributes:
+            -------------
+        where is the path in which the method will find files or directories
+        type_files is depicted type of finding files. It must be 'file' or 'directory'.
+        Out:
+            None
         """
         dirs = pl.Path(where).iterdir()
         if type == 'file':
@@ -117,19 +126,27 @@ class Files:
 
     @classmethod
     def find_file_by_name(cls, where, names=[]):
+        """The method selects names from found list of names by comparing with required names in names.
+        Attributes:
+        -------------
+            where is the path in which the method will find files or directories
+
+            names is the list of names by providing sort procedure.
+        Out:
+            None
+        """
         dirs = cls.find_files(where)
         if not names:
             return dirs
         else:
             new_dirs = list()
             for name in names:
-                for dir in dirs:
-                    if name == dir.stem:
+                for directory in dirs:
+                    if name == directory.stem:
                         new_dirs.append(name)
                     else:
                         pass
             return new_dirs
-
 
 
 class Executer:
@@ -144,6 +161,7 @@ class Executer:
         os.chdir(where)
         os.system(command)
         os.chdir(path_back)
+
 
 class Priority:
     """
@@ -494,7 +512,6 @@ class Priority:
         """
         return type(path) in [str, os.PathLike, pl.PosixPath, pl.WindowsPath]
 
-
     @staticmethod
     def _raise_error(*vargs, type_error=0):
         if type_error == 'var_1':
@@ -579,7 +596,7 @@ class Priority:
         else:
             error_message = f''' 
                             ------------------------------------------
-                            YI do not know the error! The developer should it check!
+                            I do not know the error! The developer should it check!
                             ------------------------------------------
                             '''
 

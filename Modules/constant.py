@@ -16,7 +16,7 @@ class Constant(Information):
 
     Methods:
         ---------------
-        set_transportProp - the the function sets given variables to transportProperties file
+        set_transportProp - the function sets given variables to transportProperties file
         set_any_file is the method to rewrite any variables to ant files of constant folder of OpenFOAM case.
         turbulent_model is the model to move settings of chosen turbulent models to constant folder for OpenFOAM case.
         turbulent_model_old is the old version of above method.

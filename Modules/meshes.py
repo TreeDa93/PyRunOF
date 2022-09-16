@@ -42,42 +42,12 @@ class Mesh(Information):
             then the variable is taken from attributes of the object.
         Output:
             None
-
         """
         system_path = self.get_system_path(case_path, info_key)
         mesh_var_dict = Priority.variable(mesh_var_dict, self.info, var_key=var_key)
         for var in mesh_var_dict:
             Files.change_var_fun(var, mesh_var_dict[var], path=system_path,
                                  file_name='blockMeshDict')
-
-    def set_decomposePar(self, *mesh_dicts: dict, case_path: Optional[str] = None, info_key: Optional[str]= None):
-        """
-        Настройка decomposePar
-        """
-        system_path = self.get_system_path(case_path, info_key)
-        for mesh_dict in mesh_dicts:
-            for var in mesh_dict:
-                    Files.change_var_fun(var, mesh_dict[var], path=system_path,
-                                         file_name='decomposeParDict')
-
-    def decompose_run_OF(self, case_path=None, info_key=None):
-        """
-        запуск  #FIXME
-        """
-        path_case = self.get_path(case_path=case_path, info_key=self.get_key(info_key))
-        print('hi', path_case)
-        command = 'decomposePar -force'
-        Executer.run_command(command, path_case)
-
-    def decompose_run_Elmer(self, path, info_key=None):
-        """
-                запуск #FIXME
-        """
-        path_case = self.get_path(case_path=path, info_key=self.get_key(info_key))
-        mesh_name = self.get_any_parameter(parameter_name='e_mesh', info_key=info_key)
-        cores = self.get_any_parameter(parameter_name='e_cores', info_key=info_key)
-        command = f'ElmerGrid 2 2 {mesh_name} -metis {cores} -force'
-        Executer.run_command(command, path_case)
 
     def run_blockMesh(self, case_path: Optional[str] = None) -> None:
         """The method to execute blockMesh utility of OpenFOAM in the given case.
@@ -91,22 +61,45 @@ class Mesh(Information):
         case_path = Priority.path(case_path, self.info, path_key='path')
         Executer.run_command('blockMesh', case_path)
 
-    def run_gMesh_to_Elmer(self, case_path: Optional[str] = None,
-                           elmer_mesh_name: Optional[str] = None) -> None:
-        """The method to execute a number of commands to transform mesh from gMesh extension to Elmer_old one.
-            Input :
-                case_path is the path_dict for running of these commands .
-                If the path_dict is None, then the variable is taken from attributes of the object.
-            Output:
-                    None
+    def set_decomposePar(self, *mesh_dicts: dict, case_path: Optional[str] = None,
+                         info_key: Optional[str]= None) -> None:
+        """
+        The method complete decimposeParDict file in system folder of openfoam case according input data.
+        Input :
+            mesh_dicts is the dictionary containing of key as variable to be replaced in decimposeParDict file and
+                            values as digs to be filled instead of key in decimposeParDict file
+            case_path is path where the manipulation will do.
+
+            info_key is key of information.
+        Output:
+            None
 
         """
-        case_path = Priority.path(case_path, self.info, path_key='path')
-        elmer_mesh_name = Priority.variable(elmer_mesh_name, self.info, var_key='elmer_mesh_name')
-        command1 = f'gmsh -3 {elmer_mesh_name}.geo'
-        command2 = f'ElmerGrid 14 2 {elmer_mesh_name} -autoclean '
-        Executer.run_command(command1, case_path)
-        Executer.run_command(command2, case_path)
+        system_path = self.get_system_path(case_path, info_key)
+        for mesh_dict in mesh_dicts:
+            for var in mesh_dict:
+                    Files.change_var_fun(var, mesh_dict[var], path=system_path,
+                                         file_name='decomposeParDict')
+
+
+
+    def decompose_run_OF(self, case_path=None, info_key=None):
+        """
+        запуск  #FIXME
+        """
+        path_case = self.get_path(case_path=case_path, info_key=self.get_key(info_key))
+        command = 'decomposePar -force'
+        Executer.run_command(command, path_case)
+
+    def decompose_run_Elmer(self, path, info_key=None):
+        """
+                запуск #FIXME
+        """
+        path_case = self.get_path(case_path=path, info_key=self.get_key(info_key))
+        mesh_name = self.get_any_parameter(parameter_name='e_mesh', info_key=info_key)
+        cores = self.get_any_parameter(parameter_name='e_cores', info_key=info_key)
+        command = f'ElmerGrid 2 2 {mesh_name} -metis {cores} -force'
+        Executer.run_command(command, path_case)
 
     def set_gMesh(self, mesh_var_dict: dict, case_path: Optional[str] = None, mesh_name: str = '', var_key=None) -> None:
         """The method to set given parameters in the file with geo extension.
@@ -129,4 +122,39 @@ class Mesh(Information):
         mesh_var_dict = Priority.variable(mesh_var_dict, self.info, var_key=var_key)
         for var in mesh_var_dict:
             Files.change_var_fun(var, mesh_var_dict[var], case_path, file_name=f'{elmer_mesh_name}.geo')
+
+    def run_gMesh_to_Elmer(self, case_path: Optional[str] = None,
+                           elmer_mesh_name: Optional[str] = None) -> None:
+        """The method to execute a number of commands to transform mesh from gMesh extension to Elmer_old one.
+            Input :
+                case_path is the path_dict for running of these commands .
+                If the path_dict is None, then the variable is taken from attributes of the object.
+            Output:
+                    None
+
+        """
+        case_path = Priority.path(case_path, self.info, path_key='path')
+        elmer_mesh_name = Priority.variable(elmer_mesh_name, self.info, var_key='elmer_mesh_name')
+        command1 = f'gmsh -3 {elmer_mesh_name}.geo'
+        command2 = f'ElmerGrid 14 2 {elmer_mesh_name} -autoclean '
+        Executer.run_command(command1, case_path)
+        Executer.run_command(command2, case_path)
+
+
+    def create_salome_mesh(self, script_path: Optional[str] = None, parameter_path: Optional[str] = None,
+                          info_key: Optional[str]=None):
+        """
+        The method creates salome mesh from salome scripts
+        script_path
+        parameters_path
+        """
+        script_path = Priority.path(script_path, self.info, info_key)
+        parameter_path = Priority.path(parameter_path, self.info, info_key)
+        command = f"salome -t {script_path} args:{parameter_path}"
+        Executer.run_command(command, script_path)
+
+    def set_salome_script_path(self, script_path, info_key=None):
+        self.set_new_parameter(script_path, info_key=info_key, parameter_name='salome_script_path')
+
+
 
