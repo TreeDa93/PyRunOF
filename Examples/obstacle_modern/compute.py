@@ -66,7 +66,6 @@ def solution(name):
                             parameter_path=mp.get_path('parameters_path'))
     #mesh.set_salome_script_path(mp.get_path(path_key='salome_script_path'))
 
-    print(mesh.get_any_parameter(parameter_name='salome_script_path'))
     #mesh.decompose_run_OF()
 
     runner = Run(solver='icoFoam', path_case=mp.get_path(dst_path_key))

@@ -41,29 +41,28 @@ import SMESH
 from salome.smesh import smeshBuilder
 import os, time
 
-def exportMeshToOF(key_export, mesh, mName=None):
+def export_mesh_to_foam(key_export, mesh, case_path):
     """
     Main function. Export the selected mesh.
 
     Will try to find the selected mesh.
     """
-    if mName == None:
-        mName = mesh.GetName()
-    if key_export == True:
-        if not mesh == None:
-            outdir = os.getcwd() + "/" + mName + "/constant/polyMesh"
-            __debugPrint__("found selected mesh exporting to " + outdir + ".\n", 1)
-            exportToFoam(mesh, outdir)
-            __debugPrint__("finished exporting\n", 1)
+    if key_export is True:
+        mesh_path = case_path + "/constant/polyMesh"
+        __debugPrint__("found selected mesh exporting to " + mesh_path + ".\n", 1)
+        exportToFoam(mesh, mesh_path)
+        __debugPrint__("finished exporting\n", 1)
 
-def exportMeshToElmer(key_export, mesh, mName=None):
-    if mName == None:
-        mName = mesh.GetName()
-    if key_export == True:
-        if not mesh == None:
-            outdir = os.getcwd() + "/" + mName
-            print("Exporting mesh to " + outdir + "\n")
-            exportToElmer(mesh, outdir)
+def export_mesh_to_elmer(key_export, mesh, export_path):
+    """
+        Main function. Export the selected mesh.
+
+        Will try to find the selected mesh.
+        """
+    if key_export is True:
+
+        print("Exporting mesh to " + outdir + "\n")
+        exportToElmer(mesh, outdir)
 
 
 def exportToElmer(mesh, dirname='salomeToElmer'):

@@ -36,32 +36,12 @@ Script for exporting mesh from Salome to Elmer
 #    Boston, MA 02110-1301, USA.
 #
 
-import sys
+import os, time
+import salome
 import SMESH
 from salome.smesh import smeshBuilder
-import os, time
 
-def exportMeshToOF(export_path, mesh, mName=None):
-    """
-    Main function. Export the selected mesh.
-
-    Will try to find the selected mesh.
-    """
-    if key_export == True:
-        if not mesh == None:
-            outdir = os.getcwd() + "/" + mName + "/constant/polyMesh"
-            __debugPrint__("found selected mesh exporting to " + outdir + ".\n", 1)
-            exportToFoam(mesh, outdir)
-            __debugPrint__("finished exporting\n", 1)
-
-def exportMeshToElmer(export_path, mesh, mName=None):
-    if not mesh == None:
-        outdir = os.getcwd() + "/" + mName
-        print("Exporting mesh to " + outdir + "\n")
-        exportToElmer(mesh, dirname=export_path)
-
-
-def exportToElmer(mesh, dirname='salomeToElmer'):
+def export_to_elmer(mesh, dirname='salomeToElmer'):
     u"""
     Elmer's native mesh consists of 5 files.
 
@@ -227,6 +207,12 @@ def exportToElmer(mesh, dirname='salomeToElmer'):
     print("Total time: %0.f s\n" % (time.time() - tstart))
 
 
+
+
+
+
+
+
 """
 Export a Salome Mesh to OpenFOAM.
 
@@ -271,7 +257,7 @@ In order to use the mesh.
 #    The license is included in the file LICENSE.
 #
 
-def exportToFoam(mesh, dirname='polyMesh'):
+def export_to_foam(mesh, dirname='polyMesh'):
     """
     Export a mesh to OpenFOAM.
 
@@ -659,13 +645,6 @@ def exportToFoam(mesh, dirname='polyMesh'):
     __debugPrint__("Total time: %0.fs\n" % totaltime, 1)
 
 
-
-import sys
-import salome
-import SMESH
-from salome.smesh import smeshBuilder
-import os, time
-
 debug = 1  # Print Verbosity (0=silent => 3=chatty)
 verify = False  # Verify face order, might take longer time
 
@@ -707,7 +686,6 @@ class MeshBuffer(object):
             return tuple(reversed(fnodes))
         else:
             return tuple(sorted(fnodes, reverse=True))
-
 
 
 def __writeHeader__(file, fileType, nrPoints=0, nrCells=0, nrFaces=0, nrIntFaces=0):

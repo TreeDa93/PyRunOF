@@ -156,10 +156,11 @@ class Mesh(Information):
         command = f"salome -t {script_name} args:{parameter_path}"
         Executer.run_command(command, where)
 
-    def set_salome_script_path(self, script_path, info_key=None):
-        self.set_new_parameter(script_path, info_key=info_key, parameter_name='salome_script_path')
 
-
+    # def set_salome_script_path(self, script_path, info_key=None):
+    #     self.set_new_parameter(script_path, info_key=info_key, parameter_name='salome_script_path')
+    #
+    #
     # def change_salomeMesh(self, parameters_path, changed_parameters):
     #     """
     #     The method changes mesh parameters and return path to new parameters
@@ -174,7 +175,6 @@ class Mesh(Information):
     #     with open('parameters_ch.json', 'w') as json_file:
     #         json.dump(parameters, json_file)
     #
-    #     return "/home/kirill/Shmakov/Verification/Scripts/obstacle/parameters_ch.json"
     #
     #
     # script_name = "create_obstacle_mesh"

@@ -7,29 +7,26 @@
 import sys
 import salome
 import json
-
 salome.salome_init()
 import salome_notebook
+import GEOM
+from salome.geom import geomBuilder
+import math
+import SALOMEDS
+import  SMESH
+from salome.smesh import smeshBuilder
+
+
 notebook = salome_notebook.NoteBook()
-sys.path.insert(0, r'/home/kirill/Shmakov/Verification/Scripts/obstacle')
-
-#param_path = "/home/kirill/Shmakov/Verification/Scripts/obstacle/parameters.json"
-
 param_path = sys.argv[1]
 
 with open(param_path) as file:
     # Load its content and make a new dictionary
     parameters = json.load(file)
 
-###
-### GEOM component
-###
+sys.path.append(parameters['lib_path'])
 
-import GEOM
-from salome.geom import geomBuilder
-import math
-import SALOMEDS
-
+from exportMesh import export_to_elmer, export_to_foam
 
 ### GEOMETRY ###
 
@@ -73,7 +70,7 @@ rect_2d = geompy.MakePrismVecH(edge1_rect, OX, Ld)
 #Creation of obstacle
 obstacle_2d = geompy.MakeDiskPntVecR(center_dist, OZ, d/2)
 diff_obstacle_2d = geompy.MakeCutList(rect_2d, [obstacle_2d], True)
-exportHDmesh = True
+
 
 
 #Geometry groups
@@ -122,18 +119,12 @@ min_size_elem = parameters['min_size_elem']
 k_global = parameters['k_global']
 quad_elem = parameters['quad_elem']
 
-import  SMESH, SALOMEDS
-from salome.smesh import smeshBuilder
-
 smesh = smeshBuilder.New()
-#smesh.SetEnablePublish( False ) # Set to False to avoid publish in study if not needed or in some particular situations:
-                                 # multiples meshes built in parallel, complex and numerous mesh edition (performance)
 
   
 Mesh_2D = smesh.Mesh(diff_obstacle_2d)
 NETGEN_2D = Mesh_2D.Triangle(algo=smeshBuilder.NETGEN_2D)
-#smesh.SetName(NETGEN_2D.GetAlgorithm(), 'NETGEN 2D')
-#Length_From_Edges = NETGEN_2D.LengthFromEdges()
+
 
 NETGEN_2D_Parameters = NETGEN_2D.Parameters()
 NETGEN_2D_Parameters.SetMaxSize(max_size_elem)
@@ -143,22 +134,10 @@ NETGEN_2D_Parameters.SetGrowthRate(k_global)
 NETGEN_2D_Parameters.SetQuadAllowed(quad_elem)
 
 global_elem_size = Mesh_2D.Segment().LocalLength(length_elem,None,1e-07)
-#Local_Length_1 = circle_edge_3.LocalLength(0.001,None,1e-07)
-#smesh.SetName(Length_From_Edges, 'Length From Edges_1')
 
 numSegmentsCircle = Mesh_2D.Segment(geom=circle_edge)
 nMeshCircle = numSegmentsCircle.NumberOfSegments(nC)
 smesh.SetName(numSegmentsCircle.GetSubMesh(), 'subMeshCircle')
-
-#numSegmentsIO = Mesh_2D.Segment(geom=group_IO)
-#nMeshIO = numSegmentsIO.NumberOfSegments(nIO)
-#subMesh_IO = numSegmentsIO.GetSubMesh()
-#smesh.SetName(numSegmentsIO.GetSubMesh(), 'subMesh_IO')
-
-#numSegmentsLength = Mesh_2D.Segment(geom=walls_edge)
-#nMeshLength = numSegmentsLength.NumberOfSegments(nL)
-#subMesh_length = numSegmentsLength.GetSubMesh()
-#smesh.SetName(numSegmentsLength.GetSubMesh(), 'subMesh_length')
 
 Viscous_Layers_walls = NETGEN_2D.ViscousLayers2D(wall_layer,nWall_layer, k_wall,[ 10, 3 ],0)
 Viscous_Layers_circle = NETGEN_2D.ViscousLayers2D(circle_layer, nCircle_layer, k_wall,[ 12 ],0)
@@ -191,10 +170,8 @@ smesh.SetName(walls_edge, 'walls_edge')
 smesh.SetName(group_IO, 'group_IO')
 smesh.SetName(outlet_edge, 'outlet_edge')
 
-from exportMesh import exportMeshToElmer, exportMeshToOF
-
-
-exportMeshToOF(exportHDmesh, mesh=Mesh_2D, mName=parameters["OFmesh_name"])
+export_to_foam(Mesh_2D, dirname=parameters['of_export_path'])
+#export_to_elmer(MeshName, dirname=parameters['elmer_export_path'])
 
 
 if salome.sg.hasDesktop():
