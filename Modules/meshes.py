@@ -141,7 +141,7 @@ class Mesh(Information):
         Executer.run_command(command2, case_path)
 
 
-    def create_salome_mesh(self, script_path: Optional[str] = None, parameter_path: Optional[str] = None,
+    def run_salome_mesh(self, script_path: Optional[str] = None, parameter_path: Optional[str] = None,
                           info_key: Optional[str]=None):
         """
         The method creates salome mesh from salome scripts
@@ -157,30 +157,20 @@ class Mesh(Information):
         Executer.run_command(command, where)
 
 
-    # def set_salome_script_path(self, script_path, info_key=None):
-    #     self.set_new_parameter(script_path, info_key=info_key, parameter_name='salome_script_path')
-    #
-    #
-    # def change_salomeMesh(self, parameters_path, changed_parameters):
-    #     """
-    #     The method changes mesh parameters and return path to new parameters
-    #     """
-    #
-    #     with open(parameters_path) as file:
-    #         parameters = json.load(file)
-    #
-    #     for key, value in parameters.items():
-    #         parameters[key] = changed_parameters.get(key, value)
-    #
-    #     with open('parameters_ch.json', 'w') as json_file:
-    #         json.dump(parameters, json_file)
-    #
-    #
-    #
-    # script_name = "create_obstacle_mesh"
-    # parameters_path = "/home/kirill/Shmakov/Verification/Scripts/obstacle/parameters.json"
-    # changed_parameters = {"Ha": 500, "OFmesh_name": "obstacle_base"}
-    #
-    # changed_mesh = change_salomeMesh(parameters_path, changed_parameters)
-    # create_salomeMesh(script_name, changed_mesh)
+    def change_salomeMesh(self, parameters_path: Optional[str] = None, changed_parameters: Optional[dict] = None,
+                          new_path: Optional[str] = None):
+        """
+        The method changes mesh parameters and return path to new parameters
+        parameters_path path to origin parameters json file
+        changed_parameters dictionary filled with parameters to change
+        new_path full path to changed json file if it's None, then origin file will be rewritten
+        """
+        parameters = Files.open_json(parameters_path)
+
+        for key, value in parameters.items():
+            parameters[key] = changed_parameters.get(key, value)
+        if new_path:
+            Files.save_json(parameters, new_path)
+        else:
+            Files.save_json(parameters, parameters_path)
 

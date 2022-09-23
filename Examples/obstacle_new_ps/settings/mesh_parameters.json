@@ -1,0 +1,17 @@
+{
+   "d": 0.01,
+   "betta": 0.25,
+   "nIO": 100,
+   "nC": 360,
+   "nL": 300,
+   "Ha": 2160,
+   "circle_layer": 0.01,
+   "nWall_layer": 20,
+   "nCircle_layer": 96,
+   "k_wall": 1.03,
+   "max_size_elem": 3e-4,
+   "min_size_elem": 1e-8,
+   "k_global": 0.1,
+   "quad_elem": true,
+   "OFmesh_name": "MeshMesh"
+}

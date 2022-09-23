@@ -26,7 +26,8 @@ with open(param_path) as file:
 
 sys.path.append(parameters['lib_path'])
 
-from exportMesh import export_to_elmer, export_to_foam
+
+from AdditinalFiles.MeshScripts.exportMesh import export_to_foam
 
 ### GEOMETRY ###
 
@@ -170,7 +171,7 @@ smesh.SetName(walls_edge, 'walls_edge')
 smesh.SetName(group_IO, 'group_IO')
 smesh.SetName(outlet_edge, 'outlet_edge')
 
-export_to_foam(Mesh_2D, dirname=parameters['of_export_path'])
+export_to_foam(Mesh_2D, mesh_name=None, export_path=parameters['case_path'])
 #export_to_elmer(MeshName, dirname=parameters['elmer_export_path'])
 
 

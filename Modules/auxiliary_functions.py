@@ -3,7 +3,8 @@ import shutil
 import traceback
 import pathlib as pl
 import os
-from typing import Any
+import json
+from typing import Any, Optional
 
 class Files:
     """
@@ -148,6 +149,30 @@ class Files:
                         pass
             return new_dirs
 
+    @staticmethod
+    def open_json(file_path: Optional[str] = None) -> dict:
+        """Function to load json file content
+            Attributes:
+                 --------------
+                file_path full path to json file
+            Returns:
+                 --------------
+                dictionary with json file content
+        """
+        with open(file_path) as file:
+            content = json.load(file)
+        return content
+
+    @staticmethod
+    def save_json(data, save_path: Optional[str] = None) -> None:
+        """Function to save python dictionary as json file
+            Attributes:
+                 --------------
+                data python dictionary with data
+                file_path full path to json file
+        """
+        with open(save_path, 'w') as json_file:
+            json.dump(data, json_file, indent=4)
 
 class Executer:
 

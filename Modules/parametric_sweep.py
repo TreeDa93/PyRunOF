@@ -1,6 +1,11 @@
 import os
 import sys
+import pathlib as pl
+import pylab as pl
 
+import Modules.manipulations
+from Modules.auxiliary_functions import Priority, Files, Executer
+from Modules.manipulations import Manipulations
 
 class ParametricSweep:
     """
@@ -14,7 +19,19 @@ class ParametricSweep:
         self.fun = fun
         self.currentIter = 0
 
-    def run(self, generator_names=False):
+    def run(self, parameters_path, sweep_params={}):
+        while self.currentIter < self.numberCases:
+            cur_dict = dict()
+            for key in sweep_params:
+                cur_dict[key] = sweep_params[key][self.currentIter]
+
+            path = pl.Path(parameters_path)
+            save_path = path.parent / (path.stem + f' {self.currentIter}')
+            Manipulations.change_json_params(parameters_path=parameters_path,
+                                             save_path=save_path,
+                                             changed_parameters=sweep_params)
+            new_params = Files.open_json(save_path)
+    def run_new(self, generator_names=False):
         general_path = os.getcwd()
         while self.currentIter < self.numberCases:
 
@@ -52,6 +69,11 @@ class ParametricSweep:
                     dic[key] = self.sweepDict[key][self.currentIter]
         print(self.find_dicts[:])
         self.currentIter+=1
+
+
+
+
+
 
     @staticmethod
     def _check_sweep_dict(sweep_dict):

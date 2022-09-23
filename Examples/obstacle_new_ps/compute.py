@@ -15,7 +15,7 @@ from settings.data import *
 def main():
     ps = ParametricSweep(fun=solution)
     ps.set_sweep_dict(sweep_dict=sweep_dict)
-    ps.set_find_dicts(find_dicts=[general_dict])
+    ps.set_find_dicts(find_dicts=[zero_dict])
     ps.run(generator_names=True)
     solution('test')
 
