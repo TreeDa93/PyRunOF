@@ -114,6 +114,13 @@ class Information:
         self.info = dict.fromkeys([info_key], dict(path=self._check_type_path(case_path),
                                                    elmer_mesh_name=e_mesh))
 
+    def __init_ps__(self, info_key: Optional[str] = 'general',
+                       case_path: Optional[str] = None,
+                      fun=None):
+        # FIXME
+        self.info = dict.fromkeys([info_key], dict(path=self._check_type_path(case_path),
+                                                   fun=fun))
+
     def __init_system__(self,info_key: Optional[str] = 'general', case_path: Optional[str] = None):
         self.info = dict.fromkeys([info_key], dict(path=self._check_type_path(case_path)))
 

@@ -1,23 +1,23 @@
 import os
 import sys
 import pathlib as pl
-import pylab as pl
+
 
 import Modules.manipulations
 from Modules.auxiliary_functions import Priority, Files, Executer
 from Modules.manipulations import Manipulations
+from Modules.information import Information
 
-class ParametricSweep:
+class ParametricSweep(Information):
     """
         #FIXIT
 
     """
-
-    def __init__(self, *dicts, values={'keys': []}, fun=None):
-        self.dictionaries = dicts
-        self.values = values
-        self.fun = fun
+    def __init__(self, *dicts, values={'keys': []}, fun=None, info_key='general'):
         self.currentIter = 0
+        self.info = dict.fromkeys([info_key], dict(fun=fun))
+        
+        
 
     def run(self, parameters_path, sweep_params={}):
         while self.currentIter < self.numberCases:
@@ -31,7 +31,21 @@ class ParametricSweep:
                                              save_path=save_path,
                                              changed_parameters=sweep_params)
             new_params = Files.open_json(save_path)
-    def run_new(self, generator_names=False):
+            
+    def run_new(self, fun=None):
+
+        while self.currentIter < 0:
+            Priority.variable(fun, where=self.info, var_key='fun')()
+        
+        
+    
+    def built_parameters(self):
+        Files.open_json(file_path=)
+        
+            
+        
+        
+    def run_old(self, generator_names=False):
         general_path = os.getcwd()
         while self.currentIter < self.numberCases:
 
@@ -56,6 +70,8 @@ class ParametricSweep:
         """
         self.numberCases  = self._check_sweep_dict(sweep_dict)
         self.sweepDict = sweep_dict
+        
+    def 
 
     def set_find_dicts(self, find_dicts=[]):
         """The method sets dictionaries where it will be fiended varieng variables"""
