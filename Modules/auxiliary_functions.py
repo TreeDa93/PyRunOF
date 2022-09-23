@@ -150,7 +150,7 @@ class Files:
             return new_dirs
 
     @staticmethod
-    def open_json(file_path: Optional[str] = None) -> dict:
+    def open_json(file_path: str) -> dict:
         """Function to load json file content
             Attributes:
                  --------------
@@ -164,7 +164,7 @@ class Files:
         return content
 
     @staticmethod
-    def save_json(data, save_path: Optional[str] = None) -> None:
+    def save_json(data, save_path: str) -> None:
         """Function to save python dictionary as json file
             Attributes:
                  --------------
