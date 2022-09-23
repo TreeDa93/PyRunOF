@@ -6,7 +6,7 @@ from Modules.auxiliary_functions import Priority, Files
 from Modules.information import Information
 
 
-class Manipulations:
+class Manipulations(Information):
     """
     This class is designed to perform operations on case folders.
     attributes:
@@ -29,28 +29,28 @@ class Manipulations:
     create_folder is function create new folder
     """
 
-    def __init__(self,
+    def __init__(self, info_key: Optional[str] = 'general',
                  name='test',
                  run_path: Optional[str] = None,
                  new_path: Optional[str] = None,
                  base_path: Optional[str] = None,
                  dir_path: Optional[str] = None, ):
-        self.name = name
-        self.paths = {'new': new_path,
-                      'base': base_path,
-                      'run': run_path,
-                      'dir': dir_path}
-        self.case_names = {'new': None,
-                           'base': None,
-                           'run': None}
+
+        Information.__init_manipulation__(self, info_key=info_key,
+                                          name=name,
+                                          run_path=run_path,
+                                          new_path=new_path,
+                                          base_path=base_path,
+                                          dir_path=dir_path, )
 
     def __repr__(self):
-        return f"Name of manipulation node ({self.name}, run name {self.paths['run']}, base name " \
-               f"{self.paths['base']}, new name {self.paths['new']})"
+        return f"Name of manipulation node ({self.info[self.info_key]['name']}, run name {self.info[self.info_key]['paths']['run']}, " \
+               f"base name " \
+               f"{self.info[self.info_key]['paths']['base']}, new name {self.info[self.info_key]['paths']['new']})"
 
     def __str__(self):
-        return f"Name of manipulation node ({self.name}, runpath {self.paths['run']}, basepath " \
-               f"{self.paths['base']}, newPath {self.paths['new']})"
+        return f"Name of manipulation node ({self.info[self.info_key]['name']}, runpath {self.info[self.info_key]['paths']['run']}, basepath " \
+               f"{self.info[self.info_key]['paths']['base']}, newPath {self.info[self.info_key]['paths']['new']})"
 
     def duplicate_case(self,
                        src_path: Optional[str] = None,
@@ -69,8 +69,8 @@ class Manipulations:
                    to the folder being old name with prefix of current time of copying. And new case will be copied
                     to folder being name of pathNewCase variables."""
 
-        src_path = pl.Path(Priority.check_key_path(src_path, src_key, self.paths))
-        dist_path = pl.Path(Priority.check_key_path(dist_path, dist_key, self.paths))
+        src_path = pl.Path(Priority.check_key_path(src_path, src_key, self.info[self.info_key]['paths']))
+        dist_path = pl.Path(Priority.check_key_path(dist_path, dist_key, self.info[self.info_key]['paths']))
         Priority.check_path_existence(src_path, make_new=False)
 
         if mode == 'rewrite':
@@ -109,14 +109,14 @@ class Manipulations:
 
                 """
         if only_base is True:
-            self.case_names[name_key] = name_base
+            self.info[self.info_key]['case_names'][name_key] = name_base
             return name_base
         else:
             for addName in case_names:
                 name_base += splitter + str(addName)
 
-            self.case_names[name_key] = name_base
-            return self.case_names[name_key]
+            self.info[self.info_key]['case_names'][name_key] = name_base
+            return self.info[self.info_key]['case_names'][name_key]
 
     def create_path_dir(self, dir_path: Optional[str] = None,
                         dir_path_key: Optional[str] = 'dir',
@@ -130,42 +130,34 @@ class Manipulations:
 
         newPath is the name of new case
         """
-        cur_path = Priority.path(dir_path, self.paths, path_key=dir_path_key)
-        cur_name = Priority.name(case_name, self.case_names, name_key=name_key)
-        self.paths[path_key] = pl.Path(cur_path) / cur_name
-        return self.paths[path_key]
+        cur_path = Priority.path(dir_path, self.info[self.info_key]['paths'], path_key=dir_path_key)
+        cur_name = Priority.name(case_name, self.info[self.info_key]['case_names'], name_key=name_key)
+        self.info[self.info_key]['paths'][path_key] = pl.Path(cur_path) / cur_name
+        return self.info[self.info_key]['paths'][path_key]
 
     def create_path(self, path, path_key='testPath'):
         """The function is used to create your own name
         The created name will be written into dictionary cls.addtionaldictionary with key  = name
         Input name is name of your new given name
         name is the key of dictionary storaged all addtional pathes"""
-        self.paths[path_key] = path
+        self.info[self.info_key]['paths'][path_key] = path
 
     def change_path(self, new_path: str, path_key: str = 'newPath') -> None:
         """The function is used for changing existent name by name
         Input variables
         name is new given name
         key is the name of variables of key for dictionary of addtionals pathes"""
-        if path_key in self.paths.keys():
-            self.paths[path_key] = new_path
+        if path_key in self.info[self.info_key]['paths'].keys():
+            self.info[self.info_key]['paths'][path_key] = new_path
         else:
             print('Error the key of name is not exist!')
-
-    def get_path(self, path_key: str) -> str:
-        """The method returns the path according given key of the path
-        Input:
-        key is the name of class variables consisting pathes or key of dictionary with pathes """
-
-        Priority.check_key(path_key, self.paths)
-        return self.paths[path_key]
 
     def get_name(self, name_key: str) -> str:
         """The method returns the name according given key
         Input:
         key is the name of class variables consisting pathes or key of dictionary with pathes """
-        Priority.check_key(name_key, self.case_names)
-        return self.case_names[name_key]
+        Priority.check_key(name_key, self.info[self.info_key]['case_names'])
+        return self.info[self.info_key]['case_names'][name_key]
 
     def create_folder(self, directory: Optional[str] = None,
                       dir_key: Optional[str] = None,
@@ -181,8 +173,8 @@ class Manipulations:
         :return:
         """
 
-        directory = Priority.check_key_path(directory, dir_key, self.paths)
-        folder_name = Priority.check_key_name(folder_name, name_key, self.case_names)
+        directory = Priority.check_key_path(directory, dir_key, self.info[self.info_key]['paths'])
+        folder_name = Priority.check_key_name(folder_name, name_key, self.info[self.info_key]['case_names'])
 
         full_path = pl.Path(directory) / folder_name
         test = Priority.check_path_existence_only(full_path)
@@ -211,8 +203,8 @@ class Manipulations:
                 """
         if full_path is None:
             print('I am here!!!!')
-            directory = Priority.check_key_path(directory, dir_key, self.paths)
-            folder_name = Priority.check_key_name(folder_name, name_key, self.case_names)
+            directory = Priority.check_key_path(directory, dir_key, self.info[self.info_key]['paths'])
+            folder_name = Priority.check_key_name(folder_name, name_key, self.info[self.info_key]['case_names'])
             full_path = pl.Path(directory) / folder_name
             test = Priority.check_path_existence_only(full_path)
             if test == 'full':
@@ -258,13 +250,10 @@ class Manipulations:
 
     def find_folders_by_word(self, word: [str], directory: Optional[str] = None,
                              dir_key: Optional[str] = None):
-        directory = pl.Path(Priority.check_key_path(directory, dir_key, self.paths))
+        directory = pl.Path(Priority.check_key_path(directory, dir_key, self.info[self.info_key]['paths']))
         full_find_path = [folder for folder in directory.iterdir() if word in folder.stem]
         name_find_file = [folder.stem for folder in directory.iterdir() if word in folder.stem]
         return full_find_path, name_find_file
-
-    @staticmethod
-
 
     @staticmethod
     def change_json_params(parameters_path: Optional[str] = None, changed_parameters: Optional[dict] = None,
@@ -274,6 +263,7 @@ class Manipulations:
         if save_path is None:
             save_path = parameters_path
         Files.save_json(parameters, save_path)
+
     @staticmethod
     def create_json_params(*parameter_dict: dict, save_path: Optional[str] = None):
         collect_dict = dict()

@@ -107,7 +107,6 @@ class Information:
         self.info = dict.fromkeys([info_key],
                                   dict(path=self._check_type_path(case_path)))
 
-
     def __init_mesh__(self, info_key: Optional[str] = 'general',
                        case_path: Optional[str] = None,
                        e_mesh: Optional[str] = None):
@@ -128,6 +127,25 @@ class Information:
                                                    pyFoam=False,
                                                    log=False,
                                                    cores={'OF': None, 'Elmer': None}))
+
+    def __init_manipulation__(self, info_key: Optional[str] = 'general',
+                              name: Optional[str] = "test",
+                              run_path: Optional[str] = None,
+                              new_path: Optional[str] = None,
+                              base_path: Optional[str] = None,
+                              dir_path: Optional[str] = None, ):
+        self.info_key = info_key
+        self.info = dict.fromkeys([info_key], dict(name=name,
+                                                   paths={"run": self._check_type_path(run_path),
+                                                          "new": self._check_type_path(new_path),
+                                                          "base": self._check_type_path(base_path),
+                                                          "dir": self._check_type_path(dir_path),
+                                                          },
+                                                   case_names={"new": None,
+                                                               "base": None,
+                                                               "run": None,
+                                                               }, ))
+
     @staticmethod
     def _check_type_path(path):
         if type(path) in [str, os.PathLike, pl.PosixPath, pl.WindowsPath]:
