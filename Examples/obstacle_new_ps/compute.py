@@ -13,15 +13,15 @@ from settings.data import *
 
 
 def main():
-    ps = ParametricSweep(fun=solution)
-    ps.set_sweep_dict(sweep_dict=sweep_dict)
-    ps.set_find_dicts(find_dicts=[zero_dict])
-    ps.run(generator_names=True)
-    solution('test')
+    mp = manipul()
+    ps = ParametricSweep(fun=manipul)
+    ps.run_new(mp.get_path('parameters_path'), {'test': [23, 32],'var2': [23,32]},
+               type_new=True)
 
 
-def solution(name):
+def manipul(path='', name=''):
     ##############General manipualations ###################
+
     mp = Manipulations(dir_path=dir_path)
     ## Set path for folder with settings and solution
     mp.create_path_dir(dir_path_key='dir', case_name='settings',
@@ -29,6 +29,7 @@ def solution(name):
     mp.create_path_dir(dir_path_key='dir', case_name='solution',
                        path_key='solution')
     # set path of source case
+
     mp.create_name(name_base=src_case, name_key=src_name_key)
     mp.create_path_dir(dir_path_key='settings', name_key=src_name_key,
                        path_key=src_path_key)
@@ -36,6 +37,12 @@ def solution(name):
     mp.create_name(name, name_base=src_case, name_key=dst_name_key)
     mp.create_path_dir(dir_path_key='solution', name_key=dst_name_key,
                        path_key=dst_path_key)
+    mp.create_path_dir(dir_path_key='settings', case_name='parameters.json',
+                        path_key='parameters_path')
+    mp.create_path_dir(dir_path_key='settings', case_name='mesh_parameters.json',
+                        path_key='mesh_parameters_path')
+    mp.create_name(name_base='create_obstacle_mesh.py', only_base=True, name_key='salome_script')
+    mp.create_path_dir(dir_path_key='settings', name_key='salome_script', path_key='salome_script_path')
     # set path to general parameters
     mp.create_path_dir(dir_path_key='settings', case_name='parameters.json',
                        path_key='parameters_path')
@@ -45,13 +52,24 @@ def solution(name):
     # collect general dict of parameters
     mp.create_json_params(time_dict, parallel_dict, prop_dict, zero_dict,
                           save_path=mp.get_path('parameters_path'))
-
-    general_dict = mp.get_dict_from_json(mp.get_path('parameters_path'))
-    changed_dict = {'lib_path': libpath, 'case_path': str(mp.get_path(dst_path_key))}
-    mp.change_json_params(parameters_path=mp.get_path('parameters_path'),
-                          changed_parameters=changed_dict)
-
+    mp.create_folder(dir_key='dir', folder_name='solution')
     mp.duplicate_case(src_key=src_path_key, dist_key=dst_path_key, mode='rewrite')
+    return mp
+
+def mesh_fun():
+    mp = manipul()
+    ########### mesh settings #####################
+    mesh = Mesh(case_path=mp.get_path(dst_path_key))
+    mesh.set_decomposePar(parallel_dict)
+    mesh.run_salome_mesh(script_path=mp.get_path('salome_script_path'),
+                         parameter_path=mp.get_path('parameters_path_new'))
+    mesh.decompose_run_OF()
+
+
+
+
+
+def solution(name):
 
     ########### System folder #######################
     system = System(case_path=mp.get_path(dst_path_key))
@@ -81,7 +99,7 @@ def solution(name):
     runner = Run(solver='icoFoam', path_case=mp.get_path(dst_path_key))
     runner.set_mode(mode='parallel')
     runner.set_cores(coreOF=8)
-    # runner.run()
+    runner.run()
 
 
 def test_json_fun():

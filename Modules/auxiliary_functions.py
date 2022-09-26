@@ -624,8 +624,9 @@ class Priority:
                             I do not know the error! The developer should it check!
                             ------------------------------------------
                             '''
-
-        print(repr(traceback.format_stack()))
+        for message in traceback.format_stack():
+            print(message)
+        #print(repr(traceback.format_stack()))
         raise SystemExit(error_message)
 
     @staticmethod
@@ -637,7 +638,9 @@ class Priority:
             Above information can help you find where is it.
             ------------------------------------------
             '''
-        print(repr(traceback.format_stack()))
+        for message in traceback.format_stack():
+            print(message)
+        #print(repr(traceback.format_stack()))
         raise SystemExit(error_message)
 
     @staticmethod

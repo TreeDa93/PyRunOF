@@ -43,7 +43,7 @@ class Mesh(Information):
         Output:
             None
         """
-        system_path = self.get_system_path(case_path, info_key)
+        system_path = self.get_system_path(case_path, info_key=info_key)
         mesh_var_dict = Priority.variable(mesh_var_dict, self.info, var_key=var_key)
         for var in mesh_var_dict:
             Files.change_var_fun(var, mesh_var_dict[var], path=system_path,
@@ -75,7 +75,7 @@ class Mesh(Information):
             None
 
         """
-        system_path = self.get_system_path(case_path, info_key)
+        system_path = self.get_system_path(case_path, info_key=info_key)
         for mesh_dict in mesh_dicts:
             for var in mesh_dict:
                     Files.change_var_fun(var, mesh_dict[var], path=system_path,
