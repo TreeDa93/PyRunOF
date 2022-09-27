@@ -9,8 +9,7 @@ from Modules.information import Information
 
 class ParametricSweep(Information):
     """
-        #FIXIT
-
+    FIXME
     """
 
     def __init__(self, fun=None, info_key='general'):
