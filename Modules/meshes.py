@@ -87,15 +87,17 @@ class Mesh(Information):
         """
         запуск  #FIXME
         """
-        path_case = self.get_path(case_path=case_path, info_key=self.get_key(info_key))
+        #path_case = Priority.path(case_path, self.info[self.get_key(info_key)], path_key='case_path')
+        where = self.info[self.get_key(info_key)]
+        path_case = Priority.path(case_path,where, path_key='case_path')
         command = 'decomposePar -force'
-        Executer.run_command(command, path_case)
+        Executer.run_command(command, path_case, case_path)
 
     def decompose_run_Elmer(self, path, info_key=None):
         """
                 запуск #FIXME
         """
-        path_case = self.get_path(case_path=path, info_key=self.get_key(info_key))
+        path_case = self.get_path(path, info_key=self.get_key(info_key))
         mesh_name = self.get_any_parameter(parameter_name='e_mesh', info_key=info_key)
         cores = self.get_any_parameter(parameter_name='e_cores', info_key=info_key)
         command = f'ElmerGrid 2 2 {mesh_name} -metis {cores} -force'

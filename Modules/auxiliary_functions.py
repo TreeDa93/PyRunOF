@@ -185,7 +185,8 @@ class Executer:
             path_back = pl.Path.cwd()
         os.chdir(where)
         os.system(command)
-        os.chdir(path_back)
+        if go_back is True:
+            os.chdir(path_back)
 
 
 class Priority:
@@ -281,8 +282,6 @@ class Priority:
                 else:
                     cls._raise_error(type_error='path_error')
             else:
-                print(Priority._check_path_type(where))
-                print(type(where))
                 if Priority._check_path_type(where):
                     return pl.Path(where)
                 else:
@@ -294,7 +293,6 @@ class Priority:
     @classmethod
     def path_add_folder(cls, path, where, add_folder, path_key=None):
         path = cls.path(path, where, path_key=path_key)
-        print(path)
         return pl.Path(path) / add_folder
 
     @classmethod

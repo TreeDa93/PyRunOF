@@ -31,25 +31,34 @@ from AdditinalFiles.MeshScripts.exportMesh import export_to_foam
 
 ### GEOMETRY ###
 
-d = parameters['d'] # diameter of obstacle
-betta = parameters['betta']
+d = parameters['d_var'] # diameter of obstacle
+betta = parameters['betta_var']
 h = d / betta # z - size of the duct, widht
 a = h # y - size of the duct, height
 Lu = 12 * d # upstream distance
 Ld = 42 * d # downstream distance
 
 ### MESH ###
-nIO = parameters['nIO'] # точек на входе и выходе
-nC = parameters['nC']  # точек на дуге окружности
-nL = parameters['nL']  # точек по длине канала
-Ha = parameters['Ha']
+nIO = parameters['nIO_var'] # точек на входе и выходе
+nC = parameters['nC_var']  # точек на дуге окружности
+nL = parameters['nL_var']  # точек по длине канала
+Ha = parameters['Ha_var']
 delta_Ha = a / Ha
 delta_Sh  = a / Ha ** 0.5
 wall_layer = delta_Sh
-circle_layer = parameters['circle_layer']
-nWall_layer = parameters['nWall_layer']
-nCircle_layer = parameters['nCircle_layer']
-k_wall = parameters['k_wall']
+circle_layer = parameters['circle_layer_var']
+nWall_layer = parameters['nWall_layer_var']
+nCircle_layer = parameters['nCircle_layer_var']
+k_wall = parameters['k_wall_var']
+
+############Mesh parameters###############
+##########################################
+
+max_size_elem = parameters['max_size_elem_var']
+length_elem = max_size_elem
+min_size_elem = parameters['min_size_elem_var']
+k_global = parameters['k_global_var']
+quad_elem = parameters['quad_elem_var']
 
 
 geompy = geomBuilder.New()
@@ -114,11 +123,7 @@ geompy.addToStudyInFather( diff_obstacle_2d, group_IO, 'group_IO' )
 ### SMESH component
 ###
 
-max_size_elem = parameters['max_size_elem']
-length_elem = max_size_elem
-min_size_elem = parameters['min_size_elem']
-k_global = parameters['k_global']
-quad_elem = parameters['quad_elem']
+
 
 smesh = smeshBuilder.New()
 
