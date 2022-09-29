@@ -180,7 +180,7 @@ class Information:
 
         """
         where = self.info[self.get_key(info_key)]
-        return Priority.path_add_folder(case_path, where, 'constant', path_key='path')
+        return Priority.path_add_folder(case_path, where, 'constant', path_key='case_path')
 
     def get_system_path(self, case_path: str, info_key: Optional[str] = None):
         """
@@ -193,7 +193,7 @@ class Information:
 
         """
         where = self.info[self.get_key(info_key)]
-        return Priority.path_add_folder(case_path, where, 'system', path_key='path')
+        return Priority.path_add_folder(case_path, where, 'system', path_key='case_path')
 
     def get_any_folder_path(self, case_path: str, info_key: Optional[str] = None, folder: str ='0'):
         """
@@ -239,32 +239,48 @@ class Information:
                 string
         """
         info_key = self.get_key(info_key)
-        path_case = Priority.path(path_case, self.info[info_key], path_key='path')
+        path_case = Priority.path(path_case, self.info[info_key], path_key='case_path')
         zero_folder_path = path_case / '0'
         return list(zero_folder_path.glob('**/*.sif'))
+
+    def collect_information(self, *class_set, key_info=None):
+        for c_cls in class_set:
+            for key, val in c_cls.info.items():
+                if type(val) is not dict:
+                    self.info[key] = val
+                else:
+                    self.info[key].update(val)
+
+    def __init_ps__(self, info_key: Optional[str] = 'general',
+                    fun=None,
+                    json_path=None
+                    ):
+        self.info = dict.fromkeys([info_key], dict(fun=fun,
+                                                   json_path=json_path))
+
 
     def __init_elmer__(self, info_key: Optional[str] = 'general',
                        case_path: Optional[str] = None,
                        sif_name: Optional[str] = None):
-        self.info = dict.fromkeys([info_key], dict(path=self._check_type_path(case_path),
+        self.info = dict.fromkeys([info_key], dict(case_path=self._check_type_path(case_path),
                                                    name=sif_name))
 
     def __init_constant__(self, info_key: Optional[str] = 'general',
                           case_path: Optional[str] = None,
                           lib_path: Optional[str] = None):
-        self.info = dict.fromkeys([info_key], dict(path=self._check_type_path(case_path),
+        self.info = dict.fromkeys([info_key], dict(case_path=self._check_type_path(case_path),
                                                    lib_path=self._check_type_path(lib_path)))
 
     def __init_iv__(self, info_key: Optional[str] = 'general',
                     case_path: Optional[str] = None):
         self.info = dict.fromkeys([info_key],
-                                  dict(path=self._check_type_path(case_path)))
+                                  dict(case_path=self._check_type_path(case_path)))
 
     def __init_mesh__(self, info_key: Optional[str] = 'general',
                        case_path: Optional[str] = None,
                        e_mesh: Optional[str] = None):
         # FIXME
-        self.info = dict.fromkeys([info_key], dict(path=self._check_type_path(case_path),
+        self.info = dict.fromkeys([info_key], dict(case_path=self._check_type_path(case_path),
                                                    elmer_mesh_name=e_mesh))
 
     def __init_ps__(self, info_key: Optional[str] = 'general',

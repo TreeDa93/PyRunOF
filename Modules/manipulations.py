@@ -1,7 +1,7 @@
 import shutil
 import pathlib as pl
 from time import strftime, sleep
-from typing import List, Optional, Dict
+from typing import Optional, Union
 from Modules.auxiliary_functions import Priority, Files
 from Modules.information import Information
 
@@ -13,7 +13,7 @@ class Manipulations(Information):
     paths is the dictionary consist of paths
     case_names is the dictionary of names of cases
 
-    run_path is the system_path for key 'run
+    run_path is the system_path for key run
     new_path is
     name is the name of the class
 
@@ -29,22 +29,10 @@ class Manipulations(Information):
     create_folder is function create new folder
     """
 
-    def __init__(self, info_key: Optional[str] = 'general',
-                 dir_path: Optional[str] = None, ):
+    def __init__(self, info_key='general', dir_path: Optional[str] = None):
 
         Information.__init_manipulation__(self, info_key=info_key,
                                           dir_path=dir_path)
-
-    def __repr__(self):
-        return f"Name of manipulation node ({self.info[self.info_key]['name']}, run name {self.info[self.info_key]['paths']['run']}, " \
-               f"base name " \
-               f"{self.info[self.info_key]['paths']['base']}, new name {self.info[self.info_key]['paths']['new']})"
-
-    def __str__(self):
-        return f"Name of manipulation node ({self.info[self.info_key]['name']}, runpath " \
-               f"{self.info[self.info_key]['paths']['run']}, basepath " \
-               f"{self.info[self.info_key]['paths']['base']}, " \
-               f"newPath {self.info[self.info_key]['paths']['new']})"
 
     def duplicate_case(self,
                        src_path: Optional[str] = None,
@@ -167,7 +155,7 @@ class Manipulations(Information):
 
     @staticmethod
     def change_json_params(parameters_path: str, changed_parameters: dict,
-                           save_path: Optional[str] = None):
+                           save_path: Union[str, pl.Path] = None):
         parameters = Files.open_json(parameters_path)
         parameters.update(changed_parameters)
         if save_path is None:
@@ -195,6 +183,3 @@ class Manipulations(Information):
     @staticmethod
     def get_dict_from_json(parameters_path):
         return Files.open_json(parameters_path)
-
-
-
