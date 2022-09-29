@@ -20,20 +20,6 @@ def main():
     ps.run(mp.get_path('parameters_path'), ps_params, fun=test, type_set='special series')
     #delete_fun()
 
-def delete_fun():
-    mp = settings_fun()
-    delte_status_sol = True
-    delete_json_files = True
-    delte_status_sol2 = True
-    if delte_status_sol is True:
-        mp.delete_cases([mp.get_path('solution')])
-    if delete_json_files is True:
-        mp.delete_cases(words=['parameters_'], directory=mp.get_path('settings'))
-    if delte_status_sol2 is True:
-        mp.delete_cases(words=['parameters_'], directory=mp.get_path('solution'))
-
-
-
 def test(ps):
     mp = Manipulations(dir_path=dir_path)
     mp.collect_information(ps)
@@ -42,7 +28,12 @@ def test(ps):
     mp.create_path_dir(dir_path_key='solution', name_key=dst_name_key,
                        path_key=dst_path_key)
     mp.duplicate_case(src_key=src_path_key, dist_key=dst_path_key, mode='rewrite')
-    data = mp.get_dict_from_json(mp.get_path('parameters_path'))
+
+    data = mp.get_dict_from_json(ps.get_cur_json_path())
+    data['U_var'] = calculate_velocity(data['Re_var'], data['nu_var'], data['d_var'])
+    mp.change_json_params(ps.get_cur_json_path(), data)
+fix
+
 
 
     ########### System folder #######################
@@ -66,7 +57,8 @@ def test(ps):
     mp.create_name(name_base='create_obstacle_mesh.py', only_base=True, name_key='salome_script')
     mp.create_path_dir(dir_path_key='settings', name_key='salome_script', path_key='salome_script_path')
     poly_mesh_path = mp.get_constant_path(str(mp.get_path(dst_path_key))) / 'polyMesh'
-    mp.change_json_params(ps.get_cur_json_path(), {'constant_path': str(poly_mesh_path)})
+    mp.change_json_params(ps.get_cur_json_path(), {'constant_path': str(poly_mesh_path)}) # add path for mesh save
+
     mesh.run_salome_mesh(script_path=mp.get_path('salome_script_path'), parameter_path=ps.get_cur_json_path())
 
     mesh.decompose_run_OF()
@@ -112,6 +104,21 @@ def settings_fun():
         print('create sol folder!!!')
 
     return mp
+
+def delete_fun():
+    mp = settings_fun()
+    delte_status_sol = True
+    delete_json_files = True
+    delte_status_sol2 = True
+    if delte_status_sol is True:
+        mp.delete_cases([mp.get_path('solution')])
+    if delete_json_files is True:
+        mp.delete_cases(words=['parameters_'], directory=mp.get_path('settings'))
+    if delte_status_sol2 is True:
+        mp.delete_cases(words=['parameters_'], directory=mp.get_path('solution'))
+def calculate_velocity(Re, nu, d):
+    return Re / d * nu
+
 
 
 
