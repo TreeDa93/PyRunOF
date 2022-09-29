@@ -1,10 +1,7 @@
 import os.path
 import sys
-
-import pylab as pl
-
-libpath = '/home/ivan/PyRunOF/'
-sys.path.append(libpath)
+from settings.data import *
+sys.path.append(library_path['lib_path_var'])
 from Modules.manipulations import Manipulations
 from Modules.set_system import System
 from Modules.constant import Constant
@@ -12,21 +9,30 @@ from Modules.initial_value import InitialValue
 from Modules.run import Run
 from Modules.meshes import Mesh
 from Modules.parametric_sweep import ParametricSweep
-from settings.data import *
+
 
 
 def main():
     ps = ParametricSweep(fun=test)
     mp = settings_fun()
     ps.collect_information(mp)
-    ps_params = {'var1': [1,2,3,4], 'var2': [4,5,6,7]}
-    ps.run(mp.get_path('parameters_path'), ps_params, fun=test)
+
+    ps.run(mp.get_path('parameters_path'), ps_params, fun=test, type_set='special series')
+    #delete_fun()
 
 def delete_fun():
     mp = settings_fun()
     delte_status_sol = True
+    delete_json_files = True
+    delte_status_sol2 = True
     if delte_status_sol is True:
         mp.delete_cases([mp.get_path('solution')])
+    if delete_json_files is True:
+        mp.delete_cases(words=['parameters_'], directory=mp.get_path('settings'))
+    if delte_status_sol2 is True:
+        mp.delete_cases(words=['parameters_'], directory=mp.get_path('solution'))
+
+
 
 def test(ps):
     mp = Manipulations(dir_path=dir_path)
@@ -38,12 +44,13 @@ def test(ps):
     mp.duplicate_case(src_key=src_path_key, dist_key=dst_path_key, mode='rewrite')
     data = mp.get_dict_from_json(mp.get_path('parameters_path'))
 
+
     ########### System folder #######################
     system = System(case_path=mp.get_path(dst_path_key))
     system.set_control_dict(data, case_path=mp.get_path(dst_path_key))
 
     ########### Constant folder #####################
-    constant = Constant(case_path=mp.get_path(dst_path_key), lib_path=libpath)
+    constant = Constant(case_path=mp.get_path(dst_path_key), lib_path=library_path['lib_path_var'])
     constant.set_transportProp(data)
 
     ########### Initial conditions #####################
@@ -54,20 +61,19 @@ def test(ps):
                  )
     ########### mesh settings #####################
     mesh = Mesh(case_path=mp.get_path(dst_path_key))
-    print(mesh.info)
     mesh.set_decomposePar(data)
 
     mp.create_name(name_base='create_obstacle_mesh.py', only_base=True, name_key='salome_script')
     mp.create_path_dir(dir_path_key='settings', name_key='salome_script', path_key='salome_script_path')
-
-    # mesh.run_salome_mesh(script_path=mp.get_path('salome_script_path'),
-    #                      parameter_path=ps.get_cur_json_path())
+    poly_mesh_path = mp.get_constant_path(str(mp.get_path(dst_path_key))) / 'polyMesh'
+    mp.change_json_params(ps.get_cur_json_path(), {'constant_path': str(poly_mesh_path)})
+    mesh.run_salome_mesh(script_path=mp.get_path('salome_script_path'), parameter_path=ps.get_cur_json_path())
 
     mesh.decompose_run_OF()
     runner = Run(solver='icoFoam', path_case=mp.get_path(dst_path_key))
     runner.set_mode(mode='parallel')
     runner.set_cores(coreOF=8)
-    #runner.run()
+    runner.run()
 
 def settings_fun():
     mp = Manipulations(dir_path=dir_path)
@@ -97,7 +103,7 @@ def settings_fun():
     mp.create_path_dir(dir_path_key='settings', case_name='mesh_parameters.json',
                        path_key='mesh_parameters_path')
     # collect general dict of parameters и записывает в путь по ключу parameters_path
-    mp.create_json_params(time_dict, parallel_dict, prop_dict, zero_dict,
+    mp.create_json_params(time_dict, parallel_dict, prop_dict, zero_dict, library_path,
                           mp.get_dict_from_json(mp.get_path('mesh_parameters_path')),
                           save_path=mp.get_path('parameters_path'))
 

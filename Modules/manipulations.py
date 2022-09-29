@@ -1,3 +1,4 @@
+import os
 import shutil
 import pathlib as pl
 from time import strftime, sleep
@@ -141,7 +142,10 @@ class Manipulations(Information):
             for word in words:
                 full_pathes, _ = self.find_folders_by_word(word=word, directory=directory, dir_key=dir_key)
                 for full_path in full_pathes:
-                    shutil.rmtree(full_path)
+                    if full_path.is_file():
+                        os.remove(full_path)
+                    else:
+                        shutil.rmtree(full_path)
         else:
             print('ERROR: You have to enter or the list of full_pathes either'
                   'the list of words')

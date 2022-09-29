@@ -24,9 +24,8 @@ class ParametricSweep(Information):
         self.run_fun = None
         self.json_paths = list()
 
-    def run(self, path_json, ps_params, fun=None, type_new=True, info_key=None):
-        info_key = self.get_key(info_key)
-        self._prepare_ps_dict(ps_params, type_set='all')
+    def run(self, path_json, ps_params, fun=None, type_new=True, type_set='all', info_key=None):
+        self._prepare_ps_dict(ps_params, type_set=type_set)
         for cur_data in self.info['Set']:
             self._update_json(path_json, cur_data, type_new=type_new)
             run_fun = Priority.variable(fun, where=self.run_fun)

@@ -24,7 +24,7 @@ with open(param_path) as file:
     # Load its content and make a new dictionary
     parameters = json.load(file)
 
-sys.path.append(parameters['lib_path'])
+sys.path.append(parameters['lib_path_var'])
 
 
 from AdditinalFiles.MeshScripts.exportMesh import export_to_foam
@@ -39,9 +39,9 @@ Lu = 12 * d # upstream distance
 Ld = 42 * d # downstream distance
 
 ### MESH ###
-nIO = parameters['nIO_var'] # точек на входе и выходе
+#nIO = parameters['nIO_var'] # точек на входе и выходе
 nC = parameters['nC_var']  # точек на дуге окружности
-nL = parameters['nL_var']  # точек по длине канала
+#nL = parameters['nL_var']  # точек по длине канала
 Ha = parameters['Ha_var']
 delta_Ha = a / Ha
 delta_Sh  = a / Ha ** 0.5
@@ -50,6 +50,7 @@ circle_layer = parameters['circle_layer_var']
 nWall_layer = parameters['nWall_layer_var']
 nCircle_layer = parameters['nCircle_layer_var']
 k_wall = parameters['k_wall_var']
+const_path = parameters['constant_path']
 
 ############Mesh parameters###############
 ##########################################
@@ -176,7 +177,7 @@ smesh.SetName(walls_edge, 'walls_edge')
 smesh.SetName(group_IO, 'group_IO')
 smesh.SetName(outlet_edge, 'outlet_edge')
 
-export_to_foam(Mesh_2D, mesh_name=None, export_path=parameters['case_path'])
+export_to_foam(Mesh_2D, dirname=const_path)
 #export_to_elmer(MeshName, dirname=parameters['elmer_export_path'])
 
 

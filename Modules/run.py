@@ -76,28 +76,28 @@ class Run(Information):
 
         """
 
-        mode = self.get_any_parameter(parameter_name='mode', info_key=info_key)
-        solver = self.get_any_parameter(parameter_name='solver', info_key=info_key)
+        mode = self.get_any_parameter('mode', info_key=info_key)
+        solver = self.get_any_parameter('solver', info_key=info_key)
         if mode == 'common':
             run_command = f'{solver}'
         elif mode == 'parallel':
-            core_of = self.get_any_parameter(parameter_name='coreOF', info_key=info_key)
+            core_of = self.get_any_parameter('coreOF', info_key=info_key)
             run_command = f'mpirun -np {core_of} {solver} -parallel :'
         elif mode == 'EOF':
-            core_of = self.get_any_parameter(parameter_name='coreOF', info_key=info_key)
-            core_elmer = self.get_any_parameter(parameter_name='coreOF', info_key=info_key)
+            core_of = self.get_any_parameter('coreOF', info_key=info_key)
+            core_elmer = self.get_any_parameter('coreOF', info_key=info_key)
             run_command = f'mpirun -np {core_of} {solver} -parallel : ' \
                           f'-np {core_elmer} ElmerSolver_mpi'
         else:
             self._raise_error(True)
 
-        if self.get_any_parameter(parameter_name='pyFoam') is True:
+        if self.get_any_parameter('pyFoam') is True:
             run_command = 'pyFoamPlotRunner.py ' + run_command
-        if self.get_any_parameter(parameter_name='log') is True:
+        if self.get_any_parameter('log') is True:
             run_command += ' | tee log -a'
 
         self.set_new_parameter(run_command, parameter_name='run command', info_key=info_key)
-        return self.get_any_parameter(parameter_name='run command')
+        return self.get_any_parameter('run command')
 
     def _raise_error(self, status):
         if status is True:

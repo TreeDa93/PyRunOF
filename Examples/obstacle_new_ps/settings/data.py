@@ -1,5 +1,7 @@
 import os
 
+library_path = {'lib_path_var': '/home/ivan/PyRunOF/'}
+
 ###############
 ###Parameters###
 ################
@@ -33,7 +35,7 @@ runTimeModifiable_var : yes or no runTimeModifiable_var : true or false
 time_dict = {'startFrom_var': 'startTime',
              'startTime_var': 0,
              'stopAt_var': 'endTime',
-             'endTime_var': 2,
+             'endTime_var': 360,
              'deltaT_var': 1e-1,
              'writeControl_var': 'adjustableRunTime',
              'writeInterval_var': 1,
@@ -51,5 +53,25 @@ parallel_dict = {'core_OF': 8,
 prop_dict = {'nu_var': 3.4e-7}
 ###########Initial values ##########
 zero_dict = {'U_var': 34e-4}
+
+
 ############Parametric sweep #######
 sweep_dict = dict(U_var=[1e-3, 1e-2])
+
+"""
+    "d_var": 0.01, - диаметр припятсвия
+   "betta_var": 0.25, - отношение диаметра препятсвия к высотек канала d/h от 0.1 до 0.4
+   "nC_var": 360, # количество точек по окружности препятсвияnumSegmentsCircle [120, 180, 260, 300, 360]
+   "Ha_var": 2160, 
+   "circle_layer_var": 0.01,
+   "nWall_layer_var": 20, - количество элементов в шерклифовском слое [7, 10, 15, 16, 20]
+   "nCircle_layer_var": 96, - количество элементов в слое возле препятсвия [32, 56, 72, 80]
+   "k_wall_var": 1.03,
+   "max_size_elem_var": 3e-4, 
+   "min_size_elem_var": 1e-8,
+   "k_global_var": 0.1,
+   "quad_elem_var": true
+
+"""
+ps_params = {'nC_var': [120, 180, 260, 300, 360], 'max_size_elem_var': [1e-3, 9e-4, 6e-4, 3e-4, 3e-4],
+             'nWall_layer_var': [7, 10, 15, 16, 20], 'nCircle_layer_var': [32, 56, 72, 80]}

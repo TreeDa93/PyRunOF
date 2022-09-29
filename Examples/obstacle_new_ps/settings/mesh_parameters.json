@@ -1,9 +1,7 @@
 {
    "d_var": 0.01,
    "betta_var": 0.25,
-   "nIO_var": 100,
    "nC_var": 360,
-   "nL_var": 300,
    "Ha_var": 2160,
    "circle_layer_var": 0.01,
    "nWall_layer_var": 20,
