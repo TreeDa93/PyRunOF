@@ -7,7 +7,7 @@
    "nWall_layer_var": 20,
    "nCircle_layer_var": 96,
    "k_wall_var": 1.03,
-   "max_size_elem_var": 3e-4,
+   "max_size_elem_var": 6e-4,
    "min_size_elem_var": 1e-8,
    "k_global_var": 0.1,
    "quad_elem_var": true

@@ -2,7 +2,7 @@
     "startFrom_var": "startTime",
     "startTime_var": 0,
     "stopAt_var": "endTime",
-    "endTime_var": 2,
+    "endTime_var": 150,
     "deltaT_var": 0.1,
     "writeControl_var": "adjustableRunTime",
     "writeInterval_var": 1,
@@ -23,7 +23,7 @@
     "nWall_layer_var": 20,
     "nCircle_layer_var": 96,
     "k_wall_var": 1.03,
-    "max_size_elem_var": 0.0003,
+    "max_size_elem_var": 0.0006,
     "min_size_elem_var": 1e-08,
     "k_global_var": 0.1,
     "quad_elem_var": true

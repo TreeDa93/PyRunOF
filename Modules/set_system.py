@@ -17,7 +17,7 @@ class System(Information):
 
     def set_control_dict(self, *lists: dict, case_path: Optional[str] = None, info_key: Optional[str] = None) -> None:
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
-        system_path = self._get_system_path(case_path, info_key)
+        system_path = self.get_system_path(case_path, self.get_key(info_key))
         for dict_var in lists:
             for var in dict_var:
                 Files.change_var_fun(var, dict_var[var], path=system_path,
@@ -25,7 +25,7 @@ class System(Information):
 
     def set_fvSolution(self, *listsfvSolution: dict, case_path: Optional[str] = None, info_key: Optional[str] = None) -> None:
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
-        system_path = self._get_system_path(case_path, info_key)
+        system_path = self.get_system_path(case_path, self.get_key(info_key))
         for list_var in listsfvSolution:
             for var in list_var:
                 Files.change_var_fun(var, list_var[var], path=system_path,
@@ -33,7 +33,7 @@ class System(Information):
 
     def set_fvSchemes(self, *listsfvSchemes: dict, case_path: Optional[str] = None, info_key: Optional[str] = None) -> None:
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
-        system_path = self._get_system_path(case_path, info_key)
+        system_path = self.get_system_path(case_path, self.get_key(info_key))
         for list_var in listsfvSchemes:
             for var in list_var:
                 Files.change_var_fun(var, list_var[var], path=system_path,
@@ -42,15 +42,9 @@ class System(Information):
     def set_any_files(self, *listsVar: dict, files: List[str] = ['controlDict'],
                       case_path: Optional[str] = None, info_key: Optional[str] = None) -> None:
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
-        system_path = self._get_system_path(case_path, info_key)
+        system_path = self.get_system_path(case_path, self.get_key(info_key))
         for file in files:
             for list_var in listsVar:
                 for var in list_var:
                     Files.change_var_fun(var, list_var[var], path=system_path,
                                          file_name=file)
-
-    def _get_system_path(self, case_path, info_key):
-        where = self.info[self.get_key(info_key)]
-        return Priority.path_add_folder(case_path, where, 'system', path_key='path')
-
-

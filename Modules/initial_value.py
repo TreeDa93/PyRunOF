@@ -40,14 +40,11 @@ class InitialValue(Information):
 
         """
 
-        info_key = self.get_key(info_key)
-        case_path = Priority.path(case_path, self.info[info_key], path_key='path')
-        zero_path = case_path / '0'
-        file_names = Files.find_file_by_name(zero_path, names=file_names)
-
+        zero_path = self.get_any_folder_path('0', case_path, info_key=self.get_key(info_key))
+        file_paths = Files.find_path_by_name(zero_path, names=file_names)
         for zero_dict in zero_dicts:
             for var in zero_dict:
-                for file_path in file_names:
+                for file_path in file_paths:
                     Files.change_var_fun(var, zero_dict[var], path=file_path)
 
     def set_mapping_settings(self, src_path, dst_path, src_time=0, dst_time=0):
@@ -205,6 +202,37 @@ class InitialValue(Information):
         omega is predict specific dissipation rate
         e is predict disspation rate"""
         Dh = 4 * A * B / (2 * (A + B))  # hydrolic diametr
+        Re = Uin * Dh / nu  # Reynolds number
+        I = 0.16 * Re ** (-0.125)  # Intensity
+        L = Dh * I  # mix length    scale
+        k = 1.5 * (I * Uin) ** 2  # kinetic energy
+        omega = k ** 0.5 / (0.09 ** 0.25 * L)  # specific dissipation rate
+        e = 0.09 ** 0.75 * k ** 1.5 / L  # dissipation rate
+        dict = {'Dh_var': Dh,
+                'Re_var': Re,
+                'Ical_var': I,
+                'L_var': L,
+                'k_var': k,
+                'omega_var': omega,
+                'ep_var': e,
+                }
+        return dict
+    def calcInitVal_cylindr(self, Dh, Uin, nu):
+        """The function serves to calculate intial values required for improving convergence of task. The function
+        gives dictionaries with key of variables and them values. Keys of variables is chosen as way as in fiels of OF.
+        Input variables:
+        Uin is the inlet velocity
+        nu is the kinematic viscosity
+        Output variables
+        Dh is hydrolic diametr
+        Re is the Reynolds number
+        I is the intensivity of flow
+        L is mixing length scale
+        k is predict kinetic energy
+        omega is predict specific dissipation rate
+        e is predict disspation rate
+        Dh is hydrolic diametr"""
+
         Re = Uin * Dh / nu  # Reynolds number
         I = 0.16 * Re ** (-0.125)  # Intensity
         L = Dh * I  # mix length    scale

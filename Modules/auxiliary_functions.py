@@ -27,7 +27,7 @@ class Files:
             if in the line there are not variable named as var_excl_name
         copy_file is the method to make copy of a file and to move it to new path with new name.
         find_files is
-        find_file_by_name
+        find_path_by_name
     """
 
     def __init__(self):
@@ -110,23 +110,17 @@ class Files:
             None
         """
         dirs = pl.Path(where).iterdir()
-        if type == 'file':
-            file_list = list()
-            for cur_dir in dirs:
-                if dir.cur_dir():
-                    file_list.append(dir)
+        if type_files == 'file':
+            file_list = [file for file in dirs if file.is_file()]
             return file_list
-        elif type == 'directory':
-            dir_list = list()
-            for dir_list in dirs:
-                if dir.dir_list():
-                    dir_list.append(dir)
+        elif type_files == 'directory':
+            dir_list = [cur_dir for cur_dir in dirs if cur_dir.is_dir()]
             return dir_list
         else:
             return list(dirs)
 
     @classmethod
-    def find_file_by_name(cls, where, names=[]):
+    def find_path_by_name(cls, where, names=[]):
         """The method selects names from found list of names by comparing with required names in names.
         Attributes:
         -------------
@@ -136,18 +130,11 @@ class Files:
         Out:
             None
         """
-        dirs = cls.find_files(where)
+        dirs = cls.find_files(where, type_files='file')
         if not names:
             return dirs
         else:
-            new_dirs = list()
-            for name in names:
-                for directory in dirs:
-                    if name == directory.stem:
-                        new_dirs.append(name)
-                    else:
-                        pass
-            return new_dirs
+            return [path for path in dirs if path.stem in names]
 
     @staticmethod
     def open_json(file_path: str) -> dict:

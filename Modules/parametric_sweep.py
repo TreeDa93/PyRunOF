@@ -38,11 +38,13 @@ class ParametricSweep(Information):
             return str(self.cur_i)
         else:
             name = str()
-            for key, val in self.info['Set'][self.cur_i]:
-                name += str(f'{key}_{val}')
+            for key, val in self.info['Set'][self.cur_i].items():
+                name += str(f'_{key}_{val}')
+            return name
 
     def get_cur_json_path(self):
         return self.json_paths[self.cur_i]
+
 
 
     def run_old(self, generator_names=False):

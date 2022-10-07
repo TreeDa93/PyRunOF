@@ -195,10 +195,11 @@ class Information:
         where = self.info[self.get_key(info_key)]
         return Priority.path_add_folder(case_path, where, 'system', path_key='case_path')
 
-    def get_any_folder_path(self, case_path: str, info_key: Optional[str] = None, folder: str ='0'):
+    def get_any_folder_path(self, folder_name, case_path: str, info_key: Optional[str] = None):
         """
         FIXME
         Args:
+            folder_name:
             case_path:
             info_key:
             folder:
@@ -207,7 +208,7 @@ class Information:
 
         """
         where = self.info[self.get_key(info_key)]
-        return Priority.path_add_folder(case_path, where, folder, path_key='path')
+        return Priority.path_add_folder(case_path, where, folder_name, path_key='case_path')
 
     def find_all_sif(self, path_case: Optional[str] = None,
                      info_key: Optional[str] = None) -> list:
@@ -241,7 +242,27 @@ class Information:
         info_key = self.get_key(info_key)
         path_case = Priority.path(path_case, self.info[info_key], path_key='case_path')
         zero_folder_path = path_case / '0'
-        return list(zero_folder_path.glob('**/*.sif'))
+        #zero_folder_path = self.get_any_folder_path('0', path_case, info_key=info_key)
+        return [file.stem for file in zero_folder_path.iterdir() if file.is_file()]
+
+    def find_all_path_zero_files(self, path_case: Optional[str] = None,
+                     info_key: Optional[str] = None) -> list:
+        """
+        The method is served to find all files in zero folder of OpenFoam case,
+        for example U, p etc.
+        FIXME
+        Args:
+            path_case: the path of openfoam case
+            info_key:
+
+        Returns:
+                string
+        """
+        info_key = self.get_key(info_key)
+        path_case = Priority.path(path_case, self.info[info_key], path_key='case_path')
+        zero_folder_path = path_case / '0'
+        #zero_folder_path = self.get_any_folder_path('0', path_case, info_key=info_key)
+        return [file for file in zero_folder_path.iterdir() if file.is_file()]
 
     def collect_information(self, *class_set, key_info=None):
         for c_cls in class_set:
@@ -250,14 +271,6 @@ class Information:
                     self.info[key] = val
                 else:
                     self.info[key].update(val)
-
-    def __init_ps__(self, info_key: Optional[str] = 'general',
-                    fun=None,
-                    json_path=None
-                    ):
-        self.info = dict.fromkeys([info_key], dict(fun=fun,
-                                                   json_path=json_path))
-
 
     def __init_elmer__(self, info_key: Optional[str] = 'general',
                        case_path: Optional[str] = None,
@@ -283,15 +296,9 @@ class Information:
         self.info = dict.fromkeys([info_key], dict(case_path=self._check_type_path(case_path),
                                                    elmer_mesh_name=e_mesh))
 
-    def __init_ps__(self, info_key: Optional[str] = 'general',
-                       case_path: Optional[str] = None,
-                      fun=None):
-        # FIXME
-        self.info = dict.fromkeys([info_key], dict(path=self._check_type_path(case_path),
-                                                   fun=fun))
 
     def __init_system__(self,info_key: Optional[str] = 'general', case_path: Optional[str] = None):
-        self.info = dict.fromkeys([info_key], dict(path=self._check_type_path(case_path)))
+        self.info = dict.fromkeys([info_key], dict(case_path=self._check_type_path(case_path)))
 
     def __init_runner__(self, info_key: Optional[str] = 'general',
                         case_path: Optional[str] = None,

@@ -35,7 +35,7 @@ runTimeModifiable_var : yes or no runTimeModifiable_var : true or false
 time_dict = {'startFrom_var': 'startTime',
              'startTime_var': 0,
              'stopAt_var': 'endTime',
-             'endTime_var': 360,
+             'endTime_var': 150,
              'deltaT_var': 1e-1,
              'writeControl_var': 'adjustableRunTime',
              'writeInterval_var': 1,
@@ -73,5 +73,16 @@ sweep_dict = dict(U_var=[1e-3, 1e-2])
    "quad_elem_var": true
 
 """
-ps_params = {'nC_var': [120, 180, 260, 300, 360], 'max_size_elem_var': [1e-3, 9e-4, 6e-4, 3e-4, 3e-4],
-             'nWall_layer_var': [7, 10, 15, 16, 20], 'nCircle_layer_var': [32, 56, 72, 80]}
+# ps_params = {'nC_var': [120, 180, 260, 300, 360], 'max_size_elem_var': [1e-3, 9e-4, 6e-4, 3e-4, 3e-4],
+#              'nWall_layer_var': [7, 10, 15, 16, 20], 'nCircle_layer_var': [32, 56, 72, 80, 96]}
+
+ps_params = {'nC_var': [120, 120, 120, 360, 360, 360],
+             'max_size_elem_var': [1e-3,1e-3, 1e-3, 5e-4, 5e-4, 5e-4],
+             'nWall_layer_var': [7, 7, 7, 20, 20, 20],
+             'nCircle_layer_var': [32, 32, 32, 80, 80, 80],
+             'deltaT_var': [0.05, 0.01, 0.005, 0.05, 0.01, 0.005]}
+
+# ps_params = {'nC_var': [360], 'max_size_elem_var': [5e-4,],
+#              'nWall_layer_var': [20], 'nCircle_layer_var': [80]}
+
+#ps_params = {'Re_var': [10, 100, 300, 500, 1e4]}

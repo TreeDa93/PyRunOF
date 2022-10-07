@@ -13,26 +13,27 @@ from Modules.parametric_sweep import ParametricSweep
 
 
 def main():
-    ps = ParametricSweep(fun=test)
+    ps = ParametricSweep(fun=run)
     mp = settings_fun()
     ps.collect_information(mp)
 
-    ps.run(mp.get_path('parameters_path'), ps_params, fun=test, type_set='special series')
+    ps.run(mp.get_path('parameters_path'), ps_params, fun=run, type_set='special series')
     #delete_fun()
 
-def test(ps):
+def run(ps):
     mp = Manipulations(dir_path=dir_path)
     mp.collect_information(ps)
     ps.get_cur_name()
-    mp.create_name(ps.get_cur_name(), name_base=src_case, name_key=dst_name_key)
+    mp.create_name(ps.get_cur_name(type_name='index'), name_base=src_case, name_key=dst_name_key)
     mp.create_path_dir(dir_path_key='solution', name_key=dst_name_key,
                        path_key=dst_path_key)
     mp.duplicate_case(src_key=src_path_key, dist_key=dst_path_key, mode='rewrite')
 
     data = mp.get_dict_from_json(ps.get_cur_json_path())
-    data['U_var'] = calculate_velocity(data['Re_var'], data['nu_var'], data['d_var'])
+    #data['U_var'] = calculate_velocity(data['Re_var'], data['nu_var'], data['d_var'])
+
     mp.change_json_params(ps.get_cur_json_path(), data)
-fix
+
 
 
 
@@ -63,6 +64,7 @@ fix
 
     mesh.decompose_run_OF()
     runner = Run(solver='icoFoam', path_case=mp.get_path(dst_path_key))
+    runner.set_log_flag(log_flag=True)
     runner.set_mode(mode='parallel')
     runner.set_cores(coreOF=8)
     runner.run()
