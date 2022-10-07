@@ -1,0 +1,14 @@
+{
+    "d_var": 0.01,
+    "betta_var": 0.25,
+    "nC_var": 120,
+    "Ha_var": 2160,
+    "circle_layer_var": 0.01,
+    "nWall_layer_var": 7,
+    "nCircle_layer_var": 32,
+    "k_wall_var": 1.03,
+    "max_size_elem_var": 1e-3,
+    "min_size_elem_var": 1e-08,
+    "k_global_var": 0.1,
+    "quad_elem_var": true
+}
