@@ -1,6 +1,6 @@
 from typing import Optional
-from .auxiliary_functions import Priority, Files, Executer
-from .information import Information
+from ..additional_fun.auxiliary_functions import Priority, Files, Executer
+from ..additional_fun.information import Information
 
 class Mesh(Information):
     """

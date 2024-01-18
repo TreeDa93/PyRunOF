@@ -5,9 +5,9 @@ import itertools as it
 from functools import wraps
 from typing import Sequence
 
-from .auxiliary_functions import Priority
 from .manipulations import Manipulations
-from .information import Information
+from ..additional_fun.auxiliary_functions import Priority
+from ..additional_fun.information import Information
 
 
 class ParametricSweep(Information):

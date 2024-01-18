@@ -3,8 +3,9 @@ import shutil
 import pathlib as pl
 from time import strftime, sleep
 from typing import Optional, Union
-from .auxiliary_functions import Priority, Files
-from .information import Information
+
+from ..additional_fun.auxiliary_functions import Priority, Files
+from ..additional_fun.information import Information
 
 
 class Manipulations(Information):
@@ -18,16 +19,16 @@ class Manipulations(Information):
     new_path is
     name is the name of the class
 
-    methods:
-    duplicate_case is the function make copy or duplicate ot existing folder
-    create_name is the function to create new name of case in cls.case_names
-    create_path_dir is the function creating system_path from director and folder
+    Methods:
+    *   duplicate_case is the function make copy or duplicate ot existing folder
+    *   create_name is the function to create new name of case in cls.case_names
+    *   create_path_dir is the function creating system_path from director and folder
                         name in cls.paths
-    create_path is the method to create new system_path in cls.paths
-    change_path is the function serving to change existing system_path in cls.system_path
-    get_path is the function to get system_path by key
-    get_name is the function to get name by key
-    create_folder is function create new folder
+    *   create_path is the method to create new system_path in cls.paths
+    *   change_path is the function serving to change existing system_path in cls.system_path
+    *   get_path is the function to get system_path by key
+    *   get_name is the function to get name by key
+    *   create_folder is function create new folder
     """
 
     def __init__(self, info_key='general', dir_path: Optional[str] = None):
@@ -187,3 +188,24 @@ class Manipulations(Information):
     @staticmethod
     def get_dict_from_json(parameters_path):
         return Files.open_json(parameters_path)
+    
+    def __str__(self):
+        representation_stirng = str()
+        for key, val_info in self.info.items():
+            representation_stirng += f'Information of {key} \n'
+            for key, data in val_info.items():
+                representation_stirng += f'{key} :\n'
+                for sub_key, sub_data in data.items():
+                    representation_stirng += f'{sub_key} : {sub_data}:\n'
+        return representation_stirng
+
+    def __repr__(self):
+        representation_stirng = str()
+        for key, val_info in self.info.items():
+            representation_stirng += f'Information of {key} \n'
+            for key, data in val_info.items():
+                representation_stirng += f'{key} :\n'
+                for sub_key, sub_data in data.items():
+                    representation_stirng += f'{sub_key} : {sub_data}:\n'
+
+        return representation_stirng

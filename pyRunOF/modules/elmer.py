@@ -1,7 +1,6 @@
 from typing import Optional
-from .auxiliary_functions import Priority, Files
-from .information import Information
-
+from ..additional_fun.auxiliary_functions import Files
+from ..additional_fun.information import Information
 
 class Elmer(Information):
     """

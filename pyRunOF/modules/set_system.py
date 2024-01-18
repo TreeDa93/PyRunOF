@@ -1,6 +1,6 @@
 from typing import List, Optional
-from .information import Information
-from .auxiliary_functions import Files
+from ..additional_fun.auxiliary_functions import Files
+from ..additional_fun.information import Information
 
 class System(Information):
     """

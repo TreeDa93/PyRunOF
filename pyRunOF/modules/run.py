@@ -1,7 +1,7 @@
 import sys
 from typing import Optional
-from .information import Information
-from .auxiliary_functions import Priority, Executer
+from ..additional_fun.auxiliary_functions import Priority, Executer
+from ..additional_fun.information import Information
 
 
 class Run(Information):

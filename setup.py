@@ -1,8 +1,9 @@
 from setuptools import setup, find_packages
+import pyRunOF
 
 setup(name='pyRunOF',
 
-      version='0.1b',
+      version=pyRunOF.__version__,
 
       url='https://github.com/TreeDa93/PyRunOF/tree/main',
 
@@ -14,8 +15,11 @@ setup(name='pyRunOF',
 
       description='Test project!!!',
 
-      packages=find_packages(exclude=['tests', 'solvers']),
+      packages=find_packages(),
+      include_package_data=True,
+      
+      install_requires=['numpy', 'matplotlib'],
 
       long_description=open('README.md').read(),
-
-      zip_safe=False)
+      zip_safe=False
+      )

@@ -3,10 +3,8 @@ import sys
 import shutil
 from distutils.dir_util import copy_tree
 from typing import Optional
-
-from .information import Information
-from .auxiliary_functions import Priority, Files, Executer
-
+from ..additional_fun.auxiliary_functions import Priority, Files, Executer
+from ..additional_fun.information import Information
 
 class InitialValue(Information):
     """

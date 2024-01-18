@@ -1,8 +1,11 @@
-from .constant import Constant
-from .elmer import Elmer
-from .initial_value import InitialValue
-from .manipulations import Manipulations
-from .meshes import Mesh
-from .parametric_sweep import ParametricSweep
-from .post_process import PostProcess
-from .run import Run
+from .modules.constant import Constant
+from .modules.set_system import System
+from .modules.elmer import Elmer
+from .modules.initial_value import InitialValue
+from .modules.manipulations import Manipulations
+from .modules.meshes import Mesh
+from .modules.parametric_sweep import ParametricSweep
+from .modules.post_process import PostProcess
+from .modules.run import Run
+
+__version__ = '0.1b'
