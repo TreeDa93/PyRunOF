@@ -1,7 +1,8 @@
 import os
 import pathlib as pl
-from Modules.auxiliary_functions import Priority, Files
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Any
+from .auxiliary_functions import Priority
+
 
 
 class Information:

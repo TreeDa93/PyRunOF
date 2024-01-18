@@ -3,8 +3,8 @@ import shutil
 import pathlib as pl
 from time import strftime, sleep
 from typing import Optional, Union
-from Modules.auxiliary_functions import Priority, Files
-from Modules.information import Information
+from .auxiliary_functions import Priority, Files
+from .information import Information
 
 
 class Manipulations(Information):

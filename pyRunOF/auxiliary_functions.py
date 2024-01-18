@@ -4,7 +4,7 @@ import traceback
 import pathlib as pl
 import os
 import json
-from typing import Any, Optional
+from typing import Any
 
 class Files:
     """

@@ -2,13 +2,12 @@ import os
 import sys
 import pathlib as pl
 import itertools as it
-from functools import partial, wraps
-from typing import Callable, Sequence
-from io import IOBase
+from functools import wraps
+from typing import Sequence
 
-from Modules.auxiliary_functions import Priority, Files, Executer
-from Modules.manipulations import Manipulations
-from Modules.information import Information
+from .auxiliary_functions import Priority
+from .manipulations import Manipulations
+from .information import Information
 
 
 class ParametricSweep(Information):

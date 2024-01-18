@@ -1,8 +1,7 @@
-import os
+from typing import Optional
 import pathlib as pl
-from Modules.auxiliary_functions import Files, Priority
-from Modules.information import Information
-from typing import List, Optional, Dict, Any
+from .auxiliary_functions import Files, Priority
+from .information import Information
 
 
 class Constant(Information):
@@ -70,7 +69,9 @@ class Constant(Information):
         info_key = self.get_key(info_key)
         constant_path = self.get_constant_path(case_path, info_key=info_key)
         if add_file_path is None:
-            lib_path = Priority.path(lib_path, self.info[info_key], path_key='lib_path')
-            turbulent_files_path = lib_path / 'AdditinalFiles' / 'TurbulenceFiles'
+            
+            #lib_path = Priority.path(lib_path, self.info[info_key], path_key='lib_path')
+            lib_path = pl.Path(__file__).parents[1]
+            turbulent_files_path = lib_path / 'store_files' / 'TurbulenceFiles'
         Files.copy_file(turbulent_files_path, constant_path,
                         old_name=f'turbulenceProperties_{turbulent_type}', new_name='turbulenceProperties')

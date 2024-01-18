@@ -2,12 +2,10 @@ import os
 import sys
 import shutil
 from distutils.dir_util import copy_tree
+from typing import Optional
 
-import pylab as pl
-
-from Modules.information import Information
-from typing import List, Optional, Dict, Any
-from Modules.auxiliary_functions import Priority, Files, Executer
+from .information import Information
+from .auxiliary_functions import Priority, Files, Executer
 
 
 class InitialValue(Information):

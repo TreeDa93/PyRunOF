@@ -1,6 +1,6 @@
-from Modules.auxiliary_functions import Priority, Files
-from typing import List, Optional, Dict, Any
-from Modules.information import Information
+from typing import Optional
+from .auxiliary_functions import Priority, Files
+from .information import Information
 
 
 class Elmer(Information):

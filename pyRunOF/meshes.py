@@ -1,8 +1,6 @@
-import os
-from Modules.auxiliary_functions import Priority, Files, Executer
-from typing import List, Optional, Dict
-from Modules.information import Information
-
+from typing import Optional
+from .auxiliary_functions import Priority, Files, Executer
+from .information import Information
 
 class Mesh(Information):
     """

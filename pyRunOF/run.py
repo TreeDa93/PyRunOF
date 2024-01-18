@@ -1,9 +1,7 @@
-import os
 import sys
-from Modules.auxiliary_functions import Priority, Files, Executer
 from typing import Optional
-from Modules.information import Information
-
+from .information import Information
+from .auxiliary_functions import Priority, Executer
 
 
 class Run(Information):

@@ -3,3 +3,7 @@ venv/
 /Examples/newVersionCases/
 /Examples/old_cases/
 /solvers/
+pyRunOF.egg-info/
+build/
+dist/
+**/__pycache__

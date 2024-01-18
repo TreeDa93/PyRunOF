@@ -1,13 +1,20 @@
-import os
-from Modules.auxiliary_functions import Priority
-from Modules.auxiliary_functions import Files
-from typing import List, Optional, Dict
-from Modules.information import Information
-
+from typing import List, Optional
+from .information import Information
+from .auxiliary_functions import Files
 
 class System(Information):
     """
-    #FIXME
+    The class is supported for processing the system file of openfoam cases. 
+
+    Methods:
+         
+         set_control_dict is the method to set require values in controlDict file of openfoam cases.
+
+         set_fvSolution is the method to set require values in fvSolution file of openfoam cases.
+
+         set_fvSchemes is the method to set require values in fvSchmes file of openfoam cases.
+
+         set_any_files is the method to set require values in any files of openfoam cases in system folder.
 
     """
 
