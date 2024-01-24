@@ -30,50 +30,81 @@ class Constant(Information):
                                       case_path=case_path, lib_path=lib_path)
 
 
-    def set_transportProp(self, *lists: dict, case_path: Optional[str] = None,
-                          info_key: Optional[str] = None) -> None:
+    def set_transportProp(self, *lists: dict, **options) -> None:
         """The function sets given variables to transportProperties file
-        patheNewCase is the name where transportProperties will be modificated
-        lists are a number of dictionaries with keys, which called as name of variables to transportProperties,
-        and values"""
+        Arguments:
+            * *lists [list of dicts] is the set of dictionaries. The keys of the dictionaries are
+            the desired varible in trasportProp, which will be changed to the value taken from 
+            the dictionary corresponding the specified key. 
+            * **options are the optional arguments. The set of avaible settings are listed below
+                * case_path [str] is the case path with transportProp file
+                * info_key [str] is the key to get path from dictionary of paths of Information class
+        Return: None
+        """
+        case_path = options.get('case_path')
+        info_key = options.get('info_key')
         constant_path = self.get_constant_path(case_path, info_key=self.get_key(info_key))
         for dict_var in lists:
-            for var in dict_var:
-                Files.change_var_fun(var, dict_var[var], path=constant_path, file_name='transportProperties')
+            for name_var, value_var in dict_var.items():
+                Files.change_var_fun(name_var, value_var, constant_path, 'transportProperties')
+
 
 
     def set_any_file(self, *lists_var: dict, files: list = ['transportProperties'],
-                     case_path: str = None, info_key: Optional[str] = None) -> None:
-        """The function serves to set *list of variables at controlDict for case with name of pathNewCase"""
+                     **options) -> None:
+        """The function serves to set *list of variables at controlDict for case with name of pathNewCase
+
+        Arguments:
+
+            * *lists [list of dicts] is the set of dictionaries. The keys of the dictionaries are
+            the desired varible in trasportProp, which will be changed to the value taken from 
+            the dictionary corresponding the specified key. 
+            * files [list of strings] is the list with names of files in constant folder where
+            variables will be being found.
+            * **options are the optional arguments. The set of avaible settings are listed below
+                    * case_path [str] is the case path with transportProp file
+                    * info_key [str] is the key to get path from dictionary of paths of Information class
+
+        Return: None
+        """
+        case_path = options.get('case_path')
+        info_key = options.get('info_key')
         constant_path = self.get_constant_path(case_path, info_key=self.get_key(info_key))
         for file_name in files:
             for dict_var in lists_var:
-                for var in dict_var:
-                    Files.change_var_fun(var, dict_var[var], path=constant_path, file_name=file_name)
+                for name_var, value_var in dict_var.items():
+                    Files.change_var_fun(name_var, value_var, constant_path, file_name)
 
-    def turbulent_model(self, turbulent_type='kEpsilon', case_path=None,
-                        lib_path=None, add_file_path=None, info_key=None):
+    def turbulent_model(self, **options):
         """"The fucntion serves to set required turbulent model for solving task. For this purpose, one of list
           of wrriten files with given settings will be renamed into turbulenceProperties to system folder of adjusted case
         acording required type of rubulence model
-        path_new_case is the name of the new case
-        turbulent_type is variables definding type of turbulence model
-                LES - Large eddy simulation
-                kEpsilon
-                realizablekE
-                kOmega
-                kOmegaSST
-                laminar
-                LESSmag
-                your_any ...
+        
+        Arguments: 
+
+        **options are the optional arguments. The set of avaible settings are listed below
+        * case_path [str] is the case path with turbulenceProperties file 
+        * info_key [str] is the key to get path from dictionary of paths of Information clas
+        * turbulent_type is the string describing type of turbulence model. At the current version of
+        PyRunOF the avaible models are listed bellow
+            * 'laminar' is the default model
+            * 'LES' 
+            * 'kEpsilon'
+            * 'realizablekE'
+            * 'kOmega'
+            * 'kOmegaSST'
+            * 'laminar'
+            * 'LESSmag'
+
+        Return: None
                 """
-        #constant_path = self._get_constant_path(case_path, info_key)
-        info_key = self.get_key(info_key)
-        constant_path = self.get_constant_path(case_path, info_key=info_key)
-        if add_file_path is None:
-            
-            #lib_path = Priority.path(lib_path, self.info[info_key], path_key='lib_path')
-            lib_path = pl.Path(__file__).parents[1]
-            turbulent_files_path = lib_path / 'files' / 'TurbulenceFiles'
+        case_path = options.get('case_path')
+        info_key = options.get('info_key')
+        constant_path = self.get_constant_path(case_path, info_key=self.get_key(info_key))
+
+        lib_path = pl.Path(__file__).parents[1]
+        turbulent_files_path = lib_path / 'files' / 'TurbulenceFiles'
+
+        turbulent_type = options.get('turbulent_type', 'laminar')
         Files.copy_file(turbulent_files_path, constant_path,
-                        old_name=f'turbulenceProperties_{turbulent_type}', new_name='turbulenceProperties')
+                        f'turbulenceProperties_{turbulent_type}', 'turbulenceProperties')

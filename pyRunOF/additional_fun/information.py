@@ -7,9 +7,17 @@ from .auxiliary_functions import Priority
 
 class Information:
     """
-    elmer_info = {'general':{path: 'etc/home ...', name: 'magnetic.sif'
-                'additional1':{path: 'etc/home/new1 ...', name2: 'magnetic2.sif'
-                'general':{path: 'etc/home/new3 ...', name3: 'magnetic3.sif'
+    elmer_info = {'general': {path: 'etc/home ...', 
+                             'name': 'magnetic.sif'
+                             ...
+                             others
+                             ...
+                             }
+                'additional1':{path: 'etc/home/new1 ...', 
+                               name2: 'magnetic2.sif'
+                               }
+                'other_params':{path: 'etc/home/new3 ...', 
+                                'name3': 'magnetic3.sif'}
                 }
     """
 
@@ -20,8 +28,12 @@ class Information:
 
     def get_name(self, name_key: str, info_key=None) -> str:
         """The method returns the name according given key
-        Input:
-        key is the name of class variables consisting pathes or key of dictionary with pathes """
+        Arguments:
+
+            * name_key [str]
+            * info_key [str, optional]
+        
+        """
         return Priority.name(name_key, self.info[self.get_key(info_key)]['case_names'])
 
     def set_path(self, path_case: Optional[str] = pl.Path.cwd(),
@@ -114,7 +126,6 @@ class Information:
             self.info[self.info_key]['paths'][path_key] = new_path
         else:
             print('Error the key of name is not exist!')
-
 
 
     def get_path(self, path_key: str, info_key=None) -> str:
@@ -299,10 +310,12 @@ class Information:
         self.info = dict.fromkeys([info_key], dict(case_path=self._check_type_path(case_path),
                                                    lib_path=self._check_type_path(lib_path)))
 
+
     def __init_iv__(self, info_key: Optional[str] = 'general',
                     case_path: Optional[str] = None):
         self.info = dict.fromkeys([info_key],
                                   dict(case_path=self._check_type_path(case_path)))
+
 
     def __init_mesh__(self, info_key: Optional[str] = 'general',
                        case_path: Optional[str] = None,
@@ -325,6 +338,7 @@ class Information:
                                                    pyFoam=False,
                                                    log=False,
                                                    cores={'OF': None, 'Elmer': None}))
+
 
     def __init_manipulation__(self, info_key: Optional[str] = 'general',
                               dir_path: Optional[str] = None):

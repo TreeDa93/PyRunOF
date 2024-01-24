@@ -34,14 +34,16 @@ class Files:
         pass
 
     @staticmethod
-    def change_var_fun(name_var: str, value_var: any, path: str = None, file_name: str = '') -> None:
-        """Function to find and replace required text part at given file
-            Attributes:
-                 --------------
-                name_var depicts finding variables
-                value_var depicts replacing variables
-                file_name is the name of file where the procedure will be done
-
+    def change_var_fun(name_var: str, value_var: any, path, file_name) -> None:
+        """The function supports finding and replacing required text part at given file
+        
+        Arguments:
+            * name_var depicts  require variable to be replaced
+            * value_var depicts value to be inserted
+            * path is the path of folder with file to be processed
+            * file_name is the name of file where the procedure will be done
+        
+        Return: None
         """
         path = pl.Path(path) / file_name
         if path.is_file():
@@ -83,16 +85,16 @@ class Files:
             f.write(new_data)
 
     @staticmethod
-    def copy_file(root_src_dir, root_dst_dir, old_name='', new_name=''):
+    def copy_file(root_src_dir, root_dst_dir, old_name, new_name):
         """The method make copy of a file and move it to new path with new name.
         Attributes:
-            -------------
-        root_src_dir is path of directory consisting of  file required for copy
-        root_dst_dir is the path of directory intended for new file
-        old_name is the name of copying file
-        new_name is the name of new copied file
-        Out:
-            None
+
+        * root_src_dir [str or PathLike] is path of directory consisting of  file required for copy
+        * root_dst_dir [str or PathLike] is the path of directory intended for new file
+        * old_name [str] is the name of copying file
+        * new_name [str] is the name of new copied file
+        
+        Return: None
         """
 
         src_file_path = pl.Path(root_src_dir)/old_name  # -> src_file = os.path.join(root_src_dir, old_name)
