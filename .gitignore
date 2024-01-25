@@ -7,3 +7,6 @@ pyRunOF.egg-info/
 build/
 dist/
 **/__pycache__
+.git
+__pycache__/
+solution/

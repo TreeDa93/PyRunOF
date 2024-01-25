@@ -22,12 +22,8 @@ class Constant(Information):
         test
     """
 
-    def __init__(self, info_key: Optional[str] = 'general',
-                 case_path: Optional[str] = None,
-                 lib_path: Optional[str] = None):
-
-        Information.__init_constant__(self, info_key=info_key,
-                                      case_path=case_path, lib_path=lib_path)
+    def __init__(self, **optional_args):
+        Information.__init_constant__(self, **optional_args)
 
 
     def set_transportProp(self, *lists: dict, **options) -> None:
@@ -94,7 +90,7 @@ class Constant(Information):
             * 'kOmega'
             * 'kOmegaSST'
             * 'laminar'
-            * 'LESSmag'
+            * 'LESdynamicSmag'
 
         Return: None
                 """

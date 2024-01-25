@@ -1,5 +1,5 @@
 from typing import Optional
-from ..additional_fun.auxiliary_functions import Priority, Files, Executer
+from ..additional_fun.auxiliary_functions import Priority, Files, run_command
 from ..additional_fun.information import Information
 
 class Mesh(Information):
@@ -18,13 +18,15 @@ class Mesh(Information):
         set_gMesh si the method to set parameters in geo file of the mesh for gMesh software.
     """
 
-    def __init__(self, info_key: Optional[str] = 'general',
-                       case_path: Optional[str] = None,
-                       e_mesh: Optional[str] = None):
-        """PathCase is name where the class will be doing any manipulation"""
-        Information.__init_mesh__(self, info_key=info_key,
-                                  case_path=case_path,
-                                  e_mesh=e_mesh)
+    def __init__(self, **optional_args):
+        """
+        Args:
+            **optional_args:
+                * info_key: Optional[str] = 'general',
+                * case_path: Optional[str] = None,
+                * e_mesh: Optional[str] = None
+        """
+        Information.__init_mesh__(self, **optional_args)
 
     def set_blockMesh(self, *mesh_dicts: dict, **options) -> None:
         """The function sets given variables to blockMeshDict file
@@ -115,7 +117,21 @@ class Mesh(Information):
 
         info_key = self.get_key(options.get('info_key'))
         case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='case_path')
-        Executer.run_command('blockMesh', case_path)
+        run_command('blockMesh', case_path)
+
+    def run_salome_mesh(self, **options):
+        info_key = self.get_key(options.get('info_key'))
+        path_key = options.get('key_script_path')
+        script_path = Priority.path(options.get('script_path'), self.info[info_key], path_key=path_key)
+
+        parameter_path = Priority.path(options.get('parameter_path'), self.info[info_key],
+                                       options.get('key_parameter_path'))
+
+        script_name = script_path.stem
+        script_root_path = script_path.parent
+
+        command = f"salome -t {script_name} args:{parameter_path}"
+        run_command(command, script_root_path)
 
     def run_decompose(self, what='OF', **options):
         """The function run decompose procedure for OpenFOAM or Elmer depending on what flag.
@@ -145,11 +161,11 @@ class Mesh(Information):
         info_key = self.get_key(options.get('info_key'))
         match what:
             case 'OF' | 'OpenFOAM' | 'openfoam':
-                
+
                 case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='case_path')
 
                 command = 'decomposePar -force'
-                Executer.run_command(command, case_path)
+                run_command(command, case_path)
             case 'elmer' | 'Elmer':
                 info_key = self.get_key(options.get('info_key'))
                 case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='case_path')
@@ -163,18 +179,9 @@ class Mesh(Information):
                 cores = Priority.variable(cores, self.info[info_key], info_key_cores)
 
                 command = f'ElmerGrid 2 2 {mesh_name} -metis {cores} -force'
-                Executer.run_command(command, case_path)
-            case 'salome':
-                script_path = Priority.path(options.get('script_path'), self.info[info_key], options.get('key_script_path'))
-                parameter_path = Priority.path(options.get('parameter_path'), self.info[info_key], options.get('key_parameter_path'))
-
-                script_name = script_path.stem
-                script_root_path = script_path.parent
-
-                command = f"salome -t {script_name} args:{parameter_path}"
-                Executer.run_command(command, script_root_path)
+                run_command(command, case_path)
             case 'gMesh' | 'gmesh':
-                
+
                 case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='case_path')
                 
                 mesh_name = options.get('mesh_name')
@@ -184,8 +191,8 @@ class Mesh(Information):
                 command1 = f'gmsh -3 {mesh_name}.geo'
                 command2 = f'ElmerGrid 14 2 {mesh_name} -autoclean '
 
-                Executer.run_command(command1, case_path)
-                Executer.run_command(command2, case_path)
+                run_command(command1, case_path)
+                run_command(command2, case_path)
             case _:
                 text = ''' You specifie incorrect argument what in run_decompose method.
                         The aviable list are 
@@ -193,7 +200,6 @@ class Mesh(Information):
                             * 'elmer' or 'Elemer' to run Elemer decompose. 
                         '''
                 raise ValueError(text)
-
 
     def change_salomeMesh(self, parameters_path: Optional[str] = None, changed_parameters: Optional[dict] = None,
                           new_path: Optional[str] = None):

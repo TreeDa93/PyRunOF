@@ -11,11 +11,15 @@ class Elmer(Information):
         sif_name is the name of sif file put in path_case and containing settings of elmer case
     """
 
-    def __init__(self, key: Optional[str] = 'general',
-                 case_path: Optional[str] = None,
-                 sif_name: Optional[str] = None):
-        Information.__init_elmer__(info_key=key, case_path=case_path,
-                                   sif_name=sif_name)
+    def __init__(self, **optional_args):
+        """
+        Args:
+            **optional_args:
+                * key: Optional[str] = 'general',
+                * case_path: Optional[str] = None,
+                * sif_name: Optional[str] = None
+        """
+        Information.__init_elmer__(**optional_args)
 
     def set_var(self, *elmer_dicts, **options):
         """The function sets given variables to sif file of Elemer
@@ -31,7 +35,7 @@ class Elmer(Information):
 
         """
         info_key = self.get_key(options.get('info_key'))
-        case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='path')
+        case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='case_path')
         
         sif_name = Priority.name(options.get('sif_name'), self.info[info_key], name_key='name')
         sif_name = self._check_prefix_sif(sif_name)

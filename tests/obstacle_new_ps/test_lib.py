@@ -60,7 +60,7 @@ def main():
 
     ########### System folder #######################
     system = pyRunOF.System(case_path=mp.get_path(dst_path_key))
-    system.set_control_dict(data) #, case_path=mp.get_path(dst_path_key))
+    system.set_controlDict(data) #, case_path=mp.get_path(dst_path_key))
 
         ########### Constant folder #####################
     constant = pyRunOF.Constant(case_path=mp.get_path(dst_path_key), lib_path=library_path['lib_path_var'])
@@ -75,19 +75,20 @@ def main():
                 LESSmag
     """
 
-    constant.turbulent_model(turbulent_type='kEpsilon')  # , case_path=mp.get_path(dst_path_key))
+    constant.turbulent_model(turbulent_type='laminar')  # , case_path=mp.get_path(dst_path_key))
 
         ########### Initial conditions #####################
+
     zero = pyRunOF.InitialValue(case_path=mp.get_path(dst_path_key))
 
     data.update(zero.calcInitVal_cylindr(data['d_var'], data['U_var'], data['nu_var']))
 
-    zero.set_var(data, file_names=zero.find_all_zero_files())
-                    #case_path=mp.get_path(dst_path_key),
-                    #)
+    zero.set_var(data)
+
 
     ########### mesh settings #####################
     mesh = pyRunOF.Mesh(case_path=mp.get_path(dst_path_key))
+
     mesh.set_decomposePar(data)
 
     mp.create_name(name_base='create_obstacle_mesh.py', only_base=True, name_key='salome_script')
@@ -103,10 +104,11 @@ def main():
     mp.create_json_params(data, save_path=mp.get_path('parameters_path_new'))
 
     mesh.run_salome_mesh(script_path=mp.get_path('salome_script_path'),
-                            parameter_path=mp.get_path('parameters_path_new'))
+                        parameter_path=mp.get_path('parameters_path_new')
+                         )
 
-    mesh.decompose_run_OF()
-    runner = pyRunOF.Run(solver='pisoFoam', path_case=mp.get_path(dst_path_key))
+    mesh.run_decompose(what='OF')
+    runner = pyRunOF.Run(solver='icoFoam', case_path=mp.get_path(dst_path_key))
     runner.set_log_flag(log_flag=True)
     runner.set_mode(mode='parallel')
     runner.set_cores(coreOF=data['core_OF'])

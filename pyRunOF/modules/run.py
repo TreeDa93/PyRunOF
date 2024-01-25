@@ -1,24 +1,24 @@
 import sys
 from typing import Optional
-from ..additional_fun.auxiliary_functions import Priority, Executer
+from ..additional_fun.auxiliary_functions import Priority, run_command
 from ..additional_fun.information import Information
 
 
 class Run(Information):
     """
-        FIXME
+        #FIXME
 
     """
-    def __init__(self, info_key: Optional[str] = 'general',
-                 solver: Optional[str] = 'pimpleFoam',
-                 path_case: Optional[str] = None,
-                 mode: Optional[str] = 'common'):
-        Information.__init_runner__(self, info_key=info_key, case_path=path_case,
-                                    solver=solver, mode=mode)
-        self.info[info_key]['coreOF'] = 2  # number of cores to run openfoam
-        self.info[info_key]['coreElmer'] = 2  # number of cores to run elmer
-        self.info[info_key]['log'] = False  # flag to write log of solution procedure
-        self.info[info_key]['pyFoam'] = False  # flag to run openfoam by pyFoam
+    def __init__(self, **optional_args):
+        """
+        Args:
+            **optional_args:
+                * info_key: Optional[str] = 'general',
+                * solver: Optional[str] = 'pimpleFoam',
+                * path_case: Optional[str] = None,
+                * mode: Optional[str] = 'common'
+        """
+        Information.__init_runner__(self, **optional_args)
 
 
     def __str__(self):
@@ -29,20 +29,25 @@ class Run(Information):
         #FIXME
         return f'It is my collection of objects {self.info}'
 
-    def run(self, path_case: Optional[str] = None, info_key=None) -> None:
+    def run(self, **options) -> None:
         """The function runs the case to calculation
-            Variables:
-            Name_solver is the name of the OpenFOAM solver
+            Arguments:
+            
+            * **options is the optional arguments listed below: 
+
+                * case_path: Optional[str] = None,
+                * info_key=None
 
             """
 
-        path_case = Priority.path(path_case, self.info[self.get_key(info_key)], path_key='case_path')
-        Executer.run_command(self._collect_name_solver(info_key), path_case)
+        info_key = self.get_key(options.get('info_key'))
+        case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='case_path')
+        run_command(self._collect_name_solver(info_key), case_path)
 
     def run_set_fields(self, path_case: str = None, info_key=None) -> None:
         run_path = self.get_path(info_key=info_key, case_path=path_case)
         command = 'setFields'
-        Executer.run_command(command, run_path)
+        run_command(command, run_path)
 
     def set_cores(self, coreOF: int = 4, coreElmer: int = 4, info_key=None) -> tuple:
         self.set_new_parameter(coreOF, parameter_name='coreOF', info_key=info_key)

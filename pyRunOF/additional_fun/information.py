@@ -298,53 +298,90 @@ class Information:
                 else:
                     self.info[key].update(val)
 
-    def __init_elmer__(self, info_key: Optional[str] = 'general',
-                       case_path: Optional[str] = None,
-                       sif_name: Optional[str] = None):
-        self.info = dict.fromkeys([info_key], dict(case_path=self._check_type_path(case_path),
-                                                   name=sif_name))
+    def __init_manipulation__(self, **optional_args):
 
-    def __init_constant__(self, info_key: Optional[str] = 'general',
-                          case_path: Optional[str] = None,
-                          lib_path: Optional[str] = None):
-        self.info = dict.fromkeys([info_key], dict(case_path=self._check_type_path(case_path),
-                                                   lib_path=self._check_type_path(lib_path)))
+        """
+        Arguments:
+         * info_key: Optional[str] = 'general',
+         * dir_path: Optional[str] = None
+        Returns:    None
 
-
-    def __init_iv__(self, info_key: Optional[str] = 'general',
-                    case_path: Optional[str] = None):
-        self.info = dict.fromkeys([info_key],
-                                  dict(case_path=self._check_type_path(case_path)))
-
-
-    def __init_mesh__(self, info_key: Optional[str] = 'general',
-                       case_path: Optional[str] = None,
-                       e_mesh: Optional[str] = None):
-        # FIXME
-        self.info = dict.fromkeys([info_key], dict(case_path=self._check_type_path(case_path),
-                                                   elmer_mesh_name=e_mesh))
-
-
-    def __init_system__(self,info_key: Optional[str] = 'general', case_path: Optional[str] = None):
-        self.info = dict.fromkeys([info_key], dict(case_path=self._check_type_path(case_path)))
-
-    def __init_runner__(self, info_key: Optional[str] = 'general',
-                        case_path: Optional[str] = None,
-                        solver: Optional[str] = 'pimpleFoam',
-                        mode: Optional[str] = 'common'):
-        self.info = dict.fromkeys([info_key], dict(case_path=self._check_type_path(case_path),
-                                                   solver=solver,
-                                                   mode=mode,
-                                                   pyFoam=False,
-                                                   log=False,
-                                                   cores={'OF': None, 'Elmer': None}))
-
-
-    def __init_manipulation__(self, info_key: Optional[str] = 'general',
-                              dir_path: Optional[str] = None):
+        """
+        if optional_args.get('info_key') is None:
+            info_key = 'general'
+        else:
+            info_key = optional_args.get('info_key')
         self.info_key = info_key
-        self.info = dict.fromkeys([info_key], dict(paths={"dir": self._check_type_path(dir_path)},
-                                                   case_names={}))
+        paths_dict = {'dir': self._check_type_path(optional_args.get('dir_path'))}
+
+        self.info = {info_key: dict(paths=paths_dict,
+                                    case_names={})
+                     }
+
+    def __init_elmer__(self, **optional_args):
+        if optional_args.get('info_key') is None:
+            info_key = 'general'
+        else:
+            info_key = optional_args.get('info_key')
+        case_path = self._check_type_path(optional_args.get('case_path'))
+        sif_name = optional_args.get('sif_name')
+
+        self.info = {info_key: dict(case_path=case_path,
+                                    name=sif_name
+                                    )}
+
+    def __init_constant__(self, **optional_args):
+        if optional_args.get('info_key') is None:
+            info_key = 'general'
+        else:
+            info_key = optional_args.get('info_key')
+        case_path = self._check_type_path(optional_args.get('case_path'))
+        self.info = {info_key: dict(case_path=case_path)}
+
+    def __init_iv__(self, **optional_args):
+        if optional_args.get('info_key') is None:
+            info_key = 'general'
+        else:
+            info_key = optional_args.get('info_key')
+        case_path = self._check_type_path(optional_args.get('case_path'))
+        self.info = {info_key: dict(case_path=case_path)}
+
+    def __init_mesh__(self, **optional_args):
+        if optional_args.get('info_key') is None:
+            info_key = 'general'
+        else:
+            info_key = optional_args.get('info_key')
+
+        e_mesh = optional_args.get('e_mesh')
+        case_path = self._check_type_path(optional_args.get('case_path'))
+
+        self.info = {info_key: dict(case_path=case_path,
+                                    elmer_mesh_name=e_mesh
+                                    )}
+
+    def __init_system__(self, **optional_args):
+        if optional_args.get('info_key') is None:
+            info_key = 'general'
+        else:
+            info_key = optional_args.get('info_key')
+        case_path = self._check_type_path(optional_args.get('case_path'))
+        self.info = {info_key: dict(case_path=case_path)}
+
+    def __init_runner__(self, **optional_args):
+        if optional_args.get('info_key') is None:
+            info_key = 'general'
+        else:
+            info_key = optional_args.get('info_key')
+        case_path = self._check_type_path(optional_args.get('case_path'))
+
+        self.info = {info_key: dict(
+                                    case_path=case_path,
+                                    solver=optional_args.get('solver', 'pimpleFoam'),
+                                    mode=optional_args.get('mode', 'common'),
+                                    pyFoam=False,
+                                    log=False,
+                                    cores={'OF': None, 'Elmer': None},
+                                    )}
 
     @staticmethod
     def _check_type_path(path):

@@ -5,6 +5,7 @@
 ###
 
 import sys
+import pathlib as pl
 import salome
 import json
 salome.salome_init()
@@ -24,10 +25,10 @@ with open(param_path) as file:
     # Load its content and make a new dictionary
     parameters = json.load(file)
 
-sys.path.append(parameters['lib_path_var'])
+sys.path.append(pl.Path(__file__).parents[1])
+print(pl.Path(__file__).parents[0])
 
-
-from AdditinalFiles.MeshScripts.exportMesh import export_to_foam
+from exportMesh import export_to_foam
 
 ### GEOMETRY ###
 

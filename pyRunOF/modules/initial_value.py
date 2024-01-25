@@ -2,8 +2,7 @@ import os
 import sys
 import shutil
 from distutils.dir_util import copy_tree
-from typing import Optional
-from ..additional_fun.auxiliary_functions import Priority, Files, Executer
+from ..additional_fun.auxiliary_functions import Priority, Files, run_command
 from ..additional_fun.information import Information
 
 class InitialValue(Information):
@@ -12,42 +11,46 @@ class InitialValue(Information):
 
     """
 
-    def __init__(self, info_key: Optional[str] = 'general',
-                 case_path: Optional[str] = None):
-        Information.__init_iv__(self, info_key=info_key, case_path=case_path)
-
-    def set_var(self, *zero_dicts: dict, file_names = [],
-                case_path: Optional[str] = None,
-                info_key: Optional[str] = None
-                ):
-        """
-        The method to set given parameters in the files.
-        The general idea of the method is to find given part of text in the files and to change
-        the part of text on given value. You have to set the flags, keys of elmer_dicts,
-        in the sif file yourselves for purpose of the method can find them and change it.
-        It should be noted the flag to be unique.
-        Input:
-            elmer_dicts is a set of dictionaries with keys as names or flags of variable in sif file
-            and values of the dictionaries as value to be set instead of the flags.
-            paths_case is path of case where you need to provide tuning of sif file
-            sif_name is the name of sif file put in path_case and containing settings of elmer case
-        FIXME
-        Output:
-
+    def __init__(self, **optional_args):
         """
 
-        zero_path = self.get_any_folder_path('0', case_path, info_key=self.get_key(info_key))
-        file_paths = Files.find_path_by_name(zero_path, names=file_names)
-        for zero_dict in zero_dicts:
-            for var in zero_dict:
-                for file_path in file_paths:
-                    Files.change_var_fun(var, zero_dict[var], path=file_path)
+        Args:
+            **optional_args:
+                * info_key
+                * case_path
+                ...
+        """
+        Information.__init_iv__(self, **optional_args)
+
+    def set_var(self, *zero_dicts: dict, **options):
+        """The function sets given variables to sif file of Elemer
+        Arguments:
+
+            * *elmer_dicts is a set of dictionaries with keys as names or flags of variable in sif file
+            * **options:
+                * file_names = [],
+                * case_path: Optional[str] = None,
+                * info_key: Optional[str] = None
+
+        Return: None
+
+        """
+        info_key = self.get_key(options.get('info_key'))
+        case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='case_path')
+        zero_path = self.get_any_folder_path('0', case_path, info_key=info_key)
+        file_paths = Files.find_path_by_name(zero_path, file_names=options.get('file_names'))
+
+        for file_path in file_paths:
+            for zero_dict in zero_dicts:
+                for var_name, value_var in zero_dict.items():
+                    Files.change_var_fun(var_name, value_var, case_path, file_path)
 
     def set_mapping_settings(self, src_path, dst_path, src_time=0, dst_time=0):
-        self.mapp_settings = dict(src_path= Priority.path(src_path, None),
-                                     dst_path = Priority.path(dst_path, None),
-                                     src_time = str(src_time),
-                                     dst_time = str(dst_time))
+        self.mapp_settings = dict(src_path=Priority.path(src_path, None),
+                                    dst_path=Priority.path(dst_path, None),
+                                    src_time=str(src_time),
+                                    dst_time=str(dst_time)
+                                  )
 
     def set_map_values(self, src_path=None, dst_path=None, src_time=0, dst_time=0):
         """
@@ -60,7 +63,7 @@ class InitialValue(Information):
     def reconstruct(self, case_path=None):
         "Запускает  ReconstrucPar"
         case_path = Priority.path(case_path, self.info, path_key='path')
-        Executer.run_command('reconstructPar', case_path)
+        run_command('reconstructPar', case_path)
 
     def setTimeVaryingMappedFixedValue(self, case_path=None):
         "Устанавливает значения для ГУ TimeVaryingMappedFixedValue"

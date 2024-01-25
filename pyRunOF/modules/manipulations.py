@@ -31,10 +31,14 @@ class Manipulations(Information):
     *   create_folder is function create new folder
     """
 
-    def __init__(self, info_key='general', dir_path: Optional[str] = None):
-
-        Information.__init_manipulation__(self, info_key=info_key,
-                                          dir_path=dir_path)
+    def __init__(self, **optional_args):
+        """
+        Args:
+            **optional_args:
+                * info_key='general',
+                * dir_path: Optional[str] = None
+        """
+        Information.__init_manipulation__(self, **optional_args)
 
     def duplicate_case(self,
                        src_path: Optional[str] = None,
@@ -75,7 +79,6 @@ class Manipulations(Information):
                 shutil.copytree(src_path, dist_path)
             else:
                 shutil.copytree(src_path, dist_path)
-
 
     def create_folder(self, directory: Optional[str] = None,
                       dir_key: Optional[str] = None,

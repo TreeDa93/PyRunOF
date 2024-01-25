@@ -18,9 +18,14 @@ class System(Information):
 
     """
 
-    def __init__(self, info_key: Optional[str] = 'general', case_path: Optional[str] = None) -> None:
-        
-        Information.__init_system__(self, info_key=info_key, case_path=case_path)
+    def __init__(self, **optional_args) -> None:
+        """
+        Args:
+            **optional_args:
+                * info_key
+                * case_path
+        """
+        Information.__init_system__(self, **optional_args)
    
 
     def set_controlDict(self, *lists: dict, **options) -> None:

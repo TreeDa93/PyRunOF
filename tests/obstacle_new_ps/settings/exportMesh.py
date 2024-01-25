@@ -36,36 +36,12 @@ Script for exporting mesh from Salome to Elmer
 #    Boston, MA 02110-1301, USA.
 #
 
-import sys
+import os, time
+import salome
 import SMESH
 from salome.smesh import smeshBuilder
-import os, time
 
-def export_mesh_to_foam(key_export, mesh, case_path):
-    """
-    Main function. Export the selected mesh.
-
-    Will try to find the selected mesh.
-    """
-    if key_export is True:
-        mesh_path = case_path + "/constant/polyMesh"
-        __debugPrint__("found selected mesh exporting to " + mesh_path + ".\n", 1)
-        exportToFoam(mesh, mesh_path)
-        __debugPrint__("finished exporting\n", 1)
-
-def export_mesh_to_elmer(key_export, mesh, export_path):
-    """
-        Main function. Export the selected mesh.
-
-        Will try to find the selected mesh.
-        """
-    if key_export is True:
-
-        print("Exporting mesh to " + outdir + "\n")
-        exportToElmer(mesh, outdir)
-
-
-def exportToElmer(mesh, dirname='salomeToElmer'):
+def export_to_elmer(mesh, dirname='salomeToElmer'):
     u"""
     Elmer's native mesh consists of 5 files.
 
@@ -237,7 +213,7 @@ def exportToElmer(mesh, dirname='salomeToElmer'):
 
 
 
-u"""
+"""
 Export a Salome Mesh to OpenFOAM.
 
 It handles all types of cells. Use 
@@ -281,56 +257,7 @@ In order to use the mesh.
 #    The license is included in the file LICENSE.
 #
 
-import sys
-import salome
-import SMESH
-from salome.smesh import smeshBuilder
-import os, time
-
-debug = 1  # Print Verbosity (0=silent => 3=chatty)
-verify = False  # Verify face order, might take longer time
-
-
-# Note: to skip renumberMesh just sort owner
-# while moving positions also move neighbour,faces, and bcfaces
-# will probably have to first sort the internal faces then bc-faces within each bc
-
-class MeshBuffer(object):
-    """
-    Limits the calls to Salome by buffering the face and key details of volumes to speed up exporting
-    """
-
-    def __init__(self, mesh, v):
-        i = 0
-        faces = list()
-        keys = list()
-        fnodes = mesh.GetElemFaceNodes(v, i)
-        while fnodes:  # While not empty list
-            faces.append(fnodes)  # Face list
-            keys.append(tuple(sorted(fnodes)))  # Buffer key
-            i += 1
-            fnodes = mesh.GetElemFaceNodes(v, i)
-
-        self.v = v  # The volume
-        self.faces = faces  # The sorted face list
-        self.keys = keys
-        self.fL = i  # The number of faces
-
-    @staticmethod
-    def Key(fnodes):
-        """Takes the nodes and compresses them into a hashable key"""
-        return tuple(sorted(fnodes))
-
-    @staticmethod
-    def ReverseKey(fnodes):
-        """Takes the nodes and compresses them into a hashable key reversed for baffles"""
-        if (type(fnodes) is tuple):
-            return tuple(reversed(fnodes))
-        else:
-            return tuple(sorted(fnodes, reverse=True))
-
-
-def exportToFoam(mesh, dirname='polyMesh'):
+def export_to_foam(mesh, dirname='polyMesh'):
     """
     Export a mesh to OpenFOAM.
 
@@ -716,6 +643,49 @@ def exportToFoam(mesh, dirname='polyMesh'):
     __debugPrint__("Converted mesh in %.0fs\n" % (converttime), 1)
     __debugPrint__("Wrote mesh in %.0fs\n" % (totaltime - converttime), 1)
     __debugPrint__("Total time: %0.fs\n" % totaltime, 1)
+
+
+debug = 1  # Print Verbosity (0=silent => 3=chatty)
+verify = False  # Verify face order, might take longer time
+
+
+# Note: to skip renumberMesh just sort owner
+# while moving positions also move neighbour,faces, and bcfaces
+# will probably have to first sort the internal faces then bc-faces within each bc
+
+class MeshBuffer(object):
+    """
+    Limits the calls to Salome by buffering the face and key details of volumes to speed up exporting
+    """
+
+    def __init__(self, mesh, v):
+        i = 0
+        faces = list()
+        keys = list()
+        fnodes = mesh.GetElemFaceNodes(v, i)
+        while fnodes:  # While not empty list
+            faces.append(fnodes)  # Face list
+            keys.append(tuple(sorted(fnodes)))  # Buffer key
+            i += 1
+            fnodes = mesh.GetElemFaceNodes(v, i)
+
+        self.v = v  # The volume
+        self.faces = faces  # The sorted face list
+        self.keys = keys
+        self.fL = i  # The number of faces
+
+    @staticmethod
+    def Key(fnodes):
+        """Takes the nodes and compresses them into a hashable key"""
+        return tuple(sorted(fnodes))
+
+    @staticmethod
+    def ReverseKey(fnodes):
+        """Takes the nodes and compresses them into a hashable key reversed for baffles"""
+        if (type(fnodes) is tuple):
+            return tuple(reversed(fnodes))
+        else:
+            return tuple(sorted(fnodes, reverse=True))
 
 
 def __writeHeader__(file, fileType, nrPoints=0, nrCells=0, nrFaces=0, nrIntFaces=0):

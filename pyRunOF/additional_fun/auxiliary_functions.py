@@ -5,6 +5,20 @@ import pathlib as pl
 import os
 import json
 from typing import Any
+import subprocess
+
+
+def run_command(command: str, run_path):
+
+    path_bash = pl.Path(__file__).parents[1] / 'files' / 'bash' / 'interactive_bash'
+
+    if Files.is_executable(path_bash):
+        subprocess.run(command, shell=True, executable=path_bash, cwd=run_path, start_new_session=True)
+    else:
+        subprocess.run(f'chmod +x {path_bash}', shell=True)
+
+        subprocess.run(command, shell=True, executable=path_bash, cwd=run_path, start_new_session=True)
+
 
 class Files:
     """
@@ -55,36 +69,6 @@ class Files:
             print(f'Warning: The file {file_name} is not exist!')
 
     @staticmethod
-    def change_text_line(var_value: any, var_name: any, var_excl_name: any,
-                         path: str = None, file_name: str = '') -> None:
-        """ The function is served to find the variable named var_name in th file_name
-        which has directory path_dict. If the variable has been founded and
-        variable var_excl_name does not exist in the line then the value of the variable
-        is changed by var_value
-        Attributes:
-        --------------
-                var_value [string or numbers] is the value to be written instead var_name
-
-                var_name depicts place in the given file where should be written var_value
-
-                var_excl_name is the name to be absented in the text line in order to change founded variable var_name.
-
-                path_dict is the path_dict with the required file for searching of given variable.
-
-                file_name is the name of the file  where the method will fulfil searching.
-        """
-        path = pl.Path(path)/file_name  # -> path = os.path.join(path, file_name)
-        new_data = ''
-        with path.open(mode='r') as f:
-            for line in f:
-                if (var_name in line) and (var_excl_name not in line):
-                    new_data += f'{var_name} \t\t {var_value}; \n'
-                else:
-                    new_data += line
-        with path.open(mode='w') as f:
-            f.write(new_data)
-
-    @staticmethod
     def copy_file(root_src_dir, root_dst_dir, old_name, new_name):
         """The method make copy of a file and move it to new path with new name.
         Attributes:
@@ -122,21 +106,21 @@ class Files:
             return list(dirs)
 
     @classmethod
-    def find_path_by_name(cls, where, names=[]):
+    def find_path_by_name(cls, where, **options):
         """The method selects names from found list of names by comparing with required names in names.
         Attributes:
         -------------
             where is the path in which the method will find files or directories
-
-            names is the list of names by providing sort procedure.
+            options:
+                names [list] is the list of names by providing sort procedure.
         Out:
             None
         """
         dirs = cls.find_files(where, type_files='file')
-        if not names:
+        if options.get('file_names') is None:
             return dirs
         else:
-            return [path for path in dirs if path.stem in names]
+            return [path for path in dirs if path.stem in options.get('file_names')]
 
     @staticmethod
     def open_json(file_path: str) -> dict:
@@ -163,19 +147,16 @@ class Files:
         with open(save_path, 'w') as json_file:
             json.dump(data, json_file, indent=4)
 
-class Executer:
-
-    def __init__(self):
-        pass
-
     @staticmethod
-    def run_command(command: str, where, go_back=True):
-        if go_back is True:
-            path_back = pl.Path.cwd()
-        os.chdir(where)
-        os.system(command)
-        if go_back is True:
-            os.chdir(path_back)
+    def is_executable(file_path):
+        # Using shutil.which() to get the executable path
+        executable_path = shutil.which(file_path)
+
+        # Check if the executable path is not None and is executable
+        if executable_path and os.access(executable_path, os.X_OK):
+            return True
+        else:
+            return False
 
 
 class Priority:
@@ -431,23 +412,6 @@ class Priority:
             else:
                 cls._raise_error(check_path.parent, check_path.stem, type_error='check_path_existence_error_2')
 
-    def file(self, file):
-        """The method is used for selection of given name
-        the first priority is given name by methods
-        the second priority is given name by class constructor
-        If both name is None, the program is interupted
-        Input :
-        basePath, newPath is checkoing pathes
-        Output:
-        retrunBasePath, returnNewPath is selected pathes acording priority
-        """
-        if file is None:
-            if self.file is not None:
-                return self.file
-            else:
-                sys.exit('Error: You do not enter the name of the file!!!')
-        else:
-            return file
 
     def sif_file(self, sif_file):
         """The method is used for selection of given name
