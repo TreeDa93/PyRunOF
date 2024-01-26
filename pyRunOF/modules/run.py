@@ -44,6 +44,7 @@ class Run(Information):
         case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='case_path')
         run_command(self._collect_name_solver(info_key), case_path)
 
+
     def run_set_fields(self, path_case: str = None, info_key=None) -> None:
         run_path = self.get_path(info_key=info_key, case_path=path_case)
         command = 'setFields'

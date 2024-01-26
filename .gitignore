@@ -10,3 +10,5 @@ dist/
 .git
 __pycache__/
 solution/
+*_solved/
+*_in_progress/
