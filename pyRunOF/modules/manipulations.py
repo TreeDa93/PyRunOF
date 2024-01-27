@@ -60,7 +60,6 @@ class Manipulations(Information):
         src_path = pl.Path(Priority.check_key_path(src_path, src_key, self.info[self.info_key]['paths']))
         dist_path = pl.Path(Priority.check_key_path(dist_path, dist_key, self.info[self.info_key]['paths']))
         Priority.check_path_existence(src_path, make_new=False)
-
         if mode == 'rewrite':
             if Priority.check_path_existence_only(dist_path) == 'full':
                 shutil.rmtree(dist_path)

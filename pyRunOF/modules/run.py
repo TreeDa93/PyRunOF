@@ -17,6 +17,8 @@ class Run(Information):
                 * solver: Optional[str] = 'pimpleFoam',
                 * path_case: Optional[str] = None,
                 * mode: Optional[str] = 'common'
+                * OF_core: Optional[int] = 2
+                * E_core: Optional[int] = 2
         """
         Information.__init_runner__(self, **optional_args)
 

@@ -100,7 +100,7 @@ class Constant(Information):
 
         lib_path = pl.Path(__file__).parents[1]
         turbulent_files_path = lib_path / 'files' / 'TurbulenceFiles'
-
+        print(turbulent_files_path)
         turbulent_type = options.get('turbulent_type', 'laminar')
         Files.copy_file(turbulent_files_path, constant_path,
                         f'turbulenceProperties_{turbulent_type}', 'turbulenceProperties')

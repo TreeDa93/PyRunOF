@@ -83,7 +83,7 @@ class Files:
 
         src_file_path = pl.Path(root_src_dir)/old_name  # -> src_file = os.path.join(root_src_dir, old_name)
         dst_file_path = pl.Path(root_dst_dir)/new_name  # -> dst_file = os.path.join(root_dst_dir, new_name)
-        shutil.copy2(str(src_file_path), str(dst_file_path))
+        shutil.copy2(src_file_path, dst_file_path)
 
     @staticmethod
     def find_files(where, type_files='file') -> list:

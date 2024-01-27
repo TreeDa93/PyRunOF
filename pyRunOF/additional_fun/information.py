@@ -99,6 +99,35 @@ class Information:
         cur_name = Priority.name(case_name, self.info[self.get_key(info_key)]['case_names'], name_key=name_key)
         self.info[self.get_key(info_key)]['paths'][path_key] = pl.Path(cur_path) / cur_name
 
+    def create_path_from_dir(self, dir_path: Optional[str] = None,
+                        dir_path_key: Optional[str] = 'dir',
+                        folder_name: Optional[str] = None,
+                        folder_name_key: Optional[str] = None,
+                        path_key: Optional[str] = 'new',
+                        info_key=None) -> str:
+        """The method creates the path using directory and folder name. 
+        Example: final path = directory path + case_name. Here
+            *   directory path can be given directly by dir_path variable or get from
+            dictionary by the key dir_path_key.
+        
+            *   case_name can be given directly by case_name variable or get from
+            dictionary by the key name_key. 
+
+        Args:
+            *   dir_path [str] is the path of directory
+            *   dir_path_key [str] is the key to get dir_path from dictionary 
+            *   folder name is the name of the folder
+            *   folder_name_key is the key to get name of the folder from dictionary
+            info_key is the key to put the prepared data to corresponding information
+
+        Retrun: 
+            None
+
+        """
+        cur_path = Priority.path(dir_path, self.info[self.get_key(info_key)]['paths'], path_key=dir_path_key)
+        cur_name = Priority.name(folder_name, self.info[self.get_key(info_key)]['case_names'], name_key=folder_name_key)
+        self.info[self.get_key(info_key)]['paths'][path_key] = pl.Path(cur_path) / cur_name
+
     def create_path(self, path, path_key='testPath', info_key=None):
         """
 
@@ -368,20 +397,34 @@ class Information:
         self.info = {info_key: dict(case_path=case_path)}
 
     def __init_runner__(self, **optional_args):
+        """
+        Optional arguments:
+            case_path [PathLike or string] is the path of case to process 
+            solver : [Default: pimpleFoam, str] is name of OpenFOAM solver
+            mode : [Defalut: common, str] is the mode to run calculation of a model
+            pyFoam : [Boolean, Default: False] in progress!
+            log : [Boolean, Default: False] is the flag to save a log of calculation.
+            OF_core : [int, Default: 2] is the number of cores to run openfoam case
+            E_core : [int, Default: 2]  is the number of cores to run elemer case
+
+        """
         if optional_args.get('info_key') is None:
             info_key = 'general'
         else:
             info_key = optional_args.get('info_key')
         case_path = self._check_type_path(optional_args.get('case_path'))
 
+        OF_CORE = optional_args.get('OF_core', 2)
+        E_CORE = optional_args.get('E_core', 2)
         self.info = {info_key: dict(
                                     case_path=case_path,
                                     solver=optional_args.get('solver', 'pimpleFoam'),
                                     mode=optional_args.get('mode', 'common'),
-                                    pyFoam=False,
+                                    pyFoam=optional_args.get('pyFoam', False),
                                     log=False,
-                                    cores={'OF': None, 'Elmer': None},
-                                    )}
+                                    cores={'OF': OF_CORE, 'Elmer': E_CORE},
+                                    )
+                    }
 
     @staticmethod
     def _check_type_path(path):
