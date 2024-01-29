@@ -414,15 +414,16 @@ class Information:
             info_key = optional_args.get('info_key')
         case_path = self._check_type_path(optional_args.get('case_path'))
 
-        OF_CORE = optional_args.get('OF_core', 2)
-        E_CORE = optional_args.get('E_core', 2)
+        OF_core = optional_args.get('OF_core', 2)
+        E_core = optional_args.get('E_core', 2)
         self.info = {info_key: dict(
                                     case_path=case_path,
                                     solver=optional_args.get('solver', 'pimpleFoam'),
                                     mode=optional_args.get('mode', 'common'),
                                     pyFoam=optional_args.get('pyFoam', False),
                                     log=False,
-                                    cores={'OF': OF_CORE, 'Elmer': E_CORE},
+                                    OF_core=OF_core,
+                                    E_core=E_core,
                                     )
                     }
 

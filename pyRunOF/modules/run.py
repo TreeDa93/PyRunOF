@@ -53,14 +53,14 @@ class Run(Information):
         run_command(command, run_path)
 
     def set_cores(self, coreOF: int = 4, coreElmer: int = 4, info_key=None) -> tuple:
-        self.set_new_parameter(coreOF, parameter_name='coreOF', info_key=info_key)
-        self.set_new_parameter(coreElmer, parameter_name='coreElmer', info_key=info_key)
+        self.set_new_parameter(coreOF, parameter_name='OF_core', info_key=info_key)
+        self.set_new_parameter(coreElmer, parameter_name='E_core', info_key=info_key)
 
     def set_cores_OF(self, coreOF: int = 4, info_key=None) -> int:
-        self.set_new_parameter(coreOF, parameter_name='coreOF', info_key=info_key)
+        self.set_new_parameter(coreOF, parameter_name='OF_core', info_key=info_key)
 
     def set_cores_Elmer(self, coreElmer: int = 4, info_key=None) -> int:
-        self.set_new_parameter(coreElmer, parameter_name='coreElmer', info_key=info_key)
+        self.set_new_parameter(coreElmer, parameter_name='E_core', info_key=info_key)
 
     def set_solver_name(self, solver_name: str ='pimpleFoam', info_key=None) -> None:
         self.set_new_parameter(solver_name, parameter_name='solver', info_key=info_key)
@@ -74,9 +74,6 @@ class Run(Information):
     def set_log_flag(self, log_flag: bool = False, info_key=None) -> bool:
         self.set_new_parameter(log_flag, parameter_name='log', info_key=info_key)
 
-
-
-
     def _collect_name_solver(self, info_key):
         """The function collect and crete required according setting name of solver
 
@@ -87,13 +84,13 @@ class Run(Information):
         if mode == 'common':
             run_command = f'{solver}'
         elif mode == 'parallel':
-            core_of = self.get_any_parameter('coreOF', info_key=info_key)
-            run_command = f'mpirun -np {core_of} {solver} -parallel :'
+            OF_core = self.get_any_parameter('OF_core')
+            run_command = f'mpirun -np {OF_core} {solver} -parallel :'
         elif mode == 'EOF':
-            core_of = self.get_any_parameter('coreOF', info_key=info_key)
-            core_elmer = self.get_any_parameter('coreOF', info_key=info_key)
-            run_command = f'mpirun -np {core_of} {solver} -parallel : ' \
-                          f'-np {core_elmer} ElmerSolver_mpi'
+            OF_core = self.get_any_parameter('OF_core')
+            E_core = self.get_any_parameter('E_core')
+            run_command = f'mpirun -np {OF_core} {solver} -parallel : ' \
+                          f'-np {E_core} ElmerSolver_mpi'
         else:
             self._raise_error(True)
 

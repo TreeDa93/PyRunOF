@@ -16,29 +16,49 @@ class ParametricSweep(Information):
     FIXME
     """
 
-    def __init__(self, fun=None, info_key='general', ):
+    def __init__(self, fun=None):
 
-        self.info = dict.fromkeys([info_key], dict(fun=fun,
-                                                   json_path=None))
-        self.cur_i: int = 0
-        self.run_fun = None
-        self.json_paths = list()
-        self.cur_data = None
-    
-    
-    def run(self, path_json, ps_params, fun=None, type_new=True, type_set='all', info_key=None):
+        self.cur_i: int = 1
+        self.run_fun = fun
+
+
+    def run(self, ps_params, fun=None, update_vars=None, type_set='special series'):
+        """
+
+
+        Args:
+            ps_params [dict]: parameters of the
+            fun [callable]:
+            update_vars [list of dicts]: list of updated variables
+            type_set [string]: type of generation cases of variables
+
+        Returns: None
+
+        """
         self._prepare_ps_dict(ps_params, type_set=type_set)
-        for self.cur_data in self.info['Set']:
-            self._update_json(path_json, cur_data, type_new=type_new)
+        for self.cur_data in self.set:
+            if update_vars is not None:
+                self._update_variables(update_vars)
             run_fun = Priority.variable(fun, where=self.run_fun)
             run_fun(self)
             self.cur_i += 1
 
+    def run_progress_bar(self, ps_params, fun=None, update_vars=None, type_set='special series'):
+        """
 
-    def run_new(self, ps_params, fun=None, update_vars=None, type_set='special series'):
+
+        Args:
+            ps_params [dict]: parameters of the
+            fun [callable]:
+            update_vars [list of dicts]: list of updated variables
+            type_set [string]: type of generation cases of variables
+
+        Returns: None
+
+        """
         self._prepare_ps_dict(ps_params, type_set=type_set)
-        
-        for self.cur_data in tqdm(self.info['Set'], total=self.info['n_iter'], initial=1):
+
+        for self.cur_data in tqdm(self.set, total=self.n_iter, initial=1):
             tqdm.write('Current parameters in parametric sweep:')
             for name_var, val in self.cur_data.items():
                 tqdm.write(f'{name_var}: \t {val}')
@@ -54,45 +74,9 @@ class ParametricSweep(Information):
             return str(self.cur_i)
         else:
             name = str()
-            for key, val in self.info['Set'][self.cur_i].items():
+            for key, val in self.set[self.cur_i].items():
                 name += str(f'_{key}_{val}')
             return name
-        
-
-    def get_cur_json_path(self):
-        return self.json_paths[self.cur_i]
-
-
-
-    def run_old(self, generator_names=False):
-        general_path = os.getcwd()
-        while self.cur_i < self.numberCases:
-
-            if generator_names is True:
-                name = self._generator_name()
-                self._change_vars()
-                self.fun(name)
-                os.chdir(general_path)
-            else:
-                self._change_vars()
-                self.fun()
-                os.chdir(general_path)
-
-    def set_fun(self, fun1=None, info_key='general'):
-        """The method sets python function to be runned"""
-        self.info[info_key] = fun1
-
-    def set_sweep_dict(self, sweep_dict={'keys': [1, 2, 3]}):
-        """The method sets dictionarie to be varied
-        Проверяет правильно ли задано количество случаев,
-        задает их количество и устанавливает словарь перебора
-        """
-        self.numberCases = self._check_sweep_dict(sweep_dict)
-        self.sweepDict = sweep_dict
-
-    def set_find_dicts(self, find_dicts=[]):
-        """The method sets dictionaries where it will be fiended varieng variables"""
-        self.find_dicts = find_dicts
 
     def _prepare_ps_dict(self, ps_dict, type_set='all'):
         """
@@ -110,54 +94,22 @@ class ParametricSweep(Information):
         ps_set = [[{key: entry} for entry in ps_dict[key]] for key in ps_dict]
         if type_set == 'all':
             iterator = it.product(*ps_set)
-            n_iter = len(list(it.product(*ps_set)))
+            self.n_iter = len(list(it.product(*ps_set))) + 1
         elif type_set == 'special series':
             iterator = zip(*ps_set)
-            n_iter = len(list(zip(*ps_set)))
+            self.n_iter = len(list(zip(*ps_set))) + 1
         elif type_set == 'series':
             self._check_sweep_dict(ps_dict)
             iterator = zip(*ps_set)
-            n_iter = len(list(zip(*ps_set)))
+            self.n_iter = len(list(zip(*ps_set))) + 1
         else:
             print('WARNING!!! Yuo write no correct type of set, because the procedure was done as all combination')
             iterator = it.product(*ps_set)
-        self.info['Set'] = [self._merge_dicts(entry) for entry in iterator]
-        self.info['Type of param set'] = type_set
-        self.info['n_iter'] = n_iter
+
+        self.set = [self._merge_dicts(entry) for entry in iterator]
+        self.type_set = type_set
+
         
-
-    def _change_vars(self):
-        """The methos change values of variables in dictionaries"""
-        for dic in self.find_dicts:
-            for key in self.sweepDict:
-                if key in dic:
-                    dic[key] = self.sweepDict[key][self.cur_i]
-        print(self.find_dicts[:])
-        self.cur_i += 1
-
-    def _update_json(self, path_json:str, cur_params: dict, type_new=True):
-        if type_new is True:
-            path_json_new = pl.Path(path_json).parent / (pl.Path(path_json).stem + '_case_' + str(self.cur_i) + '.json')
-        Manipulations.change_json_params(path_json, cur_params, save_path=path_json_new)
-        self.json_paths.append(path_json_new)
-
-    def _parameters_by_json(self, path_json, ps_params: dict,
-                            type_new=True, info_key=None):
-        """
-        """
-        if type_new is True:
-            path_json_new = pl.Path(path_json).parent / (pl.Path(path_json).stem + '_case_' + str(self.cur_i) + '.json')
-        else:
-            path_json_new = path_json
-
-        cur_params = dict()
-
-        for key, value in ps_params.items():
-            cur_params[key] = value[self.cur_i]
-
-        info_key = self.get_key(info_key)
-        self.info[info_key]['json_path_current'] = path_json_new
-        Manipulations.change_json_params(path_json, cur_params, save_path=path_json_new)
 
     @staticmethod
     def _check_sweep_dict(sweep_dict):
@@ -180,19 +132,6 @@ class ParametricSweep(Information):
         for entry in args:
             dct.update(entry)
         return dct
-
-    def _generator_name(self):
-        name = str()
-        for dic in self.find_dicts:
-            for key in self.sweepDict:
-                if key in dic:
-                    name += str(f'{key}_{self.sweepDict[key][self.currentIter]}')
-        return name
-
-    def _update_global_variables(self):
-        vars =  globals()
-        vars.update()
-    
 
     def _update_variables(self, update_vars):
         assert type(update_vars) is tuple, 'The argument update_vars should be tuple!'

@@ -27,5 +27,5 @@
     "min_size_elem_var": 1e-08,
     "k_global_var": 0.1,
     "quad_elem_var": true,
-    "constant_path": "/home/ivan/programms/OpenFOAM/PyRunOF/tests/obstacle_new_ps/solution/obstacle_base_test/constant/polyMesh"
+    "constant_path": "/home/ivan/programms/OpenFOAM/PyRunOF/tests/obstacle_icoFoam/solution/obstacle_base_test/constant/polyMesh"
 }

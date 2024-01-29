@@ -2,14 +2,15 @@ import pyRunOF
 from settings.data import *
 from time import sleep
 
-TEST_MODE = True
+TEST_MODE = False
 GENERATE_JSON_PARAMS = True
 DELETE_SOL_FOLDER = False
 DELETE_CASES = False
 
 def main():
     ps = pyRunOF.ParametricSweep()
-    ps.run_new(ps_params, fun=run_case, update_vars=(data, ), type_set='special series')
+    ps.run(ps_params, fun=run_case, update_vars=(data, ), type_set='special series')
+    #ps.run_progress_bar(ps_params, fun=run_case, update_vars=(data,), type_set='special series')
 
 def run_case(ps):
 
@@ -33,6 +34,7 @@ def run_case(ps):
     
     system = pyRunOF.System(case_path=mp.get_path('dst'))
     system.set_controlDict(data)
+    system.set_any_file(data, files=['decomposeParDict'])
     
     init_val = pyRunOF.InitialValue(case_path=mp.get_path('dst'))
     # calculate intial values
@@ -41,7 +43,7 @@ def run_case(ps):
     
     constant = pyRunOF.Constant(case_path=mp.get_path('dst'))
     constant.set_transportProp(data) 
-    #constant.turbulent_model(turbulent_type='laminar')   
+    constant.turbulent_model(turbulent_type='kOmega')
     
     mesh = pyRunOF.Mesh(case_path=mp.get_path('dst'))
     mesh.set_blockMesh(data)
@@ -59,6 +61,7 @@ def run_case(ps):
     mp.create_json_params(data, save_path=mp.get_path('params'))
     if TEST_MODE is not True:
         mesh.run_blockMesh()
+        mesh.run_decompose(what='OF')
         runner.run()
 
 if __name__ == '__main__':

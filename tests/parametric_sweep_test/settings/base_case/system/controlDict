@@ -54,9 +54,3 @@ maxDeltaT       1;
 
 // ************************************************************************* //
 
-
-functions
-{
-#includeFunc outletSurf
-#includeFunc residuals
-}
