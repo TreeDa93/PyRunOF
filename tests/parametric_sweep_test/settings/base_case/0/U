@@ -31,8 +31,60 @@ boundaryField
     }
     inlet
     {
-        type            fixedValue;
-        value           uniform $Uinlet;
+		type            fixedValue;
+        value           #codeStream
+		{
+			codeInclude
+			#{
+				#include "fvCFD.H"
+			#};
+			
+			codeOptions
+			#{
+				-I$(LIB_SRC)/finiteVolume/lnInclude \
+				-I$(LIB_SRC)/meshTools/lnInclude
+			#};
+			
+			codeLibs
+			#{
+				-lmeshTools \
+				-lfiniteVolume
+			#};
+			
+			code
+			#{
+				const IOdictionary& d = static_cast<const IOdictionary&>
+				(
+					dict.parent().parent()
+				);
+				
+				const fvMesh& mesh = refCast<const fvMesh>(d.db());
+				const label id = mesh.boundary().findPatchID("inlet");
+				const fvPatch& patch = mesh.boundary()[id];
+				
+				vectorField U(patch.size(), vector(0, 0, 0));
+				
+				const scalar U_avg = 2.; //average velocity
+				const scalar p_ctr_y = 0.005; //patch center
+				const scalar p_ctr_z = 0.01; //patch center
+				const scalar U_max = Uin_var/0.64; //patch center
+				const scalar pi = constant::mathematical::pi;
+				const scalar U_0 = 2.; //maximum velocity
+				const scalar p_ctr = 8.; //patch center
+				const scalar p_r = 8.; //patch radius
+				
+				forAll(U, i) 
+				{
+					const scalar y = patch.Cf()[i][1]; // 0 is x; 1 is y and 2 is z 
+					const scalar z = patch.Cf()[i][2]; // 0 is x; 1 is y and 2 is z 
+					
+					U[i] = vector(U_max*(1-(pow((y-p_ctr_y)/p_ctr_y,6)))*(1-(pow((z-p_ctr_z)/p_ctr_z,6))), 0., 0.);
+					//U[i] = vector(U_0*(1-(pow(y-p_ctr,2))/(p_r*p_r)), 0., 0.);
+				}
+				
+				U.writeEntry("", os);
+			#};
+		};
     }
     ".*"
     {

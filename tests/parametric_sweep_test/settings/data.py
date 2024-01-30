@@ -4,9 +4,9 @@ import os
 L = 0.1 # length of the duct
 A = 0.01 # hiegh of the duct
 B = 0.02 # width of the dcut
-hx  = 40 # the number of cells along x
-hy = 30 # the number of cells along y
-hz  = 30 # the number of cells along z
+hx  = 20 # the number of cells along x
+hy = 10 # the number of cells along y
+hz  = 10 # the number of cells along z
 
 Uin = 1 # inlet velocity
 nu = 3.7e-07 # kinematic visocosity
@@ -27,7 +27,7 @@ data = {
         'startTime_var' : startTime,
         'endTime_var' : stopTime,
         "Uin_var": Uin,
-        'L_var': L,
+        'Lx_var': L,
         'A_var': A,
         'B_var': B,
         'hx_var': hx,

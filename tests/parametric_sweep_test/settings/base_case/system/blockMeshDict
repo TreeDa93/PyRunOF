@@ -15,7 +15,7 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 
-L 					L_var;
+L 					Lx_var;
 A 					A_var;
 B 					B_var;
 hx 				hx_var;
