@@ -1,0 +1,14 @@
+If do not run functions from controlDict
+functions
+{
+    #includeFun somefun
+}
+with ERROR
+error in IOstream "OSHA1stream.sinkFile_" for operation Ostream& operator<<(Ostream&, const word&)
+
+SOLUTION:
+in src/OpenFOAM/db/IOstreams/hashes/
+replace OSHA1stream.H
+on the file from the folder. And then Allwmake OpenFOAM.
+
+https://www.cfd-online.com/Forums/openfoam-programming-development/243795-ioerror-when-using-function-objects-debug-mode.html
