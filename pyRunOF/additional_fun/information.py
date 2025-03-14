@@ -2,7 +2,6 @@ import os
 import pathlib as pl
 from typing import List, Optional, Any
 from .auxiliary_functions import Priority
-import priority
 
 
 class Information:
