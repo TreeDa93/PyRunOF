@@ -1,13 +1,13 @@
-from typing import Optional
 import pathlib as pl
-from ..additional_fun.auxiliary_functions import Files
-from ..additional_fun.information import Information
-from ..additional_fun import foamDictionaries_test as foamDict
+from pyRunOF.additional_fun.auxiliary_functions import Files
+from pyRunOF.additional_fun.information import Information
+from pyRunOF.additional_fun import foamDictionaries_test as foamDict
 
 
 class Constant(Information):
     """
-    The class is intended to change settings of constant folder for OpenFOAM cases.
+    The Constant class is intended to change settings of the constant folder for OpenFOAM cases.
+    
     Attributes:
         ---------------
         case_path is the path of the case to provide the manipulation with the class

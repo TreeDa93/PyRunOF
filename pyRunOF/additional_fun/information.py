@@ -41,7 +41,7 @@ class Information:
                     name_key: Optional[str] = 'new',
                     splitter: Optional[str] = '_',
                     only_base: Optional[bool] = False,
-                    info_key=None) -> str:
+                    info_key=None) -> None:
         """The function create case name as
             if only_base is False:
                 new_name = name_base + splitter + case_names[0] ... + case_names[-1]
