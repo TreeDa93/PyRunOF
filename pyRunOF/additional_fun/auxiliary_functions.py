@@ -6,6 +6,7 @@ import os
 import json
 from typing import Any
 import subprocess
+from typing import Sequence
 
 
 def run_command(command: str, run_path):
@@ -19,6 +20,11 @@ def run_command(command: str, run_path):
 
         subprocess.run(command, shell=True, executable=path_bash, cwd=run_path, start_new_session=True)
 
+def merge_dicts(args: Sequence[dict]):
+    dct = {}
+    for entry in args:
+        dct.update(entry)
+    return dct
 
 class Files:
     """
@@ -157,6 +163,13 @@ class Files:
             return True
         else:
             return False
+        
+    @staticmethod
+    def merge_dicts(args: Sequence[dict]):
+        dct = {}
+        for entry in args:
+            dct.update(entry)
+        return dct
 
 
 class Priority:
@@ -258,7 +271,6 @@ class Priority:
                     cls._raise_error(type_error='path_error')
         else:
             cls._raise_error(type_error='path_error')
-
 
     @classmethod
     def path_add_folder(cls, path, where, add_folder, path_key=None):

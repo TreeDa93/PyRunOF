@@ -7,8 +7,8 @@ from ..additional_fun.information import Information
 
 class InitialValue(Information):
     """
-    The class collects and process information dealing with initail values of
-    models. 
+    The class describes settings of initial values of openfoam models.
+
 
     """
 
@@ -46,6 +46,20 @@ class InitialValue(Information):
                 for var_name, value_var in zero_dict.items():
                     Files.change_var_fun(var_name, value_var, case_path, file_path)
 
+    def set_mapping_settings(self, src_path, dst_path, src_time=0, dst_time=0):
+        self.mapp_settings = dict(src_path=Priority.path(src_path, None),
+                                    dst_path=Priority.path(dst_path, None),
+                                    src_time=str(src_time),
+                                    dst_time=str(dst_time)
+                                  )
+
+    def set_map_values(self, src_path=None, dst_path=None, src_time=0, dst_time=0):
+        """
+        копирует содержимое src_time из src_path/ в dst_path с новым именем dst_time
+        """
+        src_path = Priority.path(src_path, self.mapp_settings, path_key='src_path')
+        dst_path = Priority.path(dst_path, self.mapp_settings, path_key='dst_path')
+        Files.copy_file(src_path, dst_path, old_name=src_time, new_name=dst_time)
 
     def reconstruct(self, case_path=None):
         "Запускает  ReconstrucPar"
@@ -70,42 +84,21 @@ class InitialValue(Information):
                         'sample_var': f'{sample_var}'}
         self.checkPathTVMF = dataDirpath
 
-    
-    def set_mapping_settings(self, src_path, dst_path, src_time=0, dst_time=0):
-        self.mapp_settings = dict(src_path=Priority.path(src_path, None),
-                                    dst_path=Priority.path(dst_path, None),
-                                    src_time=str(src_time),
-                                    dst_time=str(dst_time)
-                                  )
-
-    def set_map_values(self, src_path=None, dst_path=None, src_time=0, dst_time=0):
-        """
-        копирует содержимое src_time из src_path/ в dst_path с новым именем dst_time
-        """
-        src_path = Priority.path(src_path, self.mapp_settings, path_key='src_path')
-        dst_path = Priority.path(dst_path, self.mapp_settings, path_key='dst_path')
-        Files.copy_file(src_path, dst_path, old_name=src_time, new_name=dst_time)
-    
     def run_mapFields(self, **options):
-        """
-        The method run mapFields utilit 
-
-        Argments:
-        * **options:
-            * case_path: Optional[str] = None,
-            * info_key: Optional[str] = None
-            * check: Optional[Bool] = False
 
         """
-        info_key = self.get_key(options.get('info_key', None))
+        The function runs mapFields utilite with specfied earlier settings. 
+        Arguments :
+            * **options are the optional arguments. The set of avaible settings are listed below
+                * info_key [str] is the key to get path from dictionary of paths of Information class
+                * case_path [str] is the case path with transportProp file
+
+            Return: None
+        """
+        info_key = self.get_key(options.get('info_key'))
         case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='case_path')
-        check_status = options.get('check', False)
-       
-        if check_status:
-            self.__checkFileForMapFields()
-            run_command(self.commandMapFields, case_path)
-        else:
-            run_command(self.commandMapFields, case_path)
+        run_command(self.commandMapFields, case_path)
+
 
     def settingsMapField(self, sourcePath=None, distPath=None, consistent=True,
                          mapMethod='mapNearest', parallelSource=True,
@@ -159,9 +152,14 @@ class InitialValue(Information):
 
         return self.option
 
-    def createMapFieldCommand(self, option=None):
+    def mapFields_command(self, option=None):
+        """
+        
+        
+        """
+        
         command = 'mapFields'
-        option = self.__checkOption(option)
+        option = self.checkOption(option)
 
         for key in option:
             if option[key] is True:
@@ -178,9 +176,10 @@ class InitialValue(Information):
             else:
                 command += f' {key} {option[key]}'
         self.commandMapFields = command
+        print(self.commandMapFields)
         return command
 
-    def copyBC(self, nameBCsource='outlet', nameBCdist='inlet', mapTimeStep=0.25, namePostFile='outletSurf'):
+    def copy_BC(self, nameBCsource='outlet', nameBCdist='inlet', mapTimeStep=0.25, namePostFile='outletSurf'):
         """Эта функция копирует значения из postProcessing в заданном времени (mapTimeStep)
         в кейс назначения в папку constant """
 
@@ -197,11 +196,6 @@ class InitialValue(Information):
             copy_tree(pathScalar, os.path.join(pathBCdist, '0'))
         copy_tree(pathVector, os.path.join(pathBCdist, '0'))
         shutil.copy(pathPoints, pathBCdist)
-
-    def run_set_fields(self, path_case: str = None, info_key=None) -> None:
-        run_path = self.get_path(info_key=info_key, case_path=path_case)
-        command = 'setFields'
-        run_command(command, run_path)
 
     def calcInitVal(self, A, B, Uin, nu):
         """The function serves to calculate intial values required for improving convergence of task. The function
@@ -233,6 +227,8 @@ class InitialValue(Information):
                 'ep_var': e,
                 }
         return dict
+    
+    
     def calcInitVal_cylindr(self, Dh, Uin, nu):
         """The function serves to calculate intial values required for improving convergence of task. The function
         gives dictionaries with key of variables and them values. Keys of variables is chosen as way as in fiels of OF.
@@ -266,7 +262,7 @@ class InitialValue(Information):
         return dict
 
 
-    def __checkOption(self, option):
+    def checkOption(self, option):
         if option == None:
             if self.option != None:
                 return self.option
@@ -275,10 +271,14 @@ class InitialValue(Information):
         else:
             return option
 
-    def __checkFileForMapFields(self):
+    def checkFileForMapFields(self):
+        os.chdir(self.pathCase)
         testPath = os.path.join(self.checkPathTVMF, '0')
         if not os.path.exists(testPath):
-            Files.copy_file(self.checkPathTVMF, self.checkPathTVMF, '0', '0.25')
+            copypath = os.path.join(self.checkPathTVMF, '0.25')
+            Files.copy_file(copypath, testPath)
+            
+            copy_fun(copypath, testPath)
             return True
         else:
             print('The 0 file is exist')

@@ -2,7 +2,7 @@ import sys
 import itertools as it
 from typing import Sequence
 from tqdm import tqdm
-from ..additional_fun.auxiliary_functions import Priority, merge_dicts
+from ..additional_fun.auxiliary_functions import Priority
 from ..additional_fun.information import Information
 
 
@@ -64,7 +64,6 @@ class ParametricSweep(Information):
             run_fun(self)
             self.cur_i += 1
 
-
     def get_cur_name(self, type_name='index'):
 
         if type_name == 'index':
@@ -103,15 +102,14 @@ class ParametricSweep(Information):
             print('WARNING!!! Yuo write no correct type of set, because the procedure was done as all combination')
             iterator = it.product(*ps_set)
 
-        # self.set = [self._merge_dicts(entry) for entry in iterator]
-        self.set = [merge_dicts(entry) for entry in iterator]
+        self.set = [self._merge_dicts(entry) for entry in iterator]
         self.type_set = type_set
-
 
         
 
     @staticmethod
     def _check_sweep_dict(sweep_dict):
+        # FIXME it can be static
         i = 0
         for key in sweep_dict:
             if i == 0:
@@ -124,6 +122,12 @@ class ParametricSweep(Information):
             i += 1
         return tester
 
+    @staticmethod
+    def _merge_dicts(args: Sequence[dict]):
+        dct = {}
+        for entry in args:
+            dct.update(entry)
+        return dct
 
     def _update_variables(self, update_vars):
         assert type(update_vars) is tuple, 'The argument update_vars should be tuple!'

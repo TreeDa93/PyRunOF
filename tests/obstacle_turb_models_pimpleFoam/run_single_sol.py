@@ -9,31 +9,31 @@ def main():
     mp = pyRunOF.Manipulations(dir_path=dir_path)
 
     ## Set path for folder with settings and solution
-    mp.create_path_dir(dir_path_key='dir', case_name='settings',
+    mp.create_path_from_dir(dir_path_key='dir', folder_name='settings',
                         path_key='settings')
-    mp.create_path_dir(dir_path_key='dir', case_name='solution',
+    mp.create_path_from_dir(dir_path_key='dir', folder_name='solution',
                         path_key='solution')
 
     # set path of source case
     mp.create_name(name_base=src_case, name_key=src_name_key)
-    mp.create_path_dir(dir_path_key='settings', name_key=src_name_key,
+    mp.create_path_from_dir(dir_path_key='settings', name_key=src_name_key,
                         path_key=src_path_key)
     # set path of dst case
     mp.create_name('test', name_base=src_case, name_key=dst_name_key)
-    mp.create_path_dir(dir_path_key='solution', name_key=dst_name_key,
+    mp.create_path_from_dir(dir_path_key='solution', name_key=dst_name_key,
                         path_key=dst_path_key)
         
     # path to json parameters
-    mp.create_path_dir(dir_path_key='settings', case_name='parameters.json',
+    mp.create_path_from_dir(dir_path_key='settings', folder_name='parameters.json',
                         path_key='parameters_path')
     # path to json parameters of mesh
-    mp.create_path_dir(dir_path_key='settings', case_name='mesh_parameters.json',
+    mp.create_path_from_dir(dir_path_key='settings', folder_name='mesh_parameters.json',
                         path_key='mesh_parameters_path')
     
     # имя скрипта для создания сетки
     mp.create_name(name_base='create_obstacle_mesh2.py', only_base=True, name_key='salome_script')
     # путь к скрипту сетки
-    mp.create_path_dir(dir_path_key='settings', name_key='salome_script', path_key='salome_script_path')
+    mp.create_path_from_dir(dir_path_key='settings', name_key='salome_script', path_key='salome_script_path')
 
     poly_mesh_path = mp.get_constant_path(str(mp.get_path(dst_path_key))) / 'polyMesh'
 

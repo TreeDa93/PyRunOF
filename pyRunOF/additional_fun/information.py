@@ -2,7 +2,7 @@ import os
 import pathlib as pl
 from typing import List, Optional, Any
 from .auxiliary_functions import Priority
-
+import priority
 
 
 class Information:
@@ -36,10 +36,6 @@ class Information:
         """
         return Priority.name(name_key, self.info[self.get_key(info_key)]['case_names'])
 
-    def set_path(self, path_case: Optional[str] = pl.Path.cwd(),
-                 info_key: Optional[str] = None):
-        info_key = self.get_key(info_key)
-        self.info[info_key]['paths'] = path_case
 
     def create_name(self, *case_names: List[str],
                     name_base: str = '',
@@ -70,34 +66,6 @@ class Information:
 
             self.info[self.get_key(info_key)]['case_names'][name_key] = name_base
 
-    def create_path_dir(self, dir_path: Optional[str] = None,
-                        dir_path_key: Optional[str] = 'dir',
-                        case_name: Optional[str] = None,
-                        name_key: Optional[str] = None,
-                        path_key: Optional[str] = 'new',
-                        info_key=None) -> str:
-        """The method creates the path using directory and name of case. 
-        Example: final path = directory path + case_name. Here
-            *   directory path can be given directly by dir_path variable or get from
-            dictionary by the key dir_path_key.
-        
-            *   case_name can be given directly by case_name variable or get from
-            dictionary by the key name_key. 
-
-        Args:
-            *   dir_path [str] is the path of directory
-            *   dir_path_key [str] is the key to get dir_path from dictionary 
-            *   case_name is the name of the case
-            *   name_key is the key to get name of the case from dictionary
-            info_key is the key to put the prepared data to corresponding information
-
-        Retrun: 
-            None
-
-        """
-        cur_path = Priority.path(dir_path, self.info[self.get_key(info_key)]['paths'], path_key=dir_path_key)
-        cur_name = Priority.name(case_name, self.info[self.get_key(info_key)]['case_names'], name_key=name_key)
-        self.info[self.get_key(info_key)]['paths'][path_key] = pl.Path(cur_path) / cur_name
 
     def create_path_from_dir(self, dir_path: Optional[str] = None,
                         dir_path_key: Optional[str] = 'dir',
@@ -128,13 +96,14 @@ class Information:
         cur_name = Priority.name(folder_name, self.info[self.get_key(info_key)]['case_names'], name_key=folder_name_key)
         self.info[self.get_key(info_key)]['paths'][path_key] = pl.Path(cur_path) / cur_name
 
-    def create_path(self, path, path_key='testPath', info_key=None):
-        """
 
+    def create_path(self, path, path_key='default__path_key', info_key=None):
+        """
+        The method creates a path in information structure. 
         Args:
-            path:
-            path_key:
-            info_key:
+            * path [pathLike] is the create path 
+            path_key is the key to store the path in information structure
+            info_key is the key for information structure.
 
         Returns:
                 None
@@ -143,10 +112,10 @@ class Information:
 
     def change_path(self, new_path: str, path_key: str = 'newPath') -> None:
         """
-
+        The method changes existing path on new path. #FIXME
         Args:
-            new_path:
-            path_key:
+            new_path [pathLike] is the new path
+            path_key [str] is the key of the existing path to be changed
 
         Returns:
                 None
@@ -174,14 +143,14 @@ class Information:
                           info_key: Optional[str] = None,
                           parameter_name: Optional[str] = 'new_parameter'):
         """
-        FIXME
+        The method set new parameter in information structure
         Args:
-            parameter:
-            info_key:
-            parameter_name:
+            parameter is the value of the parameter
+            info_key is the key of information structure
+            parameter_name is the key of set parameter.
 
         Returns:
-
+            None
         """
         info_key = self.get_key(info_key)
         self.info[info_key][parameter_name] = parameter
@@ -201,13 +170,6 @@ class Information:
         info_key = self.get_key(info_key)
         return self.info[info_key][param_key]
 
-    def get_general_key(self):
-        """
-        FIXME
-        Returns:
-
-        """
-        return list(self.info.keys())[0]
 
     def get_key(self, key):
         """
@@ -220,39 +182,50 @@ class Information:
 
         """
         if key is None:
-            return self.get_general_key()
+            return list(self.info.keys())[0]
         else:
             return key
 
-    def get_constant_path(self, case_path: str, info_key: Optional[str] = None):
+    def get_constant_path(self, case_path: str):
         """
-        FIXME
+        The method return path to constant folder being palced in case_path folder of openfoam case.
+
         Args:
-            case_path:
-            info_key:
+            case_path is the path to an openfoam case.
+            info_key is the key 
 
         Returns:
+            path to constant folder
 
         """
-        where = self.info[self.get_key(info_key)]
-        return Priority.path_add_folder(case_path, where, 'constant', path_key='case_path')
+        return Priority.path_add_folder(case_path, None, 'constant')
 
-    def get_system_path(self, case_path: str, info_key: Optional[str] = None):
+    def get_system_path(self, case_path: str, info_key: Optional[str] = None, path_key=None):
         """
-        FIXME
+         The method return path to system folder being palced in case_path folder of openfoam case.
+
         Args:
-            case_path:
-            info_key:
+            case_path is the path to an openfoam case.
+            info_key is the key 
 
         Returns:
+            path to constant folder
 
         """
-        where = self.info[self.get_key(info_key)]
-        return Priority.path_add_folder(case_path, where, 'system', path_key='case_path')
+        where = self.info[self.get_key(info_key)]['paths']
+        return Priority.path_add_folder(case_path, where, 'system', path_key=path_key)
 
     def get_any_folder_path(self, folder_name, case_path: str, info_key: Optional[str] = None):
         """
-        FIXME
+        The method returns absolute path to specify folder in case_path folder.
+        EXAMPLE: 
+        case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='case_path')
+        zero_path = self.get_any_folder_path('0', case_path, info_key=info_key)
+
+        or
+
+        zero_path = self.get_any_folder_path('0', case_path, info_key=info_key, path_key='case_path')
+
         Args:
             folder_name:
             case_path:
@@ -265,19 +238,19 @@ class Information:
         where = self.info[self.get_key(info_key)]
         return Priority.path_add_folder(case_path, where, folder_name, path_key='case_path')
 
-    def find_all_sif(self, path_case: Optional[str] = None,
+    def find_all_sif(self, folder_path: Optional[str] = None,
                      info_key: Optional[str] = None) -> list:
         """
-        FIXME
+        The method returns all files with sif extension in specify path
         Args:
-            path_case:
+            folder_path:
             info_key:
 
         Returns:
 
         """
         info_key = self.get_key(info_key)
-        path_case = Priority.path(path_case, self.info[info_key], path_key='path')
+        path_case = Priority.path(folder_path, self.info[info_key], path_key='path')
 
         return list(path_case.glob('**/*.sif'))
 

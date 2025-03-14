@@ -46,6 +46,11 @@ class Run(Information):
         run_command(self._collect_name_solver(info_key), case_path)
 
 
+    def run_set_fields(self, path_case: str = None, info_key=None) -> None:
+        run_path = self.get_path(info_key=info_key, case_path=path_case)
+        command = 'setFields'
+        run_command(command, run_path)
+
     def set_cores(self, coreOF: int = 4, coreElmer: int = 4, info_key=None) -> tuple:
         self.set_new_parameter(coreOF, parameter_name='OF_core', info_key=info_key)
         self.set_new_parameter(coreElmer, parameter_name='E_core', info_key=info_key)
@@ -95,3 +100,11 @@ class Run(Information):
 
         self.set_new_parameter(run_command, parameter_name='run command', info_key=info_key)
         return self.get_any_parameter('run command')
+
+
+    def _raise_error(self):
+        sys.exit('''you write not correct mode
+                    Please chose from following modes:
+                    common - general mode only for OpenFOAM;
+                    parallel is the mode to run your case in parallel calculations
+                    EOF is the mode to run your case with Elmer_old together''')
