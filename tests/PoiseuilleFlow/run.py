@@ -18,7 +18,7 @@ def main():
     mesh = pyRunOF.Mesh(case_path=mp.get_path('dst'))
     mesh.set_blockMesh(data)
 
-    init_val = pyRunOF.InitialValue(case_path=mp.get_path('dst'))
+    init_val = pyRunOF.InitialValues(case_path=mp.get_path('dst'))
     calculated_data = init_val.calcInitVal(A, B, Uin, nu)
     init_val.set_var(data, calculated_data)
 

@@ -60,7 +60,7 @@ def main():
     constant = pyRunOF.Constant(case_path=mp.get_path(dst_path_key), lib_path=library_path['lib_path_var'])
     constant.set_transportProp(data)
     constant.turbulent_model(turbulent_type='laminar')
-    zero = pyRunOF.InitialValue(case_path=mp.get_path(dst_path_key))
+    zero = pyRunOF.InitialValues(case_path=mp.get_path(dst_path_key))
     data.update(zero.calcInitVal_cylindr(data['d_var'], data['U_var'], data['nu_var']))
     zero.set_var(data,)
     ########### mesh settings #####################

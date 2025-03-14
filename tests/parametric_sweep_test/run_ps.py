@@ -36,7 +36,7 @@ def run_case(ps):
     system.set_controlDict(data)
     system.set_any_file(data, files=['decomposeParDict'])
     
-    init_val = pyRunOF.InitialValue(case_path=mp.get_path('dst'))
+    init_val = pyRunOF.InitialValues(case_path=mp.get_path('dst'))
     # calculate intial values
     data.update(init_val.calcInitVal(data['A_var'], data['B_var'], data['Uin_var'], data['nu_var']))
     init_val.set_var(data)

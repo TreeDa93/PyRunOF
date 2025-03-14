@@ -5,7 +5,7 @@ from distutils.dir_util import copy_tree
 from ..additional_fun.auxiliary_functions import Priority, Files, run_command
 from ..additional_fun.information import Information
 
-class InitialValue(Information):
+class InitialValues(Information):
     """
     The class collects and process information dealing with initail values of
     models. 

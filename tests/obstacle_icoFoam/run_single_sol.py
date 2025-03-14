@@ -59,7 +59,7 @@ def main():
     system.set_controlDict(data)
     constant = pyRunOF.Constant(case_path=mp.get_path(dst_path_key), lib_path=library_path['lib_path_var'])
     constant.set_transportProp(data)
-    zero = pyRunOF.InitialValue(case_path=mp.get_path(dst_path_key))
+    zero = pyRunOF.InitialValues(case_path=mp.get_path(dst_path_key))
     zero.set_var(data,)
     ########### mesh settings #####################
     mesh = pyRunOF.Mesh(case_path=mp.get_path(dst_path_key))

@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     system = pyRunOF.System(case_path=mp.get_path('solved_case'))
     system.set_controlDict(data)
-    init_val = pyRunOF.InitialValue(case_path=mp.get_path('solved_case'))
+    init_val = pyRunOF.InitialValues(case_path=mp.get_path('solved_case'))
     init_val.set_var(data)
     constant = pyRunOF.Constant(case_path=mp.get_path('solved_case'))
     constant.set_transportProp(data)
