@@ -2,14 +2,47 @@ import os
 import sys
 import shutil
 from distutils.dir_util import copy_tree
-from ..additional_fun.auxiliary_functions import Priority, Files, run_command
-from ..additional_fun.information import Information
+from pyRunOF.additional_fun.auxiliary_functions import Priority, Files, run_command
+from pyRunOF.additional_fun.information import Information
 
 class InitialValues(Information):
+    
     """
-    The class collects and process information dealing with initail values of
-    models. 
-
+    The InitialValues class is responsible for collecting and processing information related to the initial values of models. 
+    
+    Methods:
+        __init__(self, **optional_args):
+            Initializes the InitialValues class with optional arguments.
+        set_var(self, *zero_dicts: dict, **options):
+            Sets given variables to the sif file of Elemer.
+        reconstruct(self, case_path=None):
+            Runs the reconstructPar command.
+        setTimeVaryingMappedFixedValue(self, case_path=None):
+            Sets values for the TimeVaryingMappedFixedValue boundary condition.
+        settingsTimeVaryingMappedFixedValue(self, nameSample='outletSurf', sourceTimeStep=0.25, namePatch='outlet'):
+            Sets values for the TimeVaryingMappedFixedValue boundary condition.
+        set_mapping_settings(self, src_path, dst_path, src_time=0, dst_time=0):
+            Sets the mapping settings.
+        set_map_values(self, src_path=None, dst_path=None, src_time=0, dst_time=0):
+            Copies the contents of src_time from src_path to dst_path with a new name dst_time.
+        run_mapFields(self, **options):
+            Runs the mapFields utility.
+        settingsMapField(self, sourcePath=None, distPath=None, consistent=True, mapMethod='mapNearest', parallelSource=True, parallelTarget=False, sourceTime=0.25, noFunctionObjects=True):
+            Configures the settings for the mapFields utility.
+        createMapFieldCommand(self, option=None):
+            Creates the mapFields command with the given options.
+        copyBC(self, nameBCsource='outlet', nameBCdist='inlet', mapTimeStep=0.25, namePostFile='outletSurf'):
+            Copies values from postProcessing at the specified time to the destination case in the constant folder.
+        run_set_fields(self, path_case: str = None, info_key=None) -> None:
+            Runs the setFields command.
+        calcInitVal(self, A, B, Uin, nu):
+            Calculates initial values required for improving convergence of the task.
+        calcInitVal_cylindr(self, Dh, Uin, nu):
+            Calculates initial values required for improving convergence of the task for a cylindrical geometry.
+        __checkOption(self, option):
+            Checks the provided options for the mapFields command.
+        __checkFileForMapFields(self):
+            Checks if the required files for the mapFields command exist.
     """
 
     def __init__(self, **optional_args):
