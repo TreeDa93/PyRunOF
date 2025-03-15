@@ -32,12 +32,14 @@ class Manipulations(Information):
     """
 
     def __init__(self, **optional_args):
-        """
-        Args:
-            **optional_args:
-                * info_key='general',
-                * dir_path: Optional[str] = None
-        """
+        """Initializes the manipulation with optional arguments.
+            optional arguments:
+                info_key (Optional[str]): The main key for the information dictionary. Defaults to 'general'.
+                dir_path (Optional[str]): The directory path. Defaults to None.
+                set_names (Optional[list]): A list of set names to initialize in the information dictionary. Defaults to ['paths', 'names'].
+        Returns:
+            None"""
+    
         Information.__init_manipulation__(self, **optional_args)
 
     def duplicate_case(self,

@@ -1,7 +1,7 @@
 import os
 import pathlib as pl
 from typing import List, Optional, Any
-from .auxiliary_functions import Priority
+from pyRunOF.additional_fun.auxiliary_functions import Priority
 
 
 class Information:
@@ -33,37 +33,37 @@ class Information:
             * info_key [str, optional]
         
         """
-        return Priority.name(name_key, self.info[self.get_key(info_key)]['case_names'])
+        return Priority.name(name_key, self.info[self.get_key(info_key)])
 
 
     def create_name(self, *case_names: List[str],
                     name_base: str = '',
-                    name_key: Optional[str] = 'new',
+                    name_key: Optional[str] = 'new_name',
                     splitter: Optional[str] = '_',
                     only_base: Optional[bool] = False,
-                    info_key=None) -> None:
-        """The function create case name as
-            if only_base is False:
-                new_name = name_base + splitter + case_names[0] ... + case_names[-1]
-            else:
-                new_name = name_base
-            Arguments: 
-                * case_names [collection of strings] is the set of string to assemble new name
-                * name_base [string] is the string to express general name part 
-                * name_key [hashable] is the key to get the string to express general name part from dictionary
-                * splitter [string] is the special symbol to splite base and additional parts of assembling name
-                * only_base [bool] is the flag to detect requrments to extend name by additional parts.
-                * info_key [hashable] is the key to store finile name in information dict. 
-                """
-
-        if only_base is True:
-            self.info[self.get_key(info_key)]['case_names'][name_key] = name_base
-            return name_base
+                    info_key: Optional[str] = None) -> None:
+        """
+        The function creates a case name as follows:
+        if only_base is False:
+            new_name = name_base + splitter + case_names[0] ... + case_names[-1]
         else:
-            for addName in case_names:
-                name_base += splitter + str(addName)
+            new_name = name_base
 
-            self.info[self.get_key(info_key)]['case_names'][name_key] = name_base
+        Arguments:
+            case_names (List[str]): The set of strings to assemble the new name.
+            name_base (str): The string to express the general name part.
+            name_key (Optional[str]): The key to get the string to express the general name part from the dictionary.
+            splitter (Optional[str]): The special symbol to split the base and additional parts of the assembling name.
+            only_base (Optional[bool]): The flag to detect requirements to extend the name by additional parts.
+            info_key (Optional[str]): The key to store the final name in the information dictionary.
+        """
+        info_key = self.get_key(info_key)
+        if only_base is True:
+            new_name = name_base
+        else:
+            new_name = name_base + splitter + splitter.join(map(str, case_names))
+        
+        self.info[info_key][name_key] = new_name
 
 
     def create_path_from_dir(self, dir_path: Optional[str] = None,
