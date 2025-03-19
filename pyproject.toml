@@ -1,0 +1,34 @@
+[project]
+name = "pyrunof_test_lib"
+version = "0.1.0"
+description = "We test library here!"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["pyRunOF",
+    "ruff",
+    "setuptools==76.0.0",
+]
+
+# install pyRunOF from path as editable packge!
+[tool.uv.sources]
+pyRunOF = {path = "./pyRunOF"}
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# rule of build if we write uv build we build pyRunOF
+[tool.hatch.build.targets.wheel]
+packages = ["pyRunOF"]
+
+# [tool.hatch.build.targets.sdist]
+# exclude = [
+#   "/.github",
+#   "/docs",
+# ]
+
+
+
+
+
+# pyrunof = {path = "dist/pyrunof-0.1.0-py3-none-any.whl" }

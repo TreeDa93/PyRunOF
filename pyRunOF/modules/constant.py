@@ -28,15 +28,18 @@ class Constant(Information):
 
 
     def set_transportProp(self, *lists: dict, **options) -> None:
-        """The function sets given variables to transportProperties file
+        """
+        Sets given variables in the transportProperties file.
+
         Arguments:
-            * *lists [list of dicts] is the set of dictionaries. The keys of the dictionaries are
-            the desired varible in trasportProp, which will be changed to the value taken from 
-            the dictionary corresponding the specified key. 
-            * **options are the optional arguments. The set of avaible settings are listed below
-                * case_path [str] is the case path with transportProp file
-                * info_key [str] is the key to get path from dictionary of paths of Information class
-        Return: None
+            *lists: A set of dictionaries where keys are variable names in transportProperties
+                    and values are the new values to be set.
+            **options: Optional arguments including:
+                - case_path (str): The path to the case containing the transportProperties file.
+                - info_key (str): The key to retrieve the path from the Information class's dictionary.
+
+        Returns:
+            None
         """
         case_path = options.get('case_path')
         info_key = options.get('info_key')

@@ -33,7 +33,9 @@ class Manipulations(Information):
 
     def __init__(self, **optional_args):
         """Initializes the manipulation with optional arguments.
+            
             optional arguments:
+            
                 info_key (Optional[str]): The main key for the information dictionary. Defaults to 'general'.
                 dir_path (Optional[str]): The directory path. Defaults to None.
                 set_names (Optional[list]): A list of set names to initialize in the information dictionary. Defaults to ['paths', 'names'].
