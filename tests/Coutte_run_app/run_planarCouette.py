@@ -4,7 +4,7 @@ from pyRunOF.additional_fun.auxiliary_functions import run_command
 def main():
     delete_status = 'no'
 
-    mp = pyRunOF.Manipulations(dir_path=pl.Path.cwd())
+    mp = pyRunOF.ModelConfigurator(dir_path=pl.Path.cwd())
     mp.create_path_from_dir(dir_path_key='dir', folder_name='planarCouette',
                        path_key='base_case')
     mp.create_path_from_dir(dir_path_key='dir', folder_name='planarCouette_solved',

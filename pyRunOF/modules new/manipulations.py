@@ -5,7 +5,13 @@ from time import strftime, sleep
 from typing import Optional, Union
 
 from ..additional_fun.auxiliary_functions import Priority, Files
+
 from ..additional_fun.information import Information
+
+from ..additional_fun.priority import select_path
+
+import pyRunOF.additional_fun.priority as priority
+
 
 
 class Manipulations(Information):
@@ -57,15 +63,19 @@ class Manipulations(Information):
                    to the folder being old name with prefix of current time of copying. And new case will be copied
                     to folder being name of pathNewCase variables."""
 
-        src_path = pl.Path(Priority.check_key_path(src_path, src_key, self.info[self.info_key]['paths']))
-        dist_path = pl.Path(Priority.check_key_path(dist_path, dist_key, self.info[self.info_key]['paths']))
-        Priority.check_path_existence(src_path, make_new=False)
+
+        # FIXME change to pririty.path
+        info_node = self.info[self.info_key]['paths']
+        src_path = select_path(src_path, info_node, src_key)
+        dist_path = select_path(dist_path,info_node, dist_key)
+       
+        priority.check_path_existence(src_path, make_new=False)
         if mode == 'rewrite':
-            if Priority.check_path_existence_only(dist_path) == 'full':
+            if priority.check_path_existence_only(dist_path) == 'full':
                 shutil.rmtree(dist_path)
             shutil.copytree(src_path, dist_path)
         elif mode == 'copy':
-            if Priority.check_path_existence_only(dist_path) == 'full':
+            if priority.check_path_existence_only(dist_path) == 'full':
                 old_name = dist_path.stem + '_' + 'old' + '_' + strftime('%d-%m-%Y %H-%M')
                 old_path = dist_path.parent / old_name
                 if old_path.exists():
@@ -94,16 +104,17 @@ class Manipulations(Information):
         :return:
         """
         info_key = self.get_key(info_key)
-        directory = Priority.path(directory, self.info[info_key]['paths'], path_key=dir_key)
-        folder_name = Priority.name(folder_name, self.info[info_key]['case_names'], name_key=name_key)
+        directory = priority.select_path(directory, self.info[info_key]['paths'], path_key=dir_key)
+        folder_name = priority.select_name(folder_name, self.info[info_key]['case_names'], name_key=name_key)
 
         full_path = pl.Path(directory) / folder_name
-        test = Priority.check_path_existence_only(full_path)
+        test = priority.check_path_existence_only(full_path)
         if test == 'full':
             if rewrite is True:
                 shutil.rmtree(full_path)
                 full_path.mkdir()
             else:
+                #FIXME
                 Priority.error_create_folder()
         else:
             full_path.mkdir()
@@ -111,13 +122,14 @@ class Manipulations(Information):
     def create_folder_by_path(self, path: Optional[str] = None,
                       path_key: Optional[str] = None,
                       rewrite: Optional[bool] = True) -> None:
-        path = Priority.path(path, self.info[self.info_key]['paths'], path_key=path_key)
-        test = Priority.check_path_existence_only(path)
+        path = priority.select_path(path, self.info[self.info_key]['paths'], path_key=path_key)
+        test = priority.check_path_existence_only(path)
         if test == 'full':
             if rewrite is True:
                 shutil.rmtree(path)
                 path.mkdir()
             else:
+                #FIXME
                 Priority.error_create_folder()
         else:
             path.mkdir()
@@ -136,9 +148,10 @@ class Manipulations(Information):
         if full_pathes is not None:
             for full_path in full_pathes:
                 full_path = pl.Path(full_path)
-                if Priority.check_path_existence_only(full_path) == 'full':
+                if priority.check_path_existence_only(full_path) == 'full':
                     shutil.rmtree(full_path)
                 else:
+                    #FIXME
                     print(f'Warning: The directory ({full_path.parent}) is exist'
                           f'but the file to be deleted ({full_path.stem}) is missing!!!')
         elif words is not None:
@@ -153,8 +166,9 @@ class Manipulations(Information):
             print('ERROR: You have to enter or the list of full_pathes either'
                   'the list of words')
 
-    def find_folders_by_word(self, word: [str], directory: Optional[str] = None,
+    def find_folders_by_word(self, word: str, directory: Optional[str] = None,
                              dir_key: Optional[str] = None):
+        # FIXME change to pririty.path
         directory = pl.Path(Priority.check_key_path(directory, dir_key, self.info[self.info_key]['paths']))
         full_find_path = [folder for folder in directory.iterdir() if word in folder.stem]
         name_find_file = [folder.stem for folder in directory.iterdir() if word in folder.stem]

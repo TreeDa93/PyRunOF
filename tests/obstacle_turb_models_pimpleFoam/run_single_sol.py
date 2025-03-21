@@ -6,7 +6,7 @@ from settings.data import *
 def main():
     
     # Initialize a class to process case. Here we declare path of working folder
-    mp = pyRunOF.Manipulations(dir_path=dir_path)
+    mp = pyRunOF.ModelConfigurator(dir_path=dir_path)
 
     ## Set path for folder with settings and solution
     mp.create_path_from_dir(dir_path_key='dir', folder_name='settings',

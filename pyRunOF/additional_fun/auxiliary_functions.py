@@ -6,7 +6,8 @@ import os
 import json
 from typing import Any
 import subprocess
-from typing import Sequence
+from typing import Sequence, Hashable
+from .warning import raise_waring_files
 
 
 def run_command(command: str, run_path):
@@ -110,6 +111,52 @@ class Files:
             return dir_list
         else:
             return list(dirs)
+        
+    @staticmethod
+    def find_folders_by_word(
+        word: str,
+        directory: pl.Path
+    ) -> tuple[list[pl.Path], list[str]]:
+        """
+        Finds folders in a directory that contain a specific word in their name.
+
+        Args:
+            word (str): The word to search for in folder names.
+            directory (Optional[str]): The directory path to search in. Defaults to None.
+            dir_key (Optional[str]): The key for the directory path in the paths dictionary. Defaults to None.
+
+        Returns:
+            tuple: A tuple containing two lists:
+                - full_find_path (list): List of full paths to folders containing the word.
+                - name_find_file (list): List of folder names containing the word.
+        """
+
+        if not directory.exists():
+            
+            raise_waring_files('DIR_NOT_EXIST', directory=directory)
+            
+            return None
+        
+        elif isinstance(word, str):
+            
+            raise_waring_files('WORD_TYPE', directory=directory)
+            
+            return None
+
+        full_find_path = [
+            folder for folder in directory.iterdir() if word in folder.stem
+        ]
+        name_find_file = [
+            folder.stem for folder in directory.iterdir() if word in folder.stem
+        ]
+
+        if full_find_path == []:
+
+            raise_waring_files('NOTHING FOUND', directory=directory, word=word)
+            
+            return None
+        else:
+            return full_find_path, name_find_file
 
     @classmethod
     def find_path_by_name(cls, where, **options):
@@ -170,8 +217,8 @@ class Files:
         for entry in args:
             dct.update(entry)
         return dct
-
-
+    
+    
 class Priority:
     """
     The class is designed to choose priority between the sent variable in the executing method and
@@ -261,6 +308,7 @@ class Priority:
                     if Priority._check_path_type(where[path_key]):
                         return pl.Path(where[path_key])
                     else:
+    
                         cls._raise_error(type_error='path_error')
                 else:
                     cls._raise_error(type_error='path_error')
@@ -272,10 +320,6 @@ class Priority:
         else:
             cls._raise_error(type_error='path_error')
 
-    @classmethod
-    def path_add_folder(cls, path, where, add_folder, path_key=None):
-        path = cls.path(path, where, path_key=path_key)
-        return pl.Path(path) / add_folder
 
     @classmethod
     def name(cls, name, where, name_key=None):
@@ -305,75 +349,6 @@ class Priority:
         else:
             return name
 
-    @classmethod
-    def check_key(cls, key, where):
-        """The method is used to check existence of the key in object named where
-        If both key is not existence in where then program raise error!
-        Input :
-            key is checking key
-            where is the object [dict] for checking
-        Output:
-            return pass or error
-        """
-        if key in where:
-            pass
-        else:
-            cls._raise_error(key, type_error='check_key_error')
-
-    @classmethod
-    def check_name(cls, name, where):
-        """The method is used to check existence of the name in object named where
-        If both name is not existence in where then program raise error!
-        Input :
-             name is checking name
-             where is the object [dict] for checking
-        Output:
-            return pass or error
-        """
-        if name in where:
-            pass
-        else:
-            cls._raise_error(name, type_error='check_name_error')
-
-    @classmethod
-    def check_key_path(cls, path, key, where):
-        """This method is used to check whether the path was specified in
-         the method or there is this path in the attributes of the object where.
-            If both case is False then the method raise error!
-                Input :
-                     path is checking path
-                     key is the key of path which can be existed in where
-                     where is the object [dict] for checking
-                Output:
-                    return path or error
-                """
-        if path is None:
-            if key is None:
-                cls._raise_error(type_error='check_key_path_error')
-            else:
-                return where[key]
-        else:
-            return path
-
-    @classmethod
-    def check_key_name(cls, name, key, where):
-        """This method is used to check whether the path was specified in
-         the method or there is this path in the attributes of the object where.
-            If both case is False then the method raise error!
-                Input :
-                     path is checking path
-                     key is the key of path which can be existed in where
-                     where is the object [dict] for checking
-                Output:
-                    return path or error
-                """
-        if name is None:
-            if key is None:
-                cls._raise_error(type_error='check_key_name_error')
-            else:
-                return where[key]
-        else:
-            return name
 
     @classmethod
     def check_path_existence(cls, check_path, make_new=False):
@@ -406,23 +381,26 @@ class Priority:
 
     @classmethod
     def check_path_existence_only(cls, check_path):
-        """The method checks existing of given path.
-        #FIXME : improve description
-        Input:
-            check_path is the checking path
-        Output:
-            If the path exist the method return full
-            if there is only directory of the final folder the method return 'dir'
+        
+        """Check the existence of a given path.
+
+        Parameters:
+        check_path (str or Path): The path to check.
+
+        Returns:
+        str: 'full' if the path exists, 
+        'dir' if only the parent directory of the final folder exists.
+        'noExist' if the specify directory is not exist
+
         """
         check_path = pl.Path(check_path)
         if check_path.exists():  # ->os.path.exists(check_path):
             return 'full'
+        elif check_path.parent.exists():  # -> os.path.exists(check_path.parent)
+            return 'dir'
         else:
-            #dir_path, case_name = os.path.split(check_path)
-            if check_path.parent.exists():  # -> os.path.exists(check_path.parent):
-                return 'dir'
-            else:
-                cls._raise_error(check_path.parent, check_path.stem, type_error='check_path_existence_error_2')
+            return 'noExist'
+            # cls._raise_error(check_path.parent, check_path.stem, type_error='check_path_existence_error_2')
 
 
     def sif_file(self, sif_file):
@@ -498,99 +476,8 @@ class Priority:
         path is the checking variable
         return True or False
         """
-        return type(path) in [str, os.PathLike, pl.PosixPath, pl.WindowsPath]
+        return type(path) in [str, os.PathLike, pl.PosixPath, pl.WindowsPath, pl.Path]
 
-    @staticmethod
-    def _raise_error(*vargs, type_error=0):
-        if type_error == 'var_1':
-            error_message = f''' 
-                            ------------------------------------------
-                            You did not specify either in the object or 
-                            in the method.
-                            Above information can help you find where is it.
-                            ------------------------------------------
-                            '''
-        elif type_error == 'var_2':
-            error_message = f''' 
-                            ------------------------------------------
-                            You did not specify either in the object or 
-                            in the method.
-                            Above information can help you find where is it.
-                            ------------------------------------------
-                            '''
-        elif type_error == 'path_error':
-            error_message = f''' 
-                            ------------------------------------------
-                            You did not specify path_dict either in the object or 
-                            in the method.
-                            Above information can help you find where is it.
-                            ------------------------------------------
-                            '''
-        elif type_error == 'name_error':
-            error_message = f''' 
-                            ------------------------------------------
-                            You did not specify name either in the object or 
-                            in the method.
-                            Above information can help you find where is it.
-                            ------------------------------------------
-                            '''
-        elif type_error == 'check_key_error':
-            error_message = f''' 
-                            ------------------------------------------
-                            You write wrong key {vargs[0]}. Please check it.
-                            Above information can help you find where is it.
-                            ------------------------------------------
-                            '''
-        elif type_error == 'check_name_error':
-            error_message = f''' 
-                            ------------------------------------------
-                            You write wrong name {vargs[0]}. Please check it.
-                            Above information can help you find where is it.
-                            ------------------------------------------
-                            '''
-        elif type_error == 'check_key_path':
-            error_message = f''' 
-                            ------------------------------------------
-                            You have set neither the name nor the key to the name. 
-                            Above information can help you find where is it.
-                            ------------------------------------------
-                            '''
-
-        elif type_error == 'check_path_existence_error_1':
-            error_message = f''' 
-                                ------------------------------------------
-                                Your name {vargs[0]} and is not exist! But directory 
-                                {vargs[1]} is exist! You can create folder {vargs[2]} 
-                                yourself or set flag make_new as True to make the Folder
-                                by the script with name {vargs[2]}! 
-                                Above information can help you find where is it.
-                                ------------------------------------------
-                                '''
-        elif type_error == 'check_path_existence_error_2':
-            error_message = f''' 
-                            ------------------------------------------
-                            The given name is not exist and directory {vargs[0]}
-                            of the folder {vargs[1]} is not exist as well.  
-                            Above information can help you find where is it.
-                            ------------------------------------------
-                            '''
-        elif type_error == 'check_key_name_error':
-            error_message = f''' 
-                            ------------------------------------------
-                            You have set neither the name nor the key to the name. 
-                            Above information can help you find where is it.
-                            ------------------------------------------
-                            '''
-        else:
-            error_message = f''' 
-                            ------------------------------------------
-                            I do not know the error! The developer should it check!
-                            ------------------------------------------
-                            '''
-        for message in traceback.format_stack():
-            print(message)
-        #print(repr(traceback.format_stack()))
-        raise SystemExit(error_message)
 
     @staticmethod
     def error_create_folder():

@@ -34,3 +34,17 @@ pyRunOF = {path = "./pyRunOF", editable = true }
 OR
 [tool.uv.sources]
 pyRunOF = {path = "./pyRunOF", package = true }
+
+
+other way is to use workspace
+
+[project]
+dependencies = ["pyRunOF"]
+
+[tool.uv.sources]
+pyRunOF = { workspace = true }
+
+[tool.uv.workspace]
+members = [
+  "pyRunOF"
+]

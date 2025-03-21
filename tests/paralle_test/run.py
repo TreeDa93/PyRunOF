@@ -11,7 +11,7 @@ data = {'Uin_var': 1,
 
 if __name__ == "__main__":
 
-    mp = pyRunOF.Manipulations(dir_path=os.getcwd())
+    mp = pyRunOF.ModelConfigurator(dir_path=os.getcwd())
 
     mp.create_path_from_dir(dir_path_key='dir', folder_name='pitzDaily',
                        path_key='base_case')

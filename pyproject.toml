@@ -4,14 +4,15 @@ version = "0.1.0"
 description = "We test library here!"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["pyRunOF",
+dependencies = [
+    "pyrunof",
     "ruff",
     "setuptools==76.0.0",
 ]
 
-# install pyRunOF from path as editable packge!
+# install pyRunOF from path as editable package
 [tool.uv.sources]
-pyRunOF = {path = "./pyRunOF"}
+pyrunof = { path = "pyRunOF", editable = true }
 
 [build-system]
 requires = ["hatchling"]
@@ -26,9 +27,3 @@ packages = ["pyRunOF"]
 #   "/.github",
 #   "/docs",
 # ]
-
-
-
-
-
-# pyrunof = {path = "dist/pyrunof-0.1.0-py3-none-any.whl" }

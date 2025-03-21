@@ -1,8 +1,8 @@
 import os
 import pathlib as pl
 from typing import List, Optional, Any
-from pyRunOF.additional_fun.auxiliary_functions import Priority
-
+from pyRunOF.additional_fun.auxiliary_functions import Files, Priority
+from pyRunOF.additional_fun.error import raise_error_initialize
 
 class Information:
     """
@@ -305,19 +305,30 @@ class Information:
         Arguments:
          * info_key: Optional[str] = 'general',
          * dir_path: Optional[str] = None
+         * info: Optional[dict] = None
         Returns:    None
 
         """
-        if optional_args.get('info_key') is None:
-            info_key = 'general'
-        else:
-            info_key = optional_args.get('info_key')
-        self.info_key = info_key
-        paths_dict = {'dir': self._check_type_path(optional_args.get('dir_path'))}
 
-        self.info = {info_key: dict(paths=paths_dict,
-                                    case_names={})
-                     }
+        info_key = optional_args.get('info_key', 'general')
+
+        self.info_key = info_key
+        paths_dict = {'dir': self._check_type_path(optional_args.get('dir_path')),
+                      'cwd': pl.Path.cwd()}
+
+        if optional_args.get('info') is None:
+            self.info = {info_key: dict(paths=paths_dict,
+                                        case_names={})
+                        }
+        elif optional_args.get('info') is dict:
+            built_dict = {info_key: dict(paths=paths_dict,
+                                        case_names={})
+                        }
+            send_dict = optional_args.get('info')
+            self.info = Files.merge_dicts(send_dict, built_dict)
+        else:
+            raise raise_error_initialize('INFO_DICT_TYPE', 
+                                         class_name=type(self).__name__)
 
     def __init_elmer__(self, **optional_args):
         if optional_args.get('info_key') is None:

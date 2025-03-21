@@ -1,8 +1,8 @@
 from pyRunOF import Constant
-from pyRunOF import Manipulations
+from pyRunOF import ModelConfigurator
 
 
-mp = Manipulations(info_key='main')
+mp = ModelConfigurator(info_key='main')
 
 mp.create_name('test', name_base='base', name_key='test_name')
 print(mp.info)

@@ -1,6 +1,6 @@
-from typing import Optional
 from ..additional_fun.auxiliary_functions import Files, Priority
 from ..additional_fun.information import Information
+
 
 class Elmer(Information):
     """
@@ -34,13 +34,16 @@ class Elmer(Information):
         Return: None
 
         """
-        info_key = self.get_key(options.get('info_key'))
-        case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='case_path')
-        
-        sif_name = Priority.name(options.get('sif_name'), self.info[info_key], name_key='name')
+        info_key = self.get_key(options.get("info_key"))
+        case_path = Priority.path(
+            options.get("case_path"), self.info[info_key], path_key="case_path"
+        )
+
+        sif_name = Priority.name(
+            options.get("sif_name"), self.info[info_key], name_key="name"
+        )
         sif_name = self._check_prefix_sif(sif_name)
-        
+
         for elmer_dict in elmer_dicts:
             for var_name, value_var in elmer_dict.items():
                 Files.change_var_fun(var_name, value_var, case_path, sif_name)
-

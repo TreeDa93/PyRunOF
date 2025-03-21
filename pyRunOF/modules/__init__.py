@@ -1,11 +1,9 @@
-from .constant import Constant
-from .set_system import System
-from .elmer import Elmer
-from .initial_values import InitialValues
-from .manipulations import Manipulations
-from .meshes import Mesh
-from .parametric_sweep import ParametricSweep
-from .post_process import PostProcess
-from .run import Run
-
-
+from pyRunOF.modules.constant import Constant
+from pyRunOF.modules.set_system import System
+from pyRunOF.modules.elmer import Elmer
+from pyRunOF.modules.initial_values import InitialValues
+from pyRunOF.modules.model_config import ModelConfigurator
+from pyRunOF.modules.meshes import Mesh
+from pyRunOF.modules.parametric_sweep import ParametricSweep
+from pyRunOF.modules.post_process import PostProcess
+from pyRunOF.modules.run import Run

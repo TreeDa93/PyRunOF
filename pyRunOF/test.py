@@ -1,4 +1,4 @@
 import pyRunOF as prf
 
-test = prf.Manipulations()
+test = prf.ModelConfigurator()
 print(test.info)

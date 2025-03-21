@@ -304,7 +304,7 @@ wheels = [
 
 [[package]]
 name = "pyrunof"
-source = { directory = "pyRunOF" }
+source = { editable = "pyRunOF" }
 dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
@@ -334,7 +334,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "pyrunof", directory = "pyRunOF" },
+    { name = "pyrunof", editable = "pyRunOF" },
     { name = "ruff" },
     { name = "setuptools", specifier = "==76.0.0" },
 ]

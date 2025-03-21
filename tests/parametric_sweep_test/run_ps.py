@@ -14,7 +14,7 @@ def main():
 
 def run_case(ps):
 
-    mp = pyRunOF.Manipulations(dir_path=dir_path)
+    mp = pyRunOF.ModelConfigurator(dir_path=dir_path)
     mp.create_path_from_dir(dir_path_key='dir', folder_name='settings', path_key='settings')
     mp.create_path_from_dir(dir_path_key='settings', folder_name=src_case, path_key='src')
     mp.create_path_from_dir(dir_path_key='dir', folder_name='solution', path_key='solution')

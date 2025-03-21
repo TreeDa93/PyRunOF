@@ -4,7 +4,7 @@ from data import *
 
 
 def main():
-    mp = pyRunOF.Manipulations()
+    mp = pyRunOF.ModelConfigurator()
     mp.create_path_from_dir(dir_path=pl.Path.cwd(), folder_name=base_case, path_key='src')
     mp.create_name('solved', name_base=base_case, name_key='dst')
     mp.create_path_from_dir(dir_path=pl.Path.cwd(), folder_name_key='dst', path_key='dst')
