@@ -10,3 +10,18 @@ from pyRunOF.modules.set_system import System
 
 VERSION = "0.1.0"
 __version__ = VERSION
+
+#TODO: here I test new import 
+def __getattr__(attr):
+    if attr == "constant":
+            print('HI!')
+            import pyRunOF.modules.constant as const
+            from pyRunOF.modules.constant import Constant
+            return const
+    elif attr == "elmer":
+        from pyRunOF.modules.elmer import Elmer
+        return Elmer
+    else:
+         raise AttributeError("module {!r} has no attribute "
+                             "{!r}".format(__name__, attr))
+

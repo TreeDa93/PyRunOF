@@ -1,0 +1,19 @@
+[project]
+name = "my-lib-test"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+dynamic = ["version"]
+license = "MIT AND (Apache-2.0 OR BSD-2-Clause)"
+
+authors = [
+  {name = "Ivan Smolyanov", email = "i.a.smolyanov@gmail.com"},
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+

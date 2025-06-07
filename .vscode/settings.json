@@ -1,0 +1,4 @@
+{
+    "bitoAI.codeCompletion.enableAutoCompletion": false,
+    "python.analysis.autoImportCompletions": true
+}

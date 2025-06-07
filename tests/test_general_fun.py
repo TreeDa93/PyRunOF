@@ -1,8 +1,13 @@
-from pyRunOF import Constant
-from pyRunOF import ModelConfigurator
+# from pyRunOF import Constant
+# from pyRunOF import ModelConfigurator
+
+from ast import Constant
+import pyRunOF
+from pyRunOF.modules.model_config import ModelConfigurator
+
+test = Constant()
+test = ModelConfigurator()
+test.duplicate_case
+print(test)
 
 
-mp = ModelConfigurator(info_key='main')
-
-mp.create_name('test', name_base='base', name_key='test_name')
-print(mp.info)
