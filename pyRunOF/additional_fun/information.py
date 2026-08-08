@@ -1,425 +1,206 @@
-import os
-import pathlib as pl
-from typing import List, Optional, Any
-from pyRunOF.additional_fun.auxiliary_functions import Files, Priority
-from pyRunOF.additional_fun.error import raise_error_initialize
+"""Compatibility layer for configuration-aware PyRunOF components.
+
+New code should use :class:`pyRunOF.case.CaseConfig`.  ``Information`` remains
+as a transition base class for the historical component classes.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Mapping
+from pathlib import Path
+from typing import Any
+
+from pyRunOF.case.config import CaseConfig
+from pyRunOF.exceptions import ConfigurationError
+
 
 class Information:
-    """
-    elmer_info = {'general': {path: 'etc/home ...', 
-                             'name': 'magnetic.sif'
-                             ...
-                             others
-                             ...
-                             }
-                'additional1':{path: 'etc/home/new1 ...', 
-                               name2: 'magnetic2.sif'
-                               }
-                'other_params':{path: 'etc/home/new3 ...', 
-                                'name3': 'magnetic3.sif'}
-                }
-    """
+    """Store one or more consistently shaped :class:`CaseConfig` objects."""
 
-    def __init__(self, info_key: Optional[str] = 'general',
-                 case_path: Optional[str] = None):
-        self.info = dict.fromkeys([info_key], dict(path=pl.Path(case_path)))
-
-
-    def get_name(self, name_key: str, info_key=None) -> str:
-        """The method returns the name according given key
-        Arguments:
-
-            * name_key [str]
-            * info_key [str, optional]
-        
-        """
-        return Priority.name(name_key, self.info[self.get_key(info_key)])
-
-
-    def create_name(self, *case_names: List[str],
-                    name_base: str = '',
-                    name_key: Optional[str] = 'new_name',
-                    splitter: Optional[str] = '_',
-                    only_base: Optional[bool] = False,
-                    info_key: Optional[str] = None) -> None:
-        """
-        The function creates a case name as follows:
-        if only_base is False:
-            new_name = name_base + splitter + case_names[0] ... + case_names[-1]
+    def __init__(
+        self,
+        info_key: str = "general",
+        case_path: str | Path | None = None,
+        *,
+        config: CaseConfig | None = None,
+        info: Mapping[str, Mapping[str, Any]] | None = None,
+    ) -> None:
+        if config is not None and info is not None:
+            raise ConfigurationError("config and info cannot be provided together")
+        if config is not None:
+            configs = {config.key: config}
+            self.info_key = config.key
+        elif info is not None:
+            if not isinstance(info, Mapping):
+                raise TypeError("info must be a dictionary or None")
+            configs = {
+                key: CaseConfig.from_mapping(key, values) for key, values in info.items()
+            }
+            self.info_key = info_key if info_key in configs else next(iter(configs), info_key)
         else:
-            new_name = name_base
-
-        Arguments:
-            case_names (List[str]): The set of strings to assemble the new name.
-            name_base (str): The string to express the general name part.
-            name_key (Optional[str]): The key to get the string to express the general name part from the dictionary.
-            splitter (Optional[str]): The special symbol to split the base and additional parts of the assembling name.
-            only_base (Optional[bool]): The flag to detect requirements to extend the name by additional parts.
-            info_key (Optional[str]): The key to store the final name in the information dictionary.
-        """
-        info_key = self.get_key(info_key)
-        if only_base is True:
-            new_name = name_base
-        else:
-            new_name = name_base + splitter + splitter.join(map(str, case_names))
-        
-        self.info[info_key][name_key] = new_name
-
-
-    def create_path_from_dir(self, dir_path: Optional[str] = None,
-                        dir_path_key: Optional[str] = 'dir',
-                        folder_name: Optional[str] = None,
-                        folder_name_key: Optional[str] = None,
-                        path_key: Optional[str] = 'new',
-                        info_key=None) -> str:
-        """The method creates the path using directory and folder name. 
-        Example: final path = directory path + case_name. Here
-            *   directory path can be given directly by dir_path variable or get from
-            dictionary by the key dir_path_key.
-        
-            *   case_name can be given directly by case_name variable or get from
-            dictionary by the key name_key. 
-
-        Args:
-            *   dir_path [str] is the path of directory
-            *   dir_path_key [str] is the key to get dir_path from dictionary 
-            *   folder name is the name of the folder
-            *   folder_name_key is the key to get name of the folder from dictionary
-            info_key is the key to put the prepared data to corresponding information
-
-        Retrun: 
-            None
-
-        """
-        cur_path = Priority.path(dir_path, self.info[self.get_key(info_key)]['paths'], path_key=dir_path_key)
-        cur_name = Priority.name(folder_name, self.info[self.get_key(info_key)]['case_names'], name_key=folder_name_key)
-        self.info[self.get_key(info_key)]['paths'][path_key] = pl.Path(cur_path) / cur_name
-
-
-    def create_path(self, path, path_key='default__path_key', info_key=None):
-        """
-        The method creates a path in information structure. 
-        Args:
-            * path [pathLike] is the create path 
-            path_key is the key to store the path in information structure
-            info_key is the key for information structure.
-
-        Returns:
-                None
-        """
-        self.info[self.get_key(info_key)]['paths'][path_key] = path
-
-    def change_path(self, new_path: str, path_key: str = 'newPath') -> None:
-        """
-        The method changes existing path on new path. #FIXME
-        Args:
-            new_path [pathLike] is the new path
-            path_key [str] is the key of the existing path to be changed
-
-        Returns:
-                None
-        """
-        if path_key in self.info[self.info_key]['paths'].keys():
-            self.info[self.info_key]['paths'][path_key] = new_path
-        else:
-            print('Error the key of name is not exist!')
-
-
-    def get_path(self, path_key: str, info_key=None) -> str:
-        """
-        The function return path form info by key!
-        Args:
-            path_key: key for path
-            info_key: key for info dictionary
-
-        Returns:
-                path corresponding to the key
-        """
-
-        return Priority.path(None, self.info[self.get_key(info_key)]['paths'], path_key=path_key)
-
-    def set_new_parameter(self, parameter: Any,
-                          info_key: Optional[str] = None,
-                          parameter_name: Optional[str] = 'new_parameter'):
-        """
-        The method set new parameter in information structure
-        Args:
-            parameter is the value of the parameter
-            info_key is the key of information structure
-            parameter_name is the key of set parameter.
-
-        Returns:
-            None
-        """
-        info_key = self.get_key(info_key)
-        self.info[info_key][parameter_name] = parameter
-
-    def get_any_parameter(self, param_key: str,
-                          info_key: Optional[str] = None,
-                          ) -> Any:
-        """
-        FIXME
-        Args:
-            param_key:
-            info_key:
-
-        Returns:
-
-        """
-        info_key = self.get_key(info_key)
-        return self.info[info_key][param_key]
-
-
-    def get_key(self, key):
-        """
-        Проверка задания ключа. Если ключ не задан берется ключ
-        из аттрибута класса
-        Args:
-            key:
-
-        Returns:
-
-        """
-        if key is None:
-            return list(self.info.keys())[0]
-        else:
-            return key
-
-    def get_constant_path(self, case_path: str):
-        """
-        The method return path to constant folder being palced in case_path folder of openfoam case.
-
-        Args:
-            case_path is the path to an openfoam case.
-            info_key is the key 
-
-        Returns:
-            path to constant folder
-
-        """
-        return Priority.path_add_folder(case_path, None, 'constant')
-
-    def get_system_path(self, case_path: str, info_key: Optional[str] = None, path_key=None):
-        """
-         The method return path to system folder being palced in case_path folder of openfoam case.
-
-        Args:
-            case_path is the path to an openfoam case.
-            info_key is the key 
-
-        Returns:
-            path to constant folder
-
-        """
-        where = self.info[self.get_key(info_key)]['paths']
-        return Priority.path_add_folder(case_path, where, 'system', path_key=path_key)
-
-    def get_any_folder_path(self, folder_name, case_path: str, info_key: Optional[str] = None):
-        """
-        The method returns absolute path to specify folder in case_path folder.
-        EXAMPLE: 
-        case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='case_path')
-        zero_path = self.get_any_folder_path('0', case_path, info_key=info_key)
-
-        or
-
-        zero_path = self.get_any_folder_path('0', case_path, info_key=info_key, path_key='case_path')
-
-        Args:
-            folder_name:
-            case_path:
-            info_key:
-            folder:
-
-        Returns:
-
-        """
-        where = self.info[self.get_key(info_key)]
-        return Priority.path_add_folder(case_path, where, folder_name, path_key='case_path')
-
-    def find_all_sif(self, folder_path: Optional[str] = None,
-                     info_key: Optional[str] = None) -> list:
-        """
-        The method returns all files with sif extension in specify path
-        Args:
-            folder_path:
-            info_key:
-
-        Returns:
-
-        """
-        info_key = self.get_key(info_key)
-        path_case = Priority.path(folder_path, self.info[info_key], path_key='path')
-
-        return list(path_case.glob('**/*.sif'))
-
-    def find_all_zero_files(self, path_case: Optional[str] = None,
-                     info_key: Optional[str] = None) -> list:
-        """
-        The method is served to find all files in zero folder of OpenFoam case,
-        for example U, p etc.
-        FIXME
-        Args:
-            path_case: the path of openfoam case
-            info_key:
-
-        Returns:
-                string
-        """
-        info_key = self.get_key(info_key)
-        path_case = Priority.path(path_case, self.info[info_key], path_key='case_path')
-        zero_folder_path = path_case / '0'
-        #zero_folder_path = self.get_any_folder_path('0', path_case, info_key=info_key)
-        return [file.stem for file in zero_folder_path.iterdir() if file.is_file()]
-
-    def find_all_path_zero_files(self, path_case: Optional[str] = None,
-                     info_key: Optional[str] = None) -> list:
-        """
-        The method is served to find all files in zero folder of OpenFoam case,
-        for example U, p etc.
-        FIXME
-        Args:
-            path_case: the path of openfoam case
-            info_key:
-
-        Returns:
-                string
-        """
-        info_key = self.get_key(info_key)
-        path_case = Priority.path(path_case, self.info[info_key], path_key='case_path')
-        zero_folder_path = path_case / '0'
-        #zero_folder_path = self.get_any_folder_path('0', path_case, info_key=info_key)
-        return [file for file in zero_folder_path.iterdir() if file.is_file()]
-
-    def collect_information(self, *class_set, key_info=None):
-        for c_cls in class_set:
-            for key, val in c_cls.info.items():
-                if type(val) is not dict:
-                    self.info[key] = val
-                else:
-                    self.info[key].update(val)
-
-    def __init_manipulation__(self, **optional_args):
-
-        """
-        Arguments:
-         * info_key: Optional[str] = 'general',
-         * dir_path: Optional[str] = None
-         * info: Optional[dict] = None
-        Returns:    None
-
-        """
-
-        info_key = optional_args.get('info_key', 'general')
-
-        self.info_key = info_key
-        paths_dict = {'dir': self._check_type_path(optional_args.get('dir_path')),
-                      'cwd': pl.Path.cwd()}
-
-        if optional_args.get('info') is None:
-            self.info = {info_key: dict(paths=paths_dict,
-                                        case_names={})
-                        }
-        elif optional_args.get('info') is dict:
-            built_dict = {info_key: dict(paths=paths_dict,
-                                        case_names={})
-                        }
-            send_dict = optional_args.get('info')
-            self.info = Files.merge_dicts(send_dict, built_dict)
-        else:
-            raise raise_error_initialize('INFO_DICT_TYPE', 
-                                         class_name=type(self).__name__)
-
-    def __init_elmer__(self, **optional_args):
-        if optional_args.get('info_key') is None:
-            info_key = 'general'
-        else:
-            info_key = optional_args.get('info_key')
-        case_path = self._check_type_path(optional_args.get('case_path'))
-        sif_name = optional_args.get('sif_name')
-
-        self.info = {info_key: dict(case_path=case_path,
-                                    name=sif_name
-                                    )}
-
-    def __init_constant__(self, **optional_args):
-        if optional_args.get('info_key') is None:
-            info_key = 'general'
-        else:
-            info_key = optional_args.get('info_key')
-        case_path = self._check_type_path(optional_args.get('case_path'))
-        self.info = {info_key: dict(case_path=case_path)}
-
-    def __init_iv__(self, **optional_args):
-        if optional_args.get('info_key') is None:
-            info_key = 'general'
-        else:
-            info_key = optional_args.get('info_key')
-        case_path = self._check_type_path(optional_args.get('case_path'))
-        self.info = {info_key: dict(case_path=case_path)}
-
-    def __init_mesh__(self, **optional_args):
-        if optional_args.get('info_key') is None:
-            info_key = 'general'
-        else:
-            info_key = optional_args.get('info_key')
-
-        e_mesh = optional_args.get('e_mesh')
-        case_path = self._check_type_path(optional_args.get('case_path'))
-
-        self.info = {info_key: dict(case_path=case_path,
-                                    elmer_mesh_name=e_mesh
-                                    )}
-
-    def __init_system__(self, **optional_args):
-        if optional_args.get('info_key') is None:
-            info_key = 'general'
-        else:
-            info_key = optional_args.get('info_key')
-        case_path = self._check_type_path(optional_args.get('case_path'))
-        self.info = {info_key: dict(case_path=case_path)}
-
-    def __init_runner__(self, **optional_args):
-        """
-        Optional arguments:
-            case_path [PathLike or string] is the path of case to process 
-            solver : [Default: pimpleFoam, str] is name of OpenFOAM solver
-            mode : [Defalut: common, str] is the mode to run calculation of a model
-            pyFoam : [Boolean, Default: False] in progress!
-            log : [Boolean, Default: False] is the flag to save a log of calculation.
-            OF_core : [int, Default: 2] is the number of cores to run openfoam case
-            E_core : [int, Default: 2]  is the number of cores to run elemer case
-
-        """
-        if optional_args.get('info_key') is None:
-            info_key = 'general'
-        else:
-            info_key = optional_args.get('info_key')
-        case_path = self._check_type_path(optional_args.get('case_path'))
-
-        OF_core = optional_args.get('OF_core', 2)
-        E_core = optional_args.get('E_core', 2)
-        self.info = {info_key: dict(
-                                    case_path=case_path,
-                                    solver=optional_args.get('solver', 'pimpleFoam'),
-                                    mode=optional_args.get('mode', 'common'),
-                                    pyFoam=optional_args.get('pyFoam', False),
-                                    log=False,
-                                    OF_core=OF_core,
-                                    E_core=E_core,
-                                    )
-                    }
+            configs = {info_key: CaseConfig(key=info_key, case_path=case_path)}
+            self.info_key = info_key
+        self._configs = configs
+        self.info = {key: value.to_mapping() for key, value in configs.items()}
+
+    @property
+    def config(self) -> CaseConfig:
+        """Configuration selected by ``info_key``."""
+        return self.get_config()
+
+    def get_config(self, info_key: str | None = None) -> CaseConfig:
+        key = self.get_key(info_key)
+        # Rebuild from the compatibility mapping so direct legacy mutations
+        # of ``info`` are visible to the typed API.
+        config = CaseConfig.from_mapping(key, self.info[key])
+        self._configs[key] = config
+        return config
+
+    def get_key(self, key: str | None) -> str:
+        selected = self.info_key if key is None else key
+        if selected not in self.info:
+            raise KeyError(f"Unknown information key: {selected!r}")
+        return selected
+
+    def get_name(self, name_key: str, info_key: str | None = None) -> str:
+        return self.get_config(info_key).name(name_key)
+
+    def create_name(
+        self,
+        *case_names: str,
+        name_base: str = "",
+        name_key: str = "new_name",
+        splitter: str = "_",
+        only_base: bool = False,
+        info_key: str | None = None,
+    ) -> None:
+        key = self.get_key(info_key)
+        name = name_base if only_base else name_base + splitter + splitter.join(map(str, case_names))
+        self.info[key]["case_names"][name_key] = name
+
+    def create_path_from_dir(
+        self,
+        dir_path: str | Path | None = None,
+        dir_path_key: str = "dir",
+        folder_name: str | None = None,
+        folder_name_key: str | None = None,
+        path_key: str = "new",
+        info_key: str | None = None,
+        **legacy_options,
+    ) -> Path:
+        # ``name_key`` was used by older example scripts.
+        folder_name_key = legacy_options.get("name_key", folder_name_key)
+        config = self.get_config(info_key)
+        directory = Path(dir_path) if dir_path is not None else config.path(dir_path_key)
+        name = folder_name if folder_name is not None else config.name(folder_name_key)
+        result = directory / name
+        self.info[config.key]["paths"][path_key] = result
+        return result
+
+    def create_path(self, path, path_key: str = "default__path_key", info_key=None) -> None:
+        self.info[self.get_key(info_key)]["paths"][path_key] = Path(path)
+
+    def change_path(self, new_path: str | Path, path_key: str = "newPath") -> None:
+        paths = self.info[self.info_key]["paths"]
+        if path_key not in paths:
+            raise KeyError(f"Unknown path key: {path_key!r}")
+        paths[path_key] = Path(new_path)
+
+    def get_path(self, path_key: str, info_key=None) -> Path:
+        return self.get_config(info_key).path(path_key)
+
+    def set_new_parameter(
+        self, parameter: Any, info_key: str | None = None, parameter_name: str = "new_parameter"
+    ) -> None:
+        self.info[self.get_key(info_key)][parameter_name] = parameter
+
+    def get_any_parameter(self, param_key: str, info_key: str | None = None) -> Any:
+        return self.info[self.get_key(info_key)][param_key]
+
+    def _case_path(self, case_path=None, info_key=None, path_key="case_path") -> Path:
+        if case_path is not None:
+            return Path(case_path)
+        config = self.get_config(info_key)
+        return config.path(path_key)
+
+    def get_constant_path(self, case_path=None, info_key=None) -> Path:
+        return self._case_path(case_path, info_key) / "constant"
+
+    def get_system_path(self, case_path=None, info_key=None, path_key=None) -> Path:
+        return self._case_path(case_path, info_key, path_key or "case_path") / "system"
+
+    def get_any_folder_path(self, folder_name, case_path=None, info_key=None) -> Path:
+        return self._case_path(case_path, info_key) / folder_name
+
+    def find_all_sif(self, folder_path=None, info_key=None) -> list[Path]:
+        path = self._case_path(folder_path, info_key)
+        return list(path.glob("**/*.sif"))
+
+    def find_all_zero_files(self, path_case=None, info_key=None) -> list[str]:
+        return [path.stem for path in self.find_all_path_zero_files(path_case, info_key)]
+
+    def find_all_path_zero_files(self, path_case=None, info_key=None) -> list[Path]:
+        zero = self._case_path(path_case, info_key) / "0"
+        return [path for path in zero.iterdir() if path.is_file()]
+
+    def collect_information(self, *objects, key_info=None) -> None:
+        for obj in objects:
+            for key, values in obj.info.items():
+                target = self.info.setdefault(
+                    key, CaseConfig(key=key).to_mapping()
+                )
+                for name, value in values.items():
+                    if isinstance(value, dict) and isinstance(target.get(name), dict):
+                        target[name].update(value)
+                    else:
+                        target[name] = value
+
+    def _initialize_component(self, **options) -> None:
+        info_key = options.get("info_key", "general") or "general"
+        config = options.get("config")
+        info = options.get("info")
+        Information.__init__(
+            self, info_key, options.get("case_path"), config=config, info=info
+        )
+
+    def __init_manipulation__(self, **options):
+        self._initialize_component(**options)
+        key = self.info_key
+        self.info[key]["paths"].setdefault("dir", self._check_type_path(options.get("dir_path")))
+        self.info[key]["paths"].setdefault("cwd", Path.cwd())
+
+    def __init_elmer__(self, **options):
+        self._initialize_component(**options)
+        self.info[self.info_key]["name"] = options.get("sif_name")
+
+    def __init_constant__(self, **options):
+        self._initialize_component(**options)
+
+    def __init_iv__(self, **options):
+        self._initialize_component(**options)
+
+    def __init_mesh__(self, **options):
+        self._initialize_component(**options)
+        self.info[self.info_key]["elmer_mesh_name"] = options.get("e_mesh")
+
+    def __init_system__(self, **options):
+        self._initialize_component(**options)
+
+    def __init_runner__(self, **options):
+        self._initialize_component(**options)
+        self.info[self.info_key].update(
+            solver=options.get("solver", "pimpleFoam"),
+            mode=options.get("mode", "common"),
+            pyFoam=options.get("pyFoam", False),
+            log=options.get("log", False),
+            OF_core=options.get("OF_core", 2),
+            E_core=options.get("E_core", 2),
+        )
 
     @staticmethod
     def _check_type_path(path):
-        if type(path) in [str, os.PathLike, pl.PosixPath, pl.WindowsPath]:
-            return pl.Path(path)
-        else:
-            return None
+        return None if path is None else Path(path)
 
     @staticmethod
-    def _check_prefix_sif(sif_name):
-        if '.sif' not in sif_name:
-            sif_name += '.sif'
-        return sif_name
-
+    def _check_prefix_sif(sif_name: str) -> str:
+        return sif_name if sif_name.endswith(".sif") else f"{sif_name}.sif"

@@ -3,9 +3,10 @@ TEST!!!
 """
 
 import pathlib as pl
+
+from pyRunOF.additional_fun import foam_dictionaries as foamDict
 from pyRunOF.additional_fun.auxiliary_functions import Files
 from pyRunOF.additional_fun.information import Information
-from pyRunOF.additional_fun import foamDictionaries_test as foamDict
 
 
 class Constant(Information):
@@ -44,19 +45,10 @@ class Constant(Information):
         Returns:
             None
         """
-        case_path = options.get("case_path")
-        info_key = options.get("info_key")
-        constant_path = self.get_constant_path(
-            case_path, info_key=self.get_key(info_key)
-        )
-        for dict_var in lists:
-            for name_var, value_var in dict_var.items():
-                Files.change_var_fun(
-                    name_var, value_var, constant_path, "transportProperties"
-                )
+        self.set_any_file(*lists, files=("transportProperties",), **options)
 
     def set_any_file(
-        self, *lists_var: dict, files: list = ["transportProperties"], **options
+        self, *lists_var: dict, files=("transportProperties",), **options
     ) -> None:
         """The function serves to set *list of variables at controlDict for case with name of pathNewCase
 
@@ -75,16 +67,14 @@ class Constant(Information):
         """
         case_path = options.get("case_path")
         info_key = options.get("info_key")
-        constant_path = self.get_constant_path(
-            case_path, info_key=self.get_key(info_key)
-        )
+        constant_path = self.get_constant_path(case_path, info_key=self.get_key(info_key))
         for file_name in files:
             for dict_var in lists_var:
                 for name_var, value_var in dict_var.items():
                     Files.change_var_fun(name_var, value_var, constant_path, file_name)
 
     def set_parameters(
-        self, *lists_var: dict, files: list = ["transportProperties"], **options
+        self, *lists_var: dict, files=("transportProperties",), **options
     ) -> None:
         """The function serves to set *list of variables at any openfoam files using
         foamDicts utilit.
@@ -102,12 +92,9 @@ class Constant(Information):
         Return: None
         """
         case_path = options.get("case_path")
-        info_key = options.get("info_key")
         for file_name in files:
             for dict_var in lists_var:
-                foamDict.set_foamDict_value(
-                    dict_var, case_path, f"constant/{file_name}"
-                )
+                foamDict.set_foamDict_value(dict_var, case_path, f"constant/{file_name}")
 
     def turbulent_model(self, **options):
         """ "The fucntion serves to set required turbulent model for solving task. For this purpose, one of list
@@ -134,9 +121,7 @@ class Constant(Information):
         """
         case_path = options.get("case_path")
         info_key = options.get("info_key")
-        constant_path = self.get_constant_path(
-            case_path, info_key=self.get_key(info_key)
-        )
+        constant_path = self.get_constant_path(case_path, info_key=self.get_key(info_key))
 
         lib_path = pl.Path(__file__).parents[1]
         turbulent_files_path = lib_path / "files" / "TurbulenceFiles"

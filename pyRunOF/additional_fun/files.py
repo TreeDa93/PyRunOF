@@ -1,28 +1,31 @@
+import json
+import os
 import pathlib as pl
 import shutil
-import os
-import json
-from typing import Sequence
+from collections.abc import Sequence
+
+from .warning import raise_waring_files
+
 
 def change_var_fun(name_var: str, value_var: any, path, file_name) -> None:
     """The function supports finding and replacing required text part at given file
-    
+
     Arguments:
         * name_var depicts  require variable to be replaced
         * value_var depicts value to be inserted
         * path is the path of folder with file to be processed
         * file_name is the name of file where the procedure will be done
-    
+
     Return: None
     """
     path = pl.Path(path) / file_name
     if path.is_file():
-        with path.open(mode='r') as f:
+        with path.open(mode="r") as f:
             new_data = f.read().replace(str(name_var), str(value_var))
-        with path.open(mode='w') as f:
+        with path.open(mode="w") as f:
             f.write(new_data)
     else:
-        print(f'Warning: The file {file_name} is not exist!')
+        print(f"Warning: The file {file_name} is not exist!")
 
 
 def copy_file(root_src_dir, root_dst_dir, old_name, new_name):
@@ -33,16 +36,20 @@ def copy_file(root_src_dir, root_dst_dir, old_name, new_name):
     * root_dst_dir [str or PathLike] is the path of directory intended for new file
     * old_name [str] is the name of copying file
     * new_name [str] is the name of new copied file
-    
+
     Return: None
     """
 
-    src_file_path = pl.Path(root_src_dir)/old_name  # -> src_file = os.path.join(root_src_dir, old_name)
-    dst_file_path = pl.Path(root_dst_dir)/new_name  # -> dst_file = os.path.join(root_dst_dir, new_name)
+    src_file_path = (
+        pl.Path(root_src_dir) / old_name
+    )  # -> src_file = os.path.join(root_src_dir, old_name)
+    dst_file_path = (
+        pl.Path(root_dst_dir) / new_name
+    )  # -> dst_file = os.path.join(root_dst_dir, new_name)
     shutil.copy2(src_file_path, dst_file_path)
 
 
-def find_files(where, type_files='file') -> list:
+def find_files(where, type_files="file") -> list:
     """The method is intended to find all files at given directory and to sort by type file or directory.
     Attributes:
         -------------
@@ -52,17 +59,34 @@ def find_files(where, type_files='file') -> list:
         None
     """
     dirs = pl.Path(where).iterdir()
-    if type_files == 'file':
+    if type_files == "file":
         file_list = [file for file in dirs if file.is_file()]
         return file_list
-    elif type_files == 'directory':
+    elif type_files == "directory":
         dir_list = [cur_dir for cur_dir in dirs if cur_dir.is_dir()]
         return dir_list
     else:
         return list(dirs)
 
 
-def find_path_by_name(cls, where, **options):
+def find_folders_by_word(word: str, directory: pl.Path) -> tuple[list[pl.Path], list[str]] | None:
+    """Return paths and names of folders containing *word*."""
+    directory = pl.Path(directory)
+    if not directory.exists():
+        raise_waring_files("DIR_NOT_EXIST", directory=directory)
+        return None
+    if not isinstance(word, str):
+        raise_waring_files("WORD_TYPE", directory=directory)
+        return None
+
+    paths = [folder for folder in directory.iterdir() if word in folder.stem]
+    if not paths:
+        raise_waring_files("NOTHING FOUND", directory=directory, word=word)
+        return None
+    return paths, [folder.stem for folder in paths]
+
+
+def find_path_by_name(where, **options):
     """The method selects names from found list of names by comparing with required names in names.
     Attributes:
     -------------
@@ -72,21 +96,21 @@ def find_path_by_name(cls, where, **options):
     Out:
         None
     """
-    dirs = cls.find_files(where, type_files='file')
-    if options.get('file_names') is None:
+    dirs = find_files(where, type_files="file")
+    if options.get("file_names") is None:
         return dirs
     else:
-        return [path for path in dirs if path.stem in options.get('file_names')]
+        return [path for path in dirs if path.stem in options.get("file_names")]
 
 
 def open_json(file_path: str) -> dict:
     """Function to load json file content
-        Attributes:
-                --------------
-            file_path full path to json file
-        Returns:
-                --------------
-            dictionary with json file content
+    Attributes:
+            --------------
+        file_path full path to json file
+    Returns:
+            --------------
+        dictionary with json file content
     """
     with open(file_path) as file:
         content = json.load(file)
@@ -95,12 +119,12 @@ def open_json(file_path: str) -> dict:
 
 def save_json(data, save_path: str) -> None:
     """Function to save python dictionary as json file
-        Attributes:
-                --------------
-            data python dictionary with data
-            file_path full path to json file
+    Attributes:
+            --------------
+        data python dictionary with data
+        file_path full path to json file
     """
-    with open(save_path, 'w') as json_file:
+    with open(save_path, "w") as json_file:
         json.dump(data, json_file, indent=4)
 
 
@@ -113,7 +137,7 @@ def is_executable(file_path):
         return True
     else:
         return False
-    
+
 
 def merge_dicts(args: Sequence[dict]):
     dct = {}

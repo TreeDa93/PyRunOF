@@ -1,29 +1,84 @@
 [project]
-name = "pyrunof_test_lib"
-version = "0.1.0"
-description = "We test library here!"
+name = "pyrunof"
+version = "0.2.0"
+description = "Python tools for configuring and running OpenFOAM cases"
 readme = "README.md"
 requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+    { name = "Ivan Smolianov", email = "i.a.smolyanov@gmail.com" },
+]
+keywords = ["openfoam", "simulation", "parametric-sweep", "cfd"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
 dependencies = [
-    "pyrunof",
-    "ruff",
-    "setuptools==76.0.0",
+    "matplotlib>=3.10",
+    "numpy>=2.2",
+    "pandas>=2.2",
+    "scipy>=1.15",
+    "tqdm>=4.67",
 ]
 
-# install pyRunOF from path as editable package
-[tool.uv.sources]
-pyrunof = { path = "pyRunOF", editable = true }
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.15",
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.11",
+]
+
+[project.urls]
+Homepage = "https://github.com/TreeDa93/PyRunOF"
+Repository = "https://github.com/TreeDa93/PyRunOF"
+Issues = "https://github.com/TreeDa93/PyRunOF/issues"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-# rule of build if we write uv build we build pyRunOF
 [tool.hatch.build.targets.wheel]
 packages = ["pyRunOF"]
 
-# [tool.hatch.build.targets.sdist]
-# exclude = [
-#   "/.github",
-#   "/docs",
-# ]
+[tool.hatch.build.targets.sdist]
+include = ["/pyRunOF", "/tests", "/README.md", "/pyproject.toml"]
+
+[tool.uv]
+package = true
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers --strict-config -ra"
+testpaths = ["tests/unit"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = [
+    "pyRunOF/files/MeshScripts/exportMesh.py",
+    "tests/fixtures",
+    "tests/PoiseuilleFlow",
+    "tests/obstacle_icoFoam",
+    "tests/obstacle_turb_models_pimpleFoam",
+    "tests/paralle_test",
+    "tests/parametric_sweep_test",
+    "tests/Coutte_run_app",
+]
+
+[tool.ruff.lint]
+# Block syntax errors, undefined names and other correctness failures in CI.
+# Broader modernization rules will be enabled module-by-module as legacy code is typed.
+select = ["E4", "E7", "E9", "F"]
+
+[tool.mypy]
+python_version = "3.12"
+files = [
+    "pyRunOF/exceptions.py",
+    "pyRunOF/modules/model_config.py",
+    "pyRunOF/modules/parametric_sweep.py",
+    "pyRunOF/modules/run.py",
+]
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_unused_ignores = true

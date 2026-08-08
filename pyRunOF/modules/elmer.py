@@ -19,7 +19,7 @@ class Elmer(Information):
                 * case_path: Optional[str] = None,
                 * sif_name: Optional[str] = None
         """
-        Information.__init_elmer__(**optional_args)
+        Information.__init_elmer__(self, **optional_args)
 
     def set_var(self, *elmer_dicts, **options):
         """The function sets given variables to sif file of Elemer
@@ -39,9 +39,7 @@ class Elmer(Information):
             options.get("case_path"), self.info[info_key], path_key="case_path"
         )
 
-        sif_name = Priority.name(
-            options.get("sif_name"), self.info[info_key], name_key="name"
-        )
+        sif_name = Priority.name(options.get("sif_name"), self.info[info_key], name_key="name")
         sif_name = self._check_prefix_sif(sif_name)
 
         for elmer_dict in elmer_dicts:

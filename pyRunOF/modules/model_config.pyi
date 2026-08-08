@@ -1,12 +1,14 @@
+from typing import overload
+
 from ..additional_fun.information import Information
-from typing import Optional, overload
-class ModelConfigurator(Information): 
+
+class ModelConfigurator(Information):
     @overload
     def duplicate_case(
         self,
-        src_path: Optional[str] = None,
-        dist_path: Optional[str] = None,
-        src_key: Optional[str] = None,
-        dist_key: Optional[str] = None,
+        src_path: str | None = None,
+        dist_path: str | None = None,
+        src_key: str | None = None,
+        dist_key: str | None = None,
         mode: str = "copy",
-    ) -> None:...
+    ) -> None: ...

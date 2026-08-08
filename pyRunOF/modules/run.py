@@ -1,97 +1,103 @@
-import sys
-from ..additional_fun.auxiliary_functions import Priority, run_command
-from ..additional_fun.information import Information
+"""Safe construction and execution of OpenFOAM solver commands."""
+
+from __future__ import annotations
+
+import re
+import subprocess
+
+from pyRunOF.additional_fun.auxiliary_functions import Priority, run_command
+from pyRunOF.additional_fun.information import Information
+from pyRunOF.exceptions import ConfigurationError
+
+_EXECUTABLE_NAME = re.compile(r"^[A-Za-z0-9_.+-]+$")
 
 
 class Run(Information):
-    """
-        #FIXME
+    """Configure and run an OpenFOAM or coupled OpenFOAM/Elmer case."""
 
-    """
     def __init__(self, **optional_args):
-        """
-        Args:
-            **optional_args:
-                * info_key: Optional[str] = 'general',
-                * solver: Optional[str] = 'pimpleFoam',
-                * path_case: Optional[str] = None,
-                * mode: Optional[str] = 'common'
-                * OF_core: Optional[int] = 2
-                * E_core: Optional[int] = 2
-        """
         Information.__init_runner__(self, **optional_args)
 
+    def __str__(self) -> str:
+        return f"Run({self.info!r})"
 
-    def __str__(self):
-        #FIXME
-        return f'It is myClass with var1 {self.info}'
+    __repr__ = __str__
 
-    def __repr__(self):
-        #FIXME
-        return f'It is my collection of objects {self.info}'
+    def run(self, **options) -> subprocess.CompletedProcess[str]:
+        info_key = self.get_key(options.get("info_key"))
+        case_path = Priority.path(
+            options.get("case_path"), self.info[info_key], path_key="case_path"
+        )
+        log_path = "log" if self.get_any_parameter("log", info_key=info_key) else None
+        return run_command(
+            self._collect_name_solver(info_key),
+            case_path,
+            log_path=log_path,
+            timeout=options.get("timeout"),
+        )
 
-    def run(self, **options) -> None:
-        """The function runs the case to calculation
-            Arguments:
-            
-            * **options is the optional arguments listed below: 
+    def set_cores(self, coreOF: int = 4, coreElmer: int = 4, info_key=None) -> None:
+        self.set_cores_OF(coreOF, info_key=info_key)
+        self.set_cores_Elmer(coreElmer, info_key=info_key)
 
-                * case_path: Optional[str] = None,
-                * info_key=None
+    def set_cores_OF(self, coreOF: int = 4, info_key=None) -> None:
+        self.set_new_parameter(self._validate_cores(coreOF), info_key, "OF_core")
 
-            """
+    def set_cores_Elmer(self, coreElmer: int = 4, info_key=None) -> None:
+        self.set_new_parameter(self._validate_cores(coreElmer), info_key, "E_core")
 
-        info_key = self.get_key(options.get('info_key'))
-        case_path = Priority.path(options.get('case_path'), self.info[info_key], path_key='case_path')
-        run_command(self._collect_name_solver(info_key), case_path)
+    def set_solver_name(self, solver_name: str = "pimpleFoam", info_key=None) -> None:
+        self.set_new_parameter(self._validate_executable(solver_name), info_key, "solver")
 
+    def set_mode(self, mode: str = "common", info_key=None) -> None:
+        if mode not in {"common", "parallel", "EOF"}:
+            raise ConfigurationError("mode must be 'common', 'parallel', or 'EOF'")
+        self.set_new_parameter(mode, info_key, "mode")
 
-    def set_cores(self, coreOF: int = 4, coreElmer: int = 4, info_key=None) -> tuple:
-        self.set_new_parameter(coreOF, parameter_name='OF_core', info_key=info_key)
-        self.set_new_parameter(coreElmer, parameter_name='E_core', info_key=info_key)
+    def set_pyFoam(self, pyFoam: bool = False, info_key=None) -> None:
+        self.set_new_parameter(bool(pyFoam), info_key, "pyFoam")
 
-    def set_cores_OF(self, coreOF: int = 4, info_key=None) -> int:
-        self.set_new_parameter(coreOF, parameter_name='OF_core', info_key=info_key)
+    def set_log_flag(self, log_flag: bool = False, info_key=None) -> None:
+        self.set_new_parameter(bool(log_flag), info_key, "log")
 
-    def set_cores_Elmer(self, coreElmer: int = 4, info_key=None) -> int:
-        self.set_new_parameter(coreElmer, parameter_name='E_core', info_key=info_key)
-
-    def set_solver_name(self, solver_name: str ='pimpleFoam', info_key=None) -> None:
-        self.set_new_parameter(solver_name, parameter_name='solver', info_key=info_key)
-
-    def set_mode(self, mode: str = 'common', info_key=None) -> str:
-        self.set_new_parameter(mode, parameter_name='mode', info_key=info_key)
-
-    def set_pyFoam(self, pyFoam: bool = False, info_key=None) -> bool:
-        self.set_new_parameter(pyFoam, parameter_name='pyFoam', info_key=info_key)
-
-    def set_log_flag(self, log_flag: bool = False, info_key=None) -> bool:
-        self.set_new_parameter(log_flag, parameter_name='log', info_key=info_key)
-
-    def _collect_name_solver(self, info_key):
-        """The function collect and crete required according setting name of solver
-
-        """
-
-        mode = self.get_any_parameter('mode', info_key=info_key)
-        solver = self.get_any_parameter('solver', info_key=info_key)
-        if mode == 'common':
-            run_command = f'{solver}'
-        elif mode == 'parallel':
-            OF_core = self.get_any_parameter('OF_core')
-            run_command = f'mpirun -np {OF_core} {solver} -parallel :'
-        elif mode == 'EOF':
-            OF_core = self.get_any_parameter('OF_core')
-            E_core = self.get_any_parameter('E_core')
-            run_command = f'mpirun -np {OF_core} {solver} -parallel : ' \
-                          f'-np {E_core} ElmerSolver_mpi'
+    def _collect_name_solver(self, info_key: str) -> list[str]:
+        mode = self.get_any_parameter("mode", info_key=info_key)
+        solver = self._validate_executable(self.get_any_parameter("solver", info_key=info_key))
+        if mode == "common":
+            command = [solver]
+        elif mode == "parallel":
+            cores = self._validate_cores(self.get_any_parameter("OF_core", info_key=info_key))
+            command = ["mpirun", "-np", str(cores), solver, "-parallel"]
+        elif mode == "EOF":
+            of_cores = self._validate_cores(self.get_any_parameter("OF_core", info_key=info_key))
+            e_cores = self._validate_cores(self.get_any_parameter("E_core", info_key=info_key))
+            command = [
+                "mpirun",
+                "-np",
+                str(of_cores),
+                solver,
+                "-parallel",
+                ":",
+                "-np",
+                str(e_cores),
+                "ElmerSolver_mpi",
+            ]
         else:
-            self._raise_error()
+            raise ConfigurationError(f"Unknown run mode: {mode!r}")
 
-        if self.get_any_parameter('pyFoam') is True:
-            run_command = 'pyFoamPlotRunner.py ' + run_command
-        if self.get_any_parameter('log') is True:
-            run_command += ' | tee log -a'
+        if self.get_any_parameter("pyFoam", info_key=info_key):
+            command.insert(0, "pyFoamPlotRunner.py")
+        self.set_new_parameter(command, info_key, "run command")
+        return command
 
-        self.set_new_parameter(run_command, parameter_name='run command', info_key=info_key)
-        return self.get_any_parameter('run command')
+    @staticmethod
+    def _validate_executable(name: str) -> str:
+        if not isinstance(name, str) or not _EXECUTABLE_NAME.fullmatch(name):
+            raise ConfigurationError(f"Invalid executable name: {name!r}")
+        return name
+
+    @staticmethod
+    def _validate_cores(value: int) -> int:
+        if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+            raise ConfigurationError("core count must be a positive integer")
+        return value

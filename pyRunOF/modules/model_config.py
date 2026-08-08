@@ -1,13 +1,13 @@
-import os
-import shutil
 import pathlib as pl
-from time import strftime, sleep
-from typing import Optional, Union
+import shutil
 from collections.abc import Iterable
+from time import sleep, strftime
 
-from ..additional_fun.auxiliary_functions import Priority, Files
+from pyRunOF.exceptions import ConfigurationError, UnsafePathError
+
+from ..additional_fun.auxiliary_functions import Files, Priority
 from ..additional_fun.information import Information
-from ..additional_fun.warning import raise_waring_files
+
 
 class ModelConfigurator(Information):
     """
@@ -47,10 +47,10 @@ class ModelConfigurator(Information):
 
     def duplicate_case(
         self,
-        src_path: Optional[str] = None,
-        dist_path: Optional[str] = None,
-        src_key: Optional[str] = None,
-        dist_key: Optional[str] = None,
+        src_path: str | None = None,
+        dist_path: str | None = None,
+        src_key: str | None = None,
+        dist_key: str | None = None,
         mode: str = "copy",
     ) -> None:
         """Creates a copy of the base case.
@@ -67,53 +67,41 @@ class ModelConfigurator(Information):
         Returns:
             None
         """
-        print("\n info key:", self.info[self.info_key])
-
-        src_path = pl.Path(
-            Priority.check_key_path(
-                src_path, src_key, self.info[self.info_key]["paths"]
-            )
+        source = pl.Path(
+            Priority.path(src_path, self.info[self.info_key]["paths"], path_key=src_key)
         )
-        dist_path = pl.Path(
-            Priority.check_key_path(
-                dist_path, dist_key, self.info[self.info_key]["paths"]
-            )
+        destination = pl.Path(
+            Priority.path(dist_path, self.info[self.info_key]["paths"], path_key=dist_key)
         )
-        Priority.check_path_existence(src_path, make_new=False)
+        Priority.check_path_existence(source, make_new=False)
         if mode == "rewrite":
-            if Priority.check_path_existence_only(dist_path) == "full":
-                shutil.rmtree(dist_path)
-            shutil.copytree(src_path, dist_path)
+            if Priority.check_path_existence_only(destination) == "full":
+                self._remove_directory(destination, allowed_root=destination.parent)
+            shutil.copytree(source, destination)
         elif mode == "copy":
-            if Priority.check_path_existence_only(dist_path) == "full":
-                old_name = (
-                    dist_path.stem + "_" + "old" + "_" + strftime("%d-%m-%Y %H-%M")
-                )
-                old_path = dist_path.parent / old_name
+            if Priority.check_path_existence_only(destination) == "full":
+                old_name = destination.stem + "_old_" + strftime("%d-%m-%Y %H-%M")
+                old_path = destination.parent / old_name
                 if old_path.exists():
                     sleep(1)
-                    old_name = (
-                        dist_path.stem
-                        + "_"
-                        + "old"
-                        + "_"
-                        + strftime("%d-%m-%Y %H-%M-%S")
-                    )
-                    old_path = dist_path.parent / old_name
-                    dist_path.rename(old_path)
+                    old_name = destination.stem + "_old_" + strftime("%d-%m-%Y %H-%M-%S")
+                    old_path = destination.parent / old_name
+                    destination.rename(old_path)
                 else:
-                    dist_path.replace(old_path)
-                shutil.copytree(src_path, dist_path)
+                    destination.replace(old_path)
+                shutil.copytree(source, destination)
             else:
-                shutil.copytree(src_path, dist_path)
+                shutil.copytree(source, destination)
+        else:
+            raise ConfigurationError("mode must be either 'copy' or 'rewrite'")
 
     def create_folder(
         self,
-        directory: Optional[str] = None,
-        dir_key: Optional[str] = None,
-        folder_name: Optional[str] = None,
-        name_key: Optional[str] = None,
-        rewrite: Optional[bool] = True,
+        directory: str | None = None,
+        dir_key: str | None = None,
+        folder_name: str | None = None,
+        name_key: str | None = None,
+        rewrite: bool = False,
         info_key=None,
     ) -> None:
         """Creates a new folder.
@@ -130,9 +118,7 @@ class ModelConfigurator(Information):
             None
         """
         info_key = self.get_key(info_key)
-        directory = Priority.path(
-            directory, self.info[info_key]["paths"], path_key=dir_key
-        )
+        directory = Priority.path(directory, self.info[info_key]["paths"], path_key=dir_key)
         folder_name = Priority.name(
             folder_name, self.info[info_key]["case_names"], name_key=name_key
         )
@@ -141,18 +127,18 @@ class ModelConfigurator(Information):
         test = Priority.check_path_existence_only(full_path)
         if test == "full":
             if rewrite is True:
-                shutil.rmtree(full_path)
-                full_path.mkdir()
+                self._remove_directory(full_path, allowed_root=pl.Path(directory))
+                full_path.mkdir(parents=True)
             else:
-                Priority.error_create_folder()
+                raise FileExistsError(f"Folder already exists: {full_path}")
         else:
-            full_path.mkdir()
+            full_path.mkdir(parents=True)
 
     def create_folder_by_path(
         self,
-        path: Optional[str] = None,
-        path_key: Optional[str] = None,
-        rewrite: Optional[bool] = True,
+        path: str | None = None,
+        path_key: str | None = None,
+        rewrite: bool = False,
     ) -> None:
         """Creates a new folder by the given path or path key.
 
@@ -164,40 +150,38 @@ class ModelConfigurator(Information):
         Returns:
             None
         """
-        path = Priority.path(path, self.info[self.info_key]["paths"], path_key=path_key)
-        test = Priority.check_path_existence_only(path)
+        target_path = pl.Path(
+            Priority.path(path, self.info[self.info_key]["paths"], path_key=path_key)
+        )
+        test = Priority.check_path_existence_only(target_path)
         if test == "full":
             if rewrite is True:
-                shutil.rmtree(path)
-                path.mkdir()
+                self._remove_directory(target_path, allowed_root=target_path.parent)
+                target_path.mkdir(parents=True)
             else:
-                Priority.error_create_folder()
+                raise FileExistsError(f"Folder already exists: {target_path}")
         else:
-            path.mkdir()
+            target_path.mkdir(parents=True)
 
     def delete_folders_by_words(
         self,
-        words: Iterable|str,
-        directory: Optional[str] = None,
-        dir_key: Optional[str] = None,
+        words: Iterable | str,
+        directory: str | None = None,
+        dir_key: str | None = None,
     ) -> None:
         if isinstance(words, Iterable) and not isinstance(words, str):
             for word in words:
-                folder_paths = self.find_folders_by_word(word, directory=directory,
-                                          dir_key=dir_key)
-                self.delete_folders(folder_paths, directory=directory,
-                                    dir_key=dir_key)
+                folder_paths = self.find_folders_by_word(word, directory=directory, dir_key=dir_key)
+                self.delete_folders(folder_paths[1], directory=directory, dir_key=dir_key)
         else:
-            folder_paths = self.find_folders_by_word(words, directory=directory,
-                                          dir_key=dir_key)
-            self.delete_folders(folder_paths, directory=directory,
-                                dir_key=dir_key)
+            folder_paths = self.find_folders_by_word(words, directory=directory, dir_key=dir_key)
+            self.delete_folders(folder_paths[1], directory=directory, dir_key=dir_key)
 
     def delete_folders(
         self,
-        folders: Optional[list[str]] = None,
-        directory: Optional[str] = None,
-        dir_key: Optional[str] = None,
+        folders: Iterable[str | pl.Path] | None = None,
+        directory: str | None = None,
+        dir_key: str | None = None,
     ) -> None:
         """Deletes specified folders.
 
@@ -210,21 +194,24 @@ class ModelConfigurator(Information):
             None
         """
 
-        directory = Priority.path(directory, self.info[self.info_key]["paths"], path_key=dir_key)
-        
+        directory_root = pl.Path(
+            Priority.path(directory, self.info[self.info_key]["paths"], path_key=dir_key)
+        ).resolve()
+        if folders is None:
+            raise ValueError("folders must be provided")
+
         for folder_name in folders:
-            folder_path = pl.Path(directory) / folder_name
+            candidate = pl.Path(folder_name)
+            folder_path = candidate if candidate.is_absolute() else directory_root / candidate
+            folder_path = folder_path.resolve()
             if folder_path.exists() and folder_path.is_dir():
-                shutil.rmtree(folder_path)
-                print(f"Deleted folder: {folder_path}")
-            else:
-                print(f"Folder not found: {folder_path}")
+                self._remove_directory(folder_path, allowed_root=directory_root)
 
     def find_folders_by_word(
         self,
         word: str,
-        directory: Optional[str] = None,
-        dir_key: Optional[str] = None,
+        directory: str | None = None,
+        dir_key: str | None = None,
     ) -> tuple[list[pl.Path], list[str]]:
         """
         Finds folders in a directory that contain a specific word in their name.
@@ -239,51 +226,45 @@ class ModelConfigurator(Information):
                 - full_find_path (list): List of full paths to folders containing the word.
                 - name_find_file (list): List of folder names containing the word.
         """
-        directory = pl.Path(
-            Priority.check_key_path(
-                directory, dir_key, self.info[self.info_key]["paths"]
-            )
+        directory_path = pl.Path(
+            Priority.path(directory, self.info[self.info_key]["paths"], path_key=dir_key)
         )
-        if not directory.exists():
-            
-            raise_waring_files('DIR_NOT_EXIST', directory=directory)
-            
-            return None
-        elif isinstance(word, str):
-            
-            raise_waring_files('WORD_TYPE', directory=directory)
-            
-            return None
+        if not directory_path.is_dir():
+            raise FileNotFoundError(f"Directory does not exist: {directory_path}")
+        if not isinstance(word, str):
+            raise TypeError("word must be a string")
 
-        full_find_path = [
-            folder for folder in directory.iterdir() if word in folder.stem
-        ]
-        name_find_file = [
-            folder.stem for folder in directory.iterdir() if word in folder.stem
-        ]
+        full_find_path = sorted(
+            folder for folder in directory_path.iterdir() if folder.is_dir() and word in folder.name
+        )
+        name_find_file = [folder.name for folder in full_find_path]
+        return full_find_path, name_find_file
 
-        if full_find_path == []:
-
-            raise_waring_files('NOTHING FOUND', directory=directory, word=word)
-            
-            return None
-        else:
-            return full_find_path, name_find_file
+    @staticmethod
+    def _remove_directory(path: pl.Path, *, allowed_root: pl.Path) -> None:
+        """Remove a directory only when it is a strict child of ``allowed_root``."""
+        target = path.expanduser().resolve()
+        root = allowed_root.expanduser().resolve()
+        if target == root or not target.is_relative_to(root):
+            raise UnsafePathError(f"Refusing to delete path outside {root}: {target}")
+        if target.is_symlink():
+            raise UnsafePathError(f"Refusing to recursively delete symlink: {target}")
+        shutil.rmtree(target)
 
     @staticmethod
     def change_json_params(
         parameters_path: str,
         changed_parameters: dict,
-        save_path: Union[str, pl.Path] = None,
+        save_path: str | pl.Path | None = None,
     ):
         parameters = Files.open_json(parameters_path)
         parameters.update(changed_parameters)
         if save_path is None:
             save_path = parameters_path
-        Files.save_json(parameters, save_path)
+        Files.save_json(parameters, str(save_path))
 
     @staticmethod
-    def create_json_params(*parameter_dict: dict, save_path: Optional[str] = None):
+    def create_json_params(*parameter_dict: dict, save_path: str | None = None):
         """
         The function creates new json file with parameters and save it in save_path.
         Args:
@@ -298,16 +279,16 @@ class ModelConfigurator(Information):
         for dict_i in parameter_dict:
             collect_dict.update(dict_i)
 
+        if save_path is None:
+            raise ValueError("save_path must be provided")
         Files.save_json(collect_dict, save_path)
 
     @staticmethod
     def get_dict_from_json(parameters_path):
         return Files.open_json(parameters_path)
 
-
-
     def __str__(self):
-        representation_stirng = str()
+        representation_stirng = ""
         for key, val_info in self.info.items():
             representation_stirng += f"Information of {key} \n"
             for key, data in val_info.items():
@@ -317,7 +298,7 @@ class ModelConfigurator(Information):
         return representation_stirng
 
     def __repr__(self):
-        representation_stirng = str()
+        representation_stirng = ""
         for key, val_info in self.info.items():
             representation_stirng += f"Information of {key} \n"
             for key, data in val_info.items():

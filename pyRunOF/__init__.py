@@ -1,3 +1,14 @@
+"""PyRunOF public API."""
+
+from pyRunOF.exceptions import (
+    CommandExecutionError,
+    ConfigurationError,
+    PyRunOFError,
+    UnsafePathError,
+)
+from pyRunOF.case.config import CaseConfig
+from pyRunOF.openfoam.case import OpenFOAMCase
+from pyRunOF.openfoam.parser import CaseParser
 from pyRunOF.modules.constant import Constant
 from pyRunOF.modules.elmer import Elmer
 from pyRunOF.modules.initial_values import InitialValues
@@ -8,20 +19,23 @@ from pyRunOF.modules.post_process import PostProcess
 from pyRunOF.modules.run import Run
 from pyRunOF.modules.set_system import System
 
-VERSION = "0.1.0"
-__version__ = VERSION
+__version__ = "0.2.0"
 
-#TODO: here I test new import 
-def __getattr__(attr):
-    if attr == "constant":
-            print('HI!')
-            import pyRunOF.modules.constant as const
-            from pyRunOF.modules.constant import Constant
-            return const
-    elif attr == "elmer":
-        from pyRunOF.modules.elmer import Elmer
-        return Elmer
-    else:
-         raise AttributeError("module {!r} has no attribute "
-                             "{!r}".format(__name__, attr))
-
+__all__ = [
+    "CommandExecutionError",
+    "CaseConfig",
+    "CaseParser",
+    "ConfigurationError",
+    "Constant",
+    "Elmer",
+    "InitialValues",
+    "Mesh",
+    "ModelConfigurator",
+    "OpenFOAMCase",
+    "ParametricSweep",
+    "PostProcess",
+    "PyRunOFError",
+    "Run",
+    "System",
+    "UnsafePathError",
+]

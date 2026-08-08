@@ -1,132 +1,97 @@
-import sys
-import itertools as it
-from typing import Sequence
+"""Utilities for deterministic parametric studies."""
+
+from __future__ import annotations
+
+import itertools
+from collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence
+from typing import Any
+
 from tqdm import tqdm
-from ..additional_fun.auxiliary_functions import Priority, merge_dicts
-from ..additional_fun.information import Information
 
 
-class ParametricSweep(Information):
-    """
-    FIXME
-    """
+class ParametricSweep:
+    """Execute a callback for combinations of named parameter values."""
 
-    def __init__(self, fun=None):
+    VALID_MODES = {"all", "series", "special series"}
 
-        self.cur_i: int = 1
+    def __init__(self, fun: Callable[[ParametricSweep], Any] | None = None):
         self.run_fun = fun
-        self.cur_data = dict()
+        self.cur_i = 0
+        self.cur_data: dict[str, Any] = {}
+        self.set: list[dict[str, Any]] = []
+        self.n_iter = 0
+        self.type_set = "all"
 
+    def run(
+        self,
+        ps_params: Mapping[str, Sequence[Any]],
+        fun: Callable[[ParametricSweep], Any] | None = None,
+        update_vars: tuple[MutableMapping[str, Any], ...] | None = None,
+        type_set: str = "special series",
+    ) -> None:
+        self._execute(ps_params, fun, update_vars, type_set, progress=False)
 
-    def run(self, ps_params, fun=None, update_vars=None, type_set='special series'):
-        """
+    def run_progress_bar(
+        self,
+        ps_params: Mapping[str, Sequence[Any]],
+        fun: Callable[[ParametricSweep], Any] | None = None,
+        update_vars: tuple[MutableMapping[str, Any], ...] | None = None,
+        type_set: str = "special series",
+    ) -> None:
+        self._execute(ps_params, fun, update_vars, type_set, progress=True)
 
-
-        Args:
-            ps_params [dict]: parameters of the
-            fun [callable]:
-            update_vars [list of dicts]: list of updated variables
-            type_set [string]: type of generation cases of variables
-
-        Returns: None
-
-        """
+    def _execute(self, ps_params, fun, update_vars, type_set, *, progress: bool) -> None:
         self._prepare_ps_dict(ps_params, type_set=type_set)
-        for self.cur_data in self.set:
+        callback = fun if fun is not None else self.run_fun
+        if not callable(callback):
+            raise TypeError("fun must be callable")
+        if update_vars is not None:
+            self._validate_update_vars(update_vars)
+
+        self.cur_i = 0
+        values = tqdm(self.set, total=self.n_iter) if progress else self.set
+        for index, current in enumerate(values, start=1):
+            self.cur_i = index
+            self.cur_data = current
             if update_vars is not None:
                 self._update_variables(update_vars)
-            run_fun = Priority.variable(fun, where=self.run_fun)
-            run_fun(self)
-            self.cur_i += 1
+            callback(self)
 
-    def run_progress_bar(self, ps_params, fun=None, update_vars=None, type_set='special series'):
-        """
-
-
-        Args:
-            ps_params [dict]: parameters of the
-            fun [callable]:
-            update_vars [list of dicts]: list of updated variables
-            type_set [string]: type of generation cases of variables
-
-        Returns: None
-
-        """
-        self._prepare_ps_dict(ps_params, type_set=type_set)
-
-        for self.cur_data in tqdm(self.set, total=self.n_iter, initial=1):
-            tqdm.write('Current parameters in parametric sweep:')
-            for name_var, val in self.cur_data.items():
-                tqdm.write(f'{name_var}: \t {val}')
-            if update_vars is not None:
-                self._update_variables(update_vars)
-            run_fun = Priority.variable(fun, where=self.run_fun)
-            run_fun(self)
-            self.cur_i += 1
-
-
-    def get_cur_name(self, type_name='index'):
-
-        if type_name == 'index':
+    def get_cur_name(self, type_name: str = "index") -> str:
+        if type_name == "index":
             return str(self.cur_i)
+        return "".join(f"_{key}_{value}" for key, value in self.cur_data.items())
+
+    def _prepare_ps_dict(self, ps_dict: Mapping[str, Sequence[Any]], type_set: str = "all") -> None:
+        if type_set not in self.VALID_MODES:
+            raise ValueError(f"type_set must be one of {sorted(self.VALID_MODES)}")
+        if not isinstance(ps_dict, Mapping) or not ps_dict:
+            raise ValueError("ps_params must be a non-empty mapping")
+
+        keys = list(ps_dict)
+        values = [list(ps_dict[key]) for key in keys]
+        if any(not entries for entries in values):
+            raise ValueError("each sweep parameter must contain at least one value")
+
+        combinations: Iterable[tuple[Any, ...]]
+        if type_set == "all":
+            combinations = itertools.product(*values)
         else:
-            name = str()
-            for key, val in self.set[self.cur_i].items():
-                name += str(f'_{key}_{val}')
-            return name
+            if type_set == "series" and len({len(entries) for entries in values}) != 1:
+                raise ValueError("series parameters must contain the same number of values")
+            combinations = zip(*values, strict=type_set == "series")
 
-    def _prepare_ps_dict(self, ps_dict, type_set='all'):
-        """
-            The method prepares generator of parameters for all iterations of parametric study.
-            The generator return
-        Args:
-            ps_dict: dictionary with changing parameters of variables.
-            combination: how to do sweep. Type 'all' means to take all possible combination.
-                                            Type 'series' means to take sweep in the order they are mentioned.
-
-        Returns:
-
-        """
-
-        ps_set = [[{key: entry} for entry in ps_dict[key]] for key in ps_dict]
-        if type_set == 'all':
-            iterator = it.product(*ps_set)
-            self.n_iter = len(list(it.product(*ps_set))) + 1
-        elif type_set == 'special series':
-            iterator = zip(*ps_set)
-            self.n_iter = len(list(zip(*ps_set))) + 1
-        elif type_set == 'series':
-            self._check_sweep_dict(ps_dict)
-            iterator = zip(*ps_set)
-            self.n_iter = len(list(zip(*ps_set))) + 1
-        else:
-            print('WARNING!!! Yuo write no correct type of set, because the procedure was done as all combination')
-            iterator = it.product(*ps_set)
-
-        # self.set = [self._merge_dicts(entry) for entry in iterator]
-        self.set = [merge_dicts(entry) for entry in iterator]
+        self.set = [dict(zip(keys, combination, strict=True)) for combination in combinations]
+        self.n_iter = len(self.set)
         self.type_set = type_set
 
-
-        
-
     @staticmethod
-    def _check_sweep_dict(sweep_dict):
-        i = 0
-        for key in sweep_dict:
-            if i == 0:
-                tester = len(sweep_dict[key])
-            else:
-                if tester != len(sweep_dict[key]):
-                    sys.exit('The sweep array numbers have different size')
-                else:
-                    tester = len(sweep_dict[key])
-            i += 1
-        return tester
+    def _validate_update_vars(update_vars: tuple[MutableMapping[str, Any], ...]) -> None:
+        if not isinstance(update_vars, tuple):
+            raise TypeError("update_vars must be a tuple of mutable mappings")
+        if not all(isinstance(item, MutableMapping) for item in update_vars):
+            raise TypeError("each update_vars item must be a mutable mapping")
 
-
-    def _update_variables(self, update_vars):
-        assert type(update_vars) is tuple, 'The argument update_vars should be tuple!'
+    def _update_variables(self, update_vars: tuple[MutableMapping[str, Any], ...]) -> None:
         for data_dict in update_vars:
-            assert type(data_dict) is dict, 'Each element of update_vars should be dictionary!!!'
             data_dict.update(self.cur_data)

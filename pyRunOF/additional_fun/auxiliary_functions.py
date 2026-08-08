@@ -1,31 +1,76 @@
-import sys
-import shutil
-import traceback
-import pathlib as pl
 import os
-import json
-from typing import Any
+import pathlib as pl
+import shlex
 import subprocess
-from typing import Sequence, Hashable
-from .warning import raise_waring_files
+import traceback
+from collections.abc import Sequence
+from typing import Any
+
+from pyRunOF.exceptions import CommandExecutionError
+
+from . import files as file_utils
+from . import priority as priority_utils
 
 
-def run_command(command: str, run_path):
+def run_command(
+    command: Sequence[str] | str,
+    run_path: str | os.PathLike[str],
+    *,
+    log_path: str | os.PathLike[str] | None = None,
+    timeout: float | None = None,
+    capture_output: bool = False,
+) -> subprocess.CompletedProcess[str]:
+    """Run an external command without invoking a shell.
 
-    path_bash = pl.Path(__file__).parents[1] / 'files' / 'bash' / 'interactive_bash'
+    A string is parsed with :func:`shlex.split` for backward compatibility. New
+    callers should pass a sequence so every argument has an explicit boundary.
+    """
+    args = shlex.split(command) if isinstance(command, str) else list(command)
+    if not args or not all(isinstance(arg, str) and arg for arg in args):
+        raise ValueError("command must contain non-empty string arguments")
 
-    if Files.is_executable(path_bash):
-        subprocess.run(command, shell=True, executable=path_bash, cwd=run_path, start_new_session=True)
-    else:
-        subprocess.run(f'chmod +x {path_bash}', shell=True)
+    cwd = pl.Path(run_path).expanduser().resolve()
+    if not cwd.is_dir():
+        raise FileNotFoundError(f"Run directory does not exist: {cwd}")
 
-        subprocess.run(command, shell=True, executable=path_bash, cwd=run_path, start_new_session=True)
+    if capture_output and log_path is not None:
+        raise ValueError("capture_output and log_path cannot be used together")
+
+    output = None
+    log_file = None
+    if log_path is not None:
+        log_file = (
+            (cwd / log_path).resolve() if not pl.Path(log_path).is_absolute() else pl.Path(log_path)
+        )
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        output = log_file.open("a", encoding="utf-8")
+
+    try:
+        return subprocess.run(
+            args,
+            cwd=cwd,
+            check=True,
+            stdout=subprocess.PIPE if capture_output else output,
+            stderr=subprocess.PIPE if capture_output else subprocess.STDOUT if output else None,
+            start_new_session=True,
+            text=True,
+            timeout=timeout,
+        )
+    except subprocess.CalledProcessError as exc:
+        raise CommandExecutionError(
+            f"Command {args[0]!r} exited with status {exc.returncode}"
+        ) from exc
+    finally:
+        if output is not None:
+            output.close()
+
 
 def merge_dicts(args: Sequence[dict]):
     dct = {}
     for entry in args:
         dct.update(entry)
     return dct
+
 
 class Files:
     """
@@ -51,174 +96,17 @@ class Files:
         find_path_by_name
     """
 
-    def __init__(self):
-        pass
+    change_var_fun = staticmethod(file_utils.change_var_fun)
+    copy_file = staticmethod(file_utils.copy_file)
+    find_files = staticmethod(file_utils.find_files)
+    find_folders_by_word = staticmethod(file_utils.find_folders_by_word)
+    find_path_by_name = staticmethod(file_utils.find_path_by_name)
+    open_json = staticmethod(file_utils.open_json)
+    save_json = staticmethod(file_utils.save_json)
+    is_executable = staticmethod(file_utils.is_executable)
+    merge_dicts = staticmethod(file_utils.merge_dicts)
 
-    @staticmethod
-    def change_var_fun(name_var: str, value_var: any, path, file_name) -> None:
-        """The function supports finding and replacing required text part at given file
-        
-        Arguments:
-            * name_var depicts  require variable to be replaced
-            * value_var depicts value to be inserted
-            * path is the path of folder with file to be processed
-            * file_name is the name of file where the procedure will be done
-        
-        Return: None
-        """
-        path = pl.Path(path) / file_name
-        if path.is_file():
-            with path.open(mode='r') as f:
-                new_data = f.read().replace(str(name_var), str(value_var))
-            with path.open(mode='w') as f:
-                f.write(new_data)
-        else:
-            print(f'Warning: The file {file_name} is not exist!')
 
-    @staticmethod
-    def copy_file(root_src_dir, root_dst_dir, old_name, new_name):
-        """The method make copy of a file and move it to new path with new name.
-        Attributes:
-
-        * root_src_dir [str or PathLike] is path of directory consisting of  file required for copy
-        * root_dst_dir [str or PathLike] is the path of directory intended for new file
-        * old_name [str] is the name of copying file
-        * new_name [str] is the name of new copied file
-        
-        Return: None
-        """
-
-        src_file_path = pl.Path(root_src_dir)/old_name  # -> src_file = os.path.join(root_src_dir, old_name)
-        dst_file_path = pl.Path(root_dst_dir)/new_name  # -> dst_file = os.path.join(root_dst_dir, new_name)
-        shutil.copy2(src_file_path, dst_file_path)
-
-    @staticmethod
-    def find_files(where, type_files='file') -> list:
-        """The method is intended to find all files at given directory and to sort by type file or directory.
-        Attributes:
-            -------------
-        where is the path in which the method will find files or directories
-        type_files is depicted type of finding files. It must be 'file' or 'directory'.
-        Out:
-            None
-        """
-        dirs = pl.Path(where).iterdir()
-        if type_files == 'file':
-            file_list = [file for file in dirs if file.is_file()]
-            return file_list
-        elif type_files == 'directory':
-            dir_list = [cur_dir for cur_dir in dirs if cur_dir.is_dir()]
-            return dir_list
-        else:
-            return list(dirs)
-        
-    @staticmethod
-    def find_folders_by_word(
-        word: str,
-        directory: pl.Path
-    ) -> tuple[list[pl.Path], list[str]]:
-        """
-        Finds folders in a directory that contain a specific word in their name.
-
-        Args:
-            word (str): The word to search for in folder names.
-            directory (Optional[str]): The directory path to search in. Defaults to None.
-            dir_key (Optional[str]): The key for the directory path in the paths dictionary. Defaults to None.
-
-        Returns:
-            tuple: A tuple containing two lists:
-                - full_find_path (list): List of full paths to folders containing the word.
-                - name_find_file (list): List of folder names containing the word.
-        """
-
-        if not directory.exists():
-            
-            raise_waring_files('DIR_NOT_EXIST', directory=directory)
-            
-            return None
-        
-        elif isinstance(word, str):
-            
-            raise_waring_files('WORD_TYPE', directory=directory)
-            
-            return None
-
-        full_find_path = [
-            folder for folder in directory.iterdir() if word in folder.stem
-        ]
-        name_find_file = [
-            folder.stem for folder in directory.iterdir() if word in folder.stem
-        ]
-
-        if full_find_path == []:
-
-            raise_waring_files('NOTHING FOUND', directory=directory, word=word)
-            
-            return None
-        else:
-            return full_find_path, name_find_file
-
-    @classmethod
-    def find_path_by_name(cls, where, **options):
-        """The method selects names from found list of names by comparing with required names in names.
-        Attributes:
-        -------------
-            where is the path in which the method will find files or directories
-            options:
-                names [list] is the list of names by providing sort procedure.
-        Out:
-            None
-        """
-        dirs = cls.find_files(where, type_files='file')
-        if options.get('file_names') is None:
-            return dirs
-        else:
-            return [path for path in dirs if path.stem in options.get('file_names')]
-
-    @staticmethod
-    def open_json(file_path: str) -> dict:
-        """Function to load json file content
-            Attributes:
-                 --------------
-                file_path full path to json file
-            Returns:
-                 --------------
-                dictionary with json file content
-        """
-        with open(file_path) as file:
-            content = json.load(file)
-        return content
-
-    @staticmethod
-    def save_json(data, save_path: str) -> None:
-        """Function to save python dictionary as json file
-            Attributes:
-                 --------------
-                data python dictionary with data
-                file_path full path to json file
-        """
-        with open(save_path, 'w') as json_file:
-            json.dump(data, json_file, indent=4)
-
-    @staticmethod
-    def is_executable(file_path):
-        # Using shutil.which() to get the executable path
-        executable_path = shutil.which(file_path)
-
-        # Check if the executable path is not None and is executable
-        if executable_path and os.access(executable_path, os.X_OK):
-            return True
-        else:
-            return False
-        
-    @staticmethod
-    def merge_dicts(args: Sequence[dict]):
-        dct = {}
-        for entry in args:
-            dct.update(entry)
-        return dct
-    
-    
 class Priority:
     """
     The class is designed to choose priority between the sent variable in the executing method and
@@ -253,7 +141,9 @@ class Priority:
         error_create_folder
     """
 
-    def __init__(self, names_cases: str = None, paths: str = None, sif_name: str = '.sif', file: str = None) -> None:
+    def __init__(
+        self, names_cases: str = None, paths: str = None, sif_name: str = ".sif", file: str = None
+    ) -> None:
         self.paths = paths
         self.names_cases = names_cases
         self.sif_name = sif_name
@@ -262,64 +152,40 @@ class Priority:
     @classmethod
     def variable(cls, var, where, var_key=None):
         """The method is intended to priority between the sent variable in the executing method and
-            its object attributes.
-            Input :
-                var is the evaluating variable if the var is None then
-                key is the key of the dictionary storing value of required variable
-                where is the object where the method will be finding required variable by key
-            Output:
-                return var according priority
+        its object attributes.
+        Input :
+            var is the evaluating variable if the var is None then
+            key is the key of the dictionary storing value of required variable
+            where is the object where the method will be finding required variable by key
+        Output:
+            return var according priority
         """
 
-        if var is None:
-            if type(where) is dict:
-                if var_key in where.keys():
-                    if where[var_key] is None:
-                        cls._raise_error(type_error='var_1')
-                    else:
-                        return where[var_key]
-                else:
-                    cls._raise_error(type_error='var_1')
-            else:
-                if where is None:
-                    cls._raise_error(type_error='var_1')
-                else:
-                    return where
-        else:
+        if var is not None:
             return var
+        if isinstance(where, dict):
+            return priority_utils.select_var(var, where, var_key)
+        if where is not None:
+            return where
+        return priority_utils.select_var(var, {}, var_key)
 
     @classmethod
     def path(cls, path, where, path_key=None):
         """The method is intended to priority between the sent path_dict in the executing method and
-            its object attributes of paths.
-            Input :
-                path_dict is the evaluating path_dict if the path_dict is None then
-                path_key is the key of the dictionary storing value of required variable
-                where: dict is the object where the method will be finding required variable by key
-            Output:
-                return var according priority
-            Notice: The method is working as with dictionaries and so variables.
+        its object attributes of paths.
+        Input :
+            path_dict is the evaluating path_dict if the path_dict is None then
+            path_key is the key of the dictionary storing value of required variable
+            where: dict is the object where the method will be finding required variable by key
+        Output:
+            return var according priority
+        Notice: The method is working as with dictionaries and so variables.
         """
-        if Priority._check_path_type(path):
-            return pl.Path(path)
-        elif path is None:
-            if type(where) is dict:
-                if path_key in where.keys():
-                    if Priority._check_path_type(where[path_key]):
-                        return pl.Path(where[path_key])
-                    else:
-    
-                        cls._raise_error(type_error='path_error')
-                else:
-                    cls._raise_error(type_error='path_error')
-            else:
-                if Priority._check_path_type(where):
-                    return pl.Path(where)
-                else:
-                    cls._raise_error(type_error='path_error')
-        else:
-            cls._raise_error(type_error='path_error')
-
+        if path is not None:
+            return priority_utils.select_path(path, {}, path_key)
+        if isinstance(where, dict):
+            return priority_utils.select_path(path, where, path_key)
+        return priority_utils.select_path(where, {}, path_key)
 
     @classmethod
     def name(cls, name, where, name_key=None):
@@ -333,22 +199,11 @@ class Priority:
         Output:
             return name according priority
         """
-        if name is None:
-            if type(where) is dict:
-                if name_key in where.keys():
-                    if type(where[name_key]) is str:
-                        return where[name_key]
-                    else:
-                        cls._raise_error(type_error='name_error')
-                else:
-                    cls._raise_error(type_error='name_error')
-            elif type(where) is str:
-                return where
-            else:
-                cls._raise_error(type_error='name_error')
-        else:
-            return name
-
+        if name is not None:
+            return priority_utils.select_name(name, {}, name_key)
+        if isinstance(where, dict):
+            return priority_utils.select_name(name, where, name_key)
+        return priority_utils.select_name(where, {}, name_key)
 
     @classmethod
     def check_path_existence(cls, check_path, make_new=False):
@@ -363,45 +218,25 @@ class Priority:
         Output:
             return path or error
         """
-        check_path = pl.Path(check_path)
-        if check_path.exists(): #  os.path.exists(check_path):
-            return check_path
-        else:
-            #dir_path, case_name = os.path.split(check_path)
-            if check_path.parent.exists():  # -> os.path.exists(dir_path):
-                if make_new is True:
-                    check_path.parent.mkdir(check_path.stem)  # -> os.mkdir(check_path.stem)
-                    return check_path
-                else:
-                    cls._raise_error(check_path, check_path.parent, check_path.stem,
-                                     type_error='check_path_existence_error_1')
-            else:
-                cls._raise_error(check_path.parent, check_path.stem,
-                                 type_error='check_path_existence_error_2')
+        return priority_utils.check_path_existence(check_path, make_new=make_new)
 
     @classmethod
     def check_path_existence_only(cls, check_path):
-        
         """Check the existence of a given path.
 
         Parameters:
         check_path (str or Path): The path to check.
 
         Returns:
-        str: 'full' if the path exists, 
+        str: 'full' if the path exists,
         'dir' if only the parent directory of the final folder exists.
         'noExist' if the specify directory is not exist
 
         """
-        check_path = pl.Path(check_path)
-        if check_path.exists():  # ->os.path.exists(check_path):
-            return 'full'
-        elif check_path.parent.exists():  # -> os.path.exists(check_path.parent)
-            return 'dir'
-        else:
-            return 'noExist'
-            # cls._raise_error(check_path.parent, check_path.stem, type_error='check_path_existence_error_2')
-
+        try:
+            return priority_utils.check_path_existence_only(check_path)
+        except ValueError:
+            return "noExist"
 
     def sif_file(self, sif_file):
         """The method is used for selection of given name
@@ -417,7 +252,7 @@ class Priority:
             if self.sif_file is not None:
                 return self.sif_file
             else:
-                sys.exit('Error: You do not enter the name of the sif file!!!')
+                raise ValueError("sif_file must be provided")
         else:
             return sif_file
 
@@ -431,7 +266,7 @@ class Priority:
         else:
             return core_OF
 
-    def _priority(self, var, type_priority='core'):
+    def _priority(self, var, type_priority="core"):
         """
         Test priority fun
         :param var:
@@ -456,16 +291,16 @@ class Priority:
         error that the required variables was not set
 
         """
-        if type_priority == 'core_OF':
+        if type_priority == "core_OF":
             if self.core_OF is not None:
                 return self.core_OF
             else:
-                sys.exit('You have to set numbers of cores for OpenFOAM')
-        elif type_priority == 'file':
+                raise ValueError("OpenFOAM core count must be configured")
+        elif type_priority == "file":
             if self.file is not None:
                 return self.file
             else:
-                sys.exit('Error: You do not enter the name of the file!!!')
+                raise ValueError("file must be provided")
         else:
             pass
 
@@ -476,24 +311,22 @@ class Priority:
         path is the checking variable
         return True or False
         """
-        return type(path) in [str, os.PathLike, pl.PosixPath, pl.WindowsPath, pl.Path]
-
+        return isinstance(path, (str, os.PathLike))
 
     @staticmethod
     def error_create_folder():
-        error_message = f''' 
+        error_message = """
             ------------------------------------------
-            The folder is already exist and your moder 
+            The folder is already exist and your moder
             of writing is available to make copy.
             Above information can help you find where is it.
             ------------------------------------------
-            '''
+            """
         for message in traceback.format_stack():
             print(message)
-        #print(repr(traceback.format_stack()))
-        raise SystemExit(error_message)
+        # print(repr(traceback.format_stack()))
+        raise FileExistsError(error_message)
 
     @staticmethod
     def _raise_error_run():
-        sys.exit('You have to set numbers of cores for OpenFOAM')
-
+        raise ValueError("OpenFOAM core count must be configured")
