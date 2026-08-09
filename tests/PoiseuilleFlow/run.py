@@ -1,37 +1,42 @@
-import pathlib as pl
-import pyRunOF
-from data import *
+"""Prepare and run the Poiseuille-flow OpenFOAM example."""
+
+from pathlib import Path
+
+from pyRunOF.case import ModelConfigurator
+from pyRunOF.openfoam import OpenFOAMCase
+
+from data import BASE_CASE_NAME, PARAMETERS, SOLVER, TURBULENCE_MODEL
 
 
-def main():
-    mp = pyRunOF.ModelConfigurator()
-    mp.create_path_from_dir(dir_path=pl.Path.cwd(), folder_name=base_case, path_key='src')
-    mp.create_name('solved', name_base=base_case, name_key='dst')
-    mp.create_path_from_dir(dir_path=pl.Path.cwd(), folder_name_key='dst', path_key='dst')
-    
-    mp.duplicate_case(src_key='src', dist_key='dst', mode='rewrite')
+EXAMPLE_ROOT = Path(__file__).resolve().parent
+SOURCE_CASE = EXAMPLE_ROOT / BASE_CASE_NAME
+SOLUTION_CASE = EXAMPLE_ROOT / f"{BASE_CASE_NAME}_solved"
 
 
-    system = pyRunOF.System(case_path=mp.get_path('dst'))
-    system.set_controlDict(data)
+def main() -> None:
+    """Copy, configure, mesh, and solve the example case."""
+    configurator = ModelConfigurator(dir_path=EXAMPLE_ROOT)
+    configurator.duplicate_case(SOURCE_CASE, SOLUTION_CASE, mode="rewrite")
 
-    mesh = pyRunOF.Mesh(case_path=mp.get_path('dst'))
-    mesh.set_blockMesh(data)
+    case = OpenFOAMCase(SOLUTION_CASE)
+    case.system.set_controlDict(PARAMETERS)
+    case.mesh.set_blockMesh(PARAMETERS)
 
-    init_val = pyRunOF.InitialValues(case_path=mp.get_path('dst'))
-    calculated_data = init_val.calcInitVal(A, B, Uin, nu)
-    init_val.set_var(data, calculated_data)
+    initial_values = case.initial_values.calcInitVal(
+        PARAMETERS["A_var"],
+        PARAMETERS["B_var"],
+        PARAMETERS["Uin_var"],
+        PARAMETERS["nu_var"],
+    )
+    case.initial_values.set_var(PARAMETERS, initial_values)
 
-    constant = pyRunOF.Constant(case_path=mp.get_path('dst'))
-    constant.set_transportProp(data)
-    constant.turbulent_model(turbulent_type='kEpsilon')
+    case.constant.set_transportProp(PARAMETERS)
+    case.constant.turbulent_model(turbulent_type=TURBULENCE_MODEL)
 
-    mesh.run_blockMesh()
-    
-    runner = pyRunOF.Run(case_path=mp.get_path('dst'),
-                         solver='pimpleFoam',
-                         )
-    runner.run()
+    case.mesh.run_blockMesh()
+    case.runner.set_solver_name(SOLVER)
+    case.runner.run()
+
 
 if __name__ == "__main__":
     main()

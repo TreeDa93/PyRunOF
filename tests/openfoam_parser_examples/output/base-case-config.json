@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "case": {
+    "name": "base_case"
+  },
+  "constant": {
+    "transportProperties": {
+      "transportModel": "Newtonian",
+      "nu": "nu [ 0 2 -1 0 0 0 0 ] nu_var",
+      "rho": "rho [ 1 -3 0 0 0 0 0 ] rho_var"
+    }
+  },
+  "system": {
+    "controlDict": {
+      "application": "mhdVxBPimpleFoam",
+      "startFrom": "startTime",
+      "startTime": "startTime_var",
+      "stopAt": "endTime",
+      "endTime": "endTime_var",
+      "deltaT": 0.0001,
+      "writeControl": "adjustableRunTime",
+      "writeInterval": 0.05,
+      "purgeWrite": 0,
+      "writeFormat": "binary",
+      "writePrecision": 6,
+      "writeCompression": "uncompressed",
+      "timeFormat": "general",
+      "timePrecision": 6,
+      "runTimeModifiable": "yes",
+      "adjustTimeStep": "yes",
+      "maxCo": 3,
+      "maxDeltaT": 1,
+      "functions": {
+        "#includeFunc": "outletSurf"
+      }
+    },
+    "fvSolution": {
+      "solvers": {
+        "p": {
+          "solver": "GAMG",
+          "tolerance": 5e-05,
+          "relTol": 0,
+          "smoother": "GaussSeidel"
+        },
+        "pFinal": {
+          "solver": "GAMG",
+          "tolerance": 5e-05,
+          "relTol": 0,
+          "smoother": "GaussSeidel"
+        },
+        "(U|T|k|omega|epsilon)": {
+          "solver": "smoothSolver",
+          "smoother": "symGaussSeidel",
+          "tolerance": 5e-05,
+          "relTol": 0
+        },
+        "(U|T|k|omega|epsilon)Final": {
+          "$U": "",
+          "tolerance": 5e-05,
+          "relTol": 0
+        }
+      },
+      "PIMPLE": {
+        "nOuterCorrectors": 1,
+        "nCorrectors": 3,
+        "nNonOrthogonalCorrectors": 1,
+        "pRefPoint": "( 0.02 0.02 0 )",
+        "pRefValue": 0
+      },
+      "relaxationFactors": {
+        "fields": {
+          "p": 0.3,
+          "pFinal": 1
+        },
+        "equations": {
+          "U": 0.3,
+          "UFinal": 1
+        }
+      }
+    }
+  },
+  "generated_at": "2026-08-09T10:29:20.622577+00:00"
+}

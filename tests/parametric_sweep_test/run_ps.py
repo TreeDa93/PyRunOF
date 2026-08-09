@@ -1,68 +1,80 @@
-import pyRunOF
-from settings.data import *
-from time import sleep
+"""Example integration test for a parametric OpenFOAM study.
 
-TEST_MODE = False
+By default the script only prepares cases and parameter snapshots.  Set
+``TEST_MODE`` to ``False`` to run OpenFOAM commands as well.
+"""
+
+from pathlib import Path
+
+from pyRunOF.case import ModelConfigurator
+from pyRunOF.openfoam import OpenFOAMCase
+from pyRunOF.sweep import ParametricSweep
+
+from settings.data import BASE_PARAMETERS, OF_CORES, SOLVER, SWEEP_PARAMETERS
+
+
+TEST_MODE = True
 GENERATE_JSON_PARAMS = True
-DELETE_SOL_FOLDER = False
+DELETE_SOLUTION_FOLDER = False
 DELETE_CASES = False
 
-def main():
-    ps = pyRunOF.ParametricSweep()
-    ps.run(ps_params, fun=run_case, update_vars=(data, ), type_set='special series')
-    #ps.run_progress_bar(ps_params, fun=run_case, update_vars=(data,), type_set='special series')
+TEST_ROOT = Path(__file__).resolve().parent
+SOURCE_CASE = TEST_ROOT / "settings" / "base_case"
+SOLUTION_ROOT = TEST_ROOT / "solution"
 
-def run_case(ps):
 
-    mp = pyRunOF.ModelConfigurator(dir_path=dir_path)
-    mp.create_path_from_dir(dir_path_key='dir', folder_name='settings', path_key='settings')
-    mp.create_path_from_dir(dir_path_key='settings', folder_name=src_case, path_key='src')
-    mp.create_path_from_dir(dir_path_key='dir', folder_name='solution', path_key='solution')
+def prepare_case(sweep: ParametricSweep) -> None:
+    """Create and configure one case for the current parameter set."""
+    parameters = BASE_PARAMETERS | sweep.cur_data
+    case_path = SOLUTION_ROOT / f"{SOURCE_CASE.name}_{sweep.cur_i}"
 
-    if DELETE_SOL_FOLDER is True:
-        mp.delete_cases(full_pathes=[mp.get_path('solution')])
+    configurator = ModelConfigurator(dir_path=TEST_ROOT)
+    configurator.duplicate_case(SOURCE_CASE, case_path, mode="rewrite")
 
-    if DELETE_CASES is True:
-        mp.delete_cases(words=['base_case'], directory=mp.get_path('solution'))
+    case = OpenFOAMCase(case_path)
+    case.system.set_controlDict(parameters)
+    case.system.set_any_file(parameters, files=("decomposeParDict",))
 
-    mp.get_path('solution').mkdir(exist_ok=True)
-    
-    mp.create_name(ps.get_cur_name(type_name='index'), name_base=src_case, name_key='dst')
-    mp.create_path_from_dir(dir_path_key='solution', folder_name_key='dst', path_key='dst')
+    initial_values = case.initial_values.calcInitVal(
+        parameters["A_var"],
+        parameters["B_var"],
+        parameters["Uin_var"],
+        parameters["nu_var"],
+    )
+    parameters.update(initial_values)
+    case.initial_values.set_var(parameters)
 
-    mp.duplicate_case(src_key='src', dist_key='dst', mode='rewrite')
-    
-    system = pyRunOF.System(case_path=mp.get_path('dst'))
-    system.set_controlDict(data)
-    system.set_any_file(data, files=['decomposeParDict'])
-    
-    init_val = pyRunOF.InitialValues(case_path=mp.get_path('dst'))
-    # calculate intial values
-    data.update(init_val.calcInitVal(data['A_var'], data['B_var'], data['Uin_var'], data['nu_var']))
-    init_val.set_var(data)
-    
-    constant = pyRunOF.Constant(case_path=mp.get_path('dst'))
-    constant.set_transportProp(data) 
-    constant.turbulent_model(turbulent_type='kOmega')
-    
-    mesh = pyRunOF.Mesh(case_path=mp.get_path('dst'))
-    mesh.set_blockMesh(data)
+    case.constant.set_transportProp(parameters)
+    case.constant.turbulent_model(turbulent_type="kOmega")
+    case.mesh.set_blockMesh(parameters)
 
-    runner = pyRunOF.Run(case_path=mp.get_path('dst'),
-                        solver=solverName,
-                        mode='parallel', 
-                        OF_core=coreOF,
-                        )
-    
-    if GENERATE_JSON_PARAMS is True:
-        json_name = f'params_{ps.cur_i}'
-        mp.create_path_from_dir(dir_path_key='solution', folder_name=json_name, path_key='params')
-    
-    mp.create_json_params(data, save_path=mp.get_path('params'))
-    if TEST_MODE is not True:
-        mesh.run_blockMesh()
-        mesh.run_decompose(what='OF')
-        runner.run()
+    case.runner.set_solver_name(SOLVER)
+    case.runner.set_mode("parallel")
+    case.runner.set_cores_OF(OF_CORES)
 
-if __name__ == '__main__':
+    if GENERATE_JSON_PARAMS:
+        snapshot_path = SOLUTION_ROOT / f"params_{sweep.cur_i}"
+        configurator.create_json_params(parameters, save_path=snapshot_path)
+
+    if not TEST_MODE:
+        case.mesh.run_blockMesh()
+        case.mesh.run_decompose(what="OF")
+        case.runner.run()
+
+
+def main() -> None:
+    configurator = ModelConfigurator(dir_path=TEST_ROOT)
+
+    if DELETE_SOLUTION_FOLDER and SOLUTION_ROOT.exists():
+        configurator.delete_folders([SOLUTION_ROOT], directory=TEST_ROOT)
+
+    SOLUTION_ROOT.mkdir(exist_ok=True)
+    if DELETE_CASES:
+        configurator.delete_folders_by_words("base_case", directory=SOLUTION_ROOT)
+
+    sweep = ParametricSweep(prepare_case)
+    sweep.run(SWEEP_PARAMETERS, type_set="series")
+
+
+if __name__ == "__main__":
     main()

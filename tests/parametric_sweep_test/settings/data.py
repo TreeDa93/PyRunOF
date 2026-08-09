@@ -1,41 +1,29 @@
+"""Input data for the parametric-sweep integration example."""
 
-import os 
+DUCT_LENGTH = 0.1
+DUCT_HEIGHT = 0.01
+DUCT_WIDTH = 0.02
 
-L = 0.1 # length of the duct
-A = 0.01 # hiegh of the duct
-B = 0.02 # width of the dcut
-hx  = 20 # the number of cells along x
-hy = 10 # the number of cells along y
-hz  = 10 # the number of cells along z
+OF_CORES = 4
+SOLVER = "pimpleFoam"
 
-Uin = 1 # inlet velocity
-nu = 3.7e-07 # kinematic visocosity
-rho = 6440 # mass density
-startTime = 0 # start time at controlDict
-stopTime = 0.25 #stop time at controlDict
+BASE_PARAMETERS = {
+    "nu_var": 3.7e-7,
+    "rho_var": 6440,
+    "startTime_var": 0,
+    "endTime_var": 0.25,
+    "Uin_var": 1,
+    "Lx_var": DUCT_LENGTH,
+    "A_var": DUCT_HEIGHT,
+    "B_var": DUCT_WIDTH,
+    "hx_var": 20,
+    "hy_var": 10,
+    "hz_var": 10,
+    "core_OF": OF_CORES,
+}
 
-coreOF = 4
-solverName ='pimpleFoam'
-mode = 'parallel'
-
-dir_path = os.getcwd()
-src_case = 'base_case'
-
-data = {
-        'nu_var': nu,
-        'rho_var': rho,
-        'startTime_var' : startTime,
-        'endTime_var' : stopTime,
-        "Uin_var": Uin,
-        'Lx_var': L,
-        'A_var': A,
-        'B_var': B,
-        'hx_var': hx,
-        'hy_var': hy,
-        'hz_var': hz,
-        'core_OF': coreOF,
-        }
-
-ps_params = {'Uin_var': [3, 2, 5, 1],
-            'nu_var': [1e-07, 2e-07, 5e-07, 8e-07],
-            'rho_var': [6450, 6410, 6100, 6500]}
+SWEEP_PARAMETERS = {
+    "Uin_var": [3, 2, 5, 1],
+    "nu_var": [1e-7, 2e-7, 5e-7, 8e-7],
+    "rho_var": [6450, 6410, 6100, 6500],
+}
