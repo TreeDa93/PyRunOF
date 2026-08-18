@@ -99,12 +99,14 @@ def test_parser_exports_fields_boundaries_and_case_dictionaries(tmp_path: Path) 
 
 def test_parser_reports_file_progress(tmp_path: Path, monkeypatch) -> None:
     _create_case(tmp_path)
-    observed = {"total": None, "updates": 0, "disabled": None}
+    observed = {"total": None, "updates": 0, "disabled": None, "files": []}
 
     class FakeProgress:
-        def __init__(self, *, total, disable, **_options):
+        def __init__(self, *, total, disable, bar_format, **_options):
             observed["total"] = total
             observed["disabled"] = disable
+            assert "прошло {elapsed}" in bar_format
+            assert "осталось {remaining}" in bar_format
 
         def __enter__(self):
             return self
@@ -115,6 +117,10 @@ def test_parser_reports_file_progress(tmp_path: Path, monkeypatch) -> None:
         def update(self, amount):
             observed["updates"] += amount
 
+        def set_postfix_str(self, text, *, refresh):
+            assert refresh is True
+            observed["files"].append(text)
+
     monkeypatch.setattr(parser_module, "tqdm", FakeProgress)
 
     CaseParser(tmp_path, command_runner=FakeFoamDictionary()).parse(
@@ -122,7 +128,12 @@ def test_parser_reports_file_progress(tmp_path: Path, monkeypatch) -> None:
         files={"system": ["controlDict"]},
     )
 
-    assert observed == {"total": 1, "updates": 1, "disabled": False}
+    assert observed == {
+        "total": 1,
+        "updates": 1,
+        "disabled": False,
+        "files": ["file=system/controlDict"],
+    }
 
 
 def test_parser_can_select_initial_conditions_only(tmp_path: Path) -> None:

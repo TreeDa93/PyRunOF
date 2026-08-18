@@ -4,15 +4,24 @@ from __future__ import annotations
 
 import json
 import shlex
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from tqdm.auto import tqdm
 
 from pyRunOF.additional_fun.auxiliary_functions import run_command
 from pyRunOF.exceptions import CommandExecutionError, ConfigurationError, UnsafePathError
 
 CommandRunner = Callable[..., Any]
+SectionSelection = str | Iterable[str]
+
+SECTION_FOLDERS: dict[str, tuple[str, set[str]]] = {
+    "initial_conditions": ("0", set()),
+    "constant": ("constant", {"polyMesh"}),
+    "system": ("system", set()),
+}
 
 
 class CaseParser:
@@ -22,23 +31,65 @@ class CaseParser:
         self.case_path = Path(case_path).expanduser().resolve()
         self._run_command = command_runner
 
-    def parse(self, *, strict: bool = True) -> dict[str, Any]:
-        """Return settings from ``0``, ``constant`` and ``system``.
+    def parse(
+        self,
+        *,
+        strict: bool = True,
+        sections: SectionSelection = "all",
+        files: Mapping[str, Iterable[str]] | None = None,
+        progress: bool = True,
+    ) -> dict[str, Any]:
+        """Return settings from selected case sections.
 
         Every regular file is parsed recursively. ``constant/polyMesh`` is
-        excluded because mesh topology is not case configuration.
+        excluded because mesh topology is not case configuration. ``sections``
+        accepts one section name, an iterable of names, or ``"all"``. ``files``
+        can restrict each section further to selected relative file names. Set
+        ``progress=False`` to suppress the file progress bar and ETA.
+
         """
         if not self.case_path.is_dir():
             raise FileNotFoundError(f"OpenFOAM case does not exist: {self.case_path}")
 
+        selected_sections = self._normalize_sections(sections)
+        selected_files = self._normalize_files(files)
+        unused_file_filters = set(selected_files).difference(selected_sections)
+        if unused_file_filters:
+            names = ", ".join(sorted(unused_file_filters))
+            raise ValueError(f"File filters provided for unselected sections: {names}")
+
+        section_plans = []
+        for section in selected_sections:
+            folder, excluded_directories = SECTION_FOLDERS[section]
+            root = self.case_path / folder
+            paths = (
+                self._section_files(root, excluded_directories, selected_files.get(section))
+                if root.is_dir()
+                else []
+            )
+            section_plans.append((section, folder, paths))
+
+        parsed_sections = {}
+        total_files = sum(len(paths) for _, _, paths in section_plans)
+        with tqdm(
+            total=total_files,
+            desc="Parsing OpenFOAM case",
+            unit="file",
+            dynamic_ncols=True,
+            disable=not progress,
+        ) as progress_bar:
+            for section, folder, paths in section_plans:
+                parsed_sections[section] = self._parse_section(
+                    folder,
+                    paths=paths,
+                    strict=strict,
+                    on_file_parsed=progress_bar.update,
+                )
+
         return {
             "schema_version": 1,
             "case": {"name": self.case_path.name},
-            "initial_conditions": self._parse_section("0", strict=strict),
-            "constant": self._parse_section(
-                "constant", excluded_directories={"polyMesh"}, strict=strict
-            ),
-            "system": self._parse_section("system", strict=strict),
+            **parsed_sections,
         }
 
     def save(
@@ -47,12 +98,20 @@ class CaseParser:
         *,
         strict: bool = True,
         indent: int = 2,
+        sections: SectionSelection = "all",
+        files: Mapping[str, Iterable[str]] | None = None,
+        progress: bool = True,
     ) -> Path:
         """Parse the case and write a UTF-8 JSON file."""
         destination = Path(destination or self.case_path / "case-config.json")
         if not destination.is_absolute():
             destination = self.case_path / destination
-        data = self.parse(strict=strict)
+        data = self.parse(
+            strict=strict,
+            sections=sections,
+            files=files,
+            progress=progress,
+        )
         data["generated_at"] = datetime.now(timezone.utc).isoformat()
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(
@@ -94,10 +153,42 @@ class CaseParser:
                 except (CommandExecutionError, ConfigurationError, OSError, UnsafePathError) as exc:
                     if strict:
                         raise
-                    report["errors"].append(
-                        {"file": f"{folder}/{file_name}", "error": str(exc)}
-                    )
+                    report["errors"].append({"file": f"{folder}/{file_name}", "error": str(exc)})
         return report
+
+    @staticmethod
+    def _normalize_sections(sections: SectionSelection) -> tuple[str, ...]:
+        if sections == "all":
+            return tuple(SECTION_FOLDERS)
+        if isinstance(sections, str):
+            selected = (sections,)
+        else:
+            selected = tuple(dict.fromkeys(sections))
+        if not selected:
+            raise ValueError("At least one section must be selected")
+        unknown = set(selected).difference(SECTION_FOLDERS)
+        if unknown:
+            names = ", ".join(sorted(unknown))
+            raise ValueError(f"Unknown case sections: {names}")
+        return selected
+
+    @staticmethod
+    def _normalize_files(
+        files: Mapping[str, Iterable[str]] | None,
+    ) -> dict[str, set[str]]:
+        if files is None:
+            return {}
+        unknown = set(files).difference(SECTION_FOLDERS)
+        if unknown:
+            names = ", ".join(sorted(unknown))
+            raise ValueError(f"File filters contain unknown sections: {names}")
+        normalized: dict[str, set[str]] = {}
+        for section, names in files.items():
+            if isinstance(names, str):
+                normalized[section] = {names}
+            else:
+                normalized[section] = {str(name) for name in names}
+        return normalized
 
     @staticmethod
     def _load_settings(settings: Mapping[str, Any] | str | Path) -> Mapping[str, Any]:
@@ -168,20 +259,13 @@ class CaseParser:
         self,
         folder: str,
         *,
-        excluded_directories: set[str] | None = None,
+        paths: Sequence[Path],
         strict: bool,
+        on_file_parsed: Callable[[int], Any] | None = None,
     ) -> dict[str, Any]:
         root = self.case_path / folder
-        if not root.is_dir():
-            return {}
-        excluded_directories = excluded_directories or set()
         result: dict[str, Any] = {}
-        for path in sorted(root.rglob("*")):
-            if not path.is_file() or path.name.startswith("."):
-                continue
-            relative_parts = path.relative_to(root).parts
-            if any(part in excluded_directories for part in relative_parts[:-1]):
-                continue
+        for path in paths:
             relative_case_path = path.relative_to(self.case_path)
             key = str(path.relative_to(root))
             try:
@@ -190,14 +274,47 @@ class CaseParser:
                 if strict:
                     raise
                 result[key] = {"_parse_error": str(exc)}
+            finally:
+                if on_file_parsed is not None:
+                    on_file_parsed(1)
+
         return result
 
+    @staticmethod
+    def _section_files(
+        root: Path,
+        excluded_directories: set[str],
+        included_files: set[str] | None,
+    ) -> list[Path]:
+        if included_files is not None:
+            paths = []
+            for file_name in sorted(included_files):
+                relative_path = Path(file_name)
+                if relative_path.is_absolute() or ".." in relative_path.parts:
+                    raise UnsafePathError(f"Unsafe case dictionary path: {file_name!r}")
+                if any(part in excluded_directories for part in relative_path.parts[:-1]):
+                    continue
+                path = root / relative_path
+                if not path.is_file():
+                    raise FileNotFoundError(f"OpenFOAM dictionary does not exist: {path}")
+                paths.append(path)
+            return paths
+
+        paths = []
+        for directory, directory_names, file_names in root.walk():
+            directory_names[:] = sorted(
+                name for name in directory_names if name not in excluded_directories
+            )
+            paths.extend(
+                directory / name for name in sorted(file_names) if not name.startswith(".")
+            )
+        return paths
+
     def _parse_dictionary(self, relative_path: Path) -> dict[str, Any]:
-        keywords = self._get_keywords(relative_path)
-        return {
-            keyword: self._parse_entry(relative_path, keyword)
-            for keyword in keywords
-        }
+        keywords = (
+            keyword for keyword in self._get_keywords(relative_path) if keyword != "FoamFile"
+        )
+        return {keyword: self._parse_entry(relative_path, keyword) for keyword in keywords}
 
     def _parse_entry(self, relative_path: Path, entry: str) -> Any:
         try:
@@ -220,9 +337,7 @@ class CaseParser:
         return self._parse_keywords(output)
 
     def _get_value(self, relative_path: Path, entry: str) -> Any:
-        output = self._execute(
-            ["foamDictionary", "-entry", entry, "-value", str(relative_path)]
-        )
+        output = self._execute(["foamDictionary", "-entry", entry, "-value", str(relative_path)])
         return self._parse_value(output)
 
     def _execute(self, command: list[str]) -> str:

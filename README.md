@@ -26,21 +26,37 @@ uv run pytest
 редактируемом виде. Активировать окружение вручную не обязательно: команды
 можно запускать через `uv run`.
 
-Минимальный пример параметрического исследования:
+Минимальный пример полного перебора параметров:
 
 ```python
-from pyRunOF import ParametricSweep
+from pyRunOF.sweep import ParametricSweep, SweepPoint
 
 
-def calculate(sweep: ParametricSweep) -> None:
-    print(sweep.cur_i, sweep.cur_data)
+def calculate(point: SweepPoint) -> float:
+    print(point.index, point.name, point.parameters)
+    return point.parameters["velocity"] * 2
 
 
-sweep = ParametricSweep(calculate)
-sweep.run(
+sweep = ParametricSweep(
     {"velocity": [1, 2], "turbulence_model": ["kEpsilon", "kOmegaSST"]},
-    type_set="all",
+    mode="product",
 )
+results = sweep.run(calculate, progress=True)
+```
+
+Параметры можно сопоставлять попарно. В режиме `zip` длины списков должны
+совпадать, поэтому случайная потеря вариантов сразу обнаруживается:
+
+```python
+from pyRunOF.sweep import ParametricSweep
+
+sweep = ParametricSweep(
+    {"velocity": [1, 2], "model": ["kEpsilon", "kOmegaSST"]},
+    mode="zip",
+)
+
+for point in sweep:
+    print(point.index, point.parameters, point.name)
 ```
 
 Запуск OpenFOAM-кейса:

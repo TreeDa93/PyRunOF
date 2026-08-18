@@ -1,5 +1,5 @@
 """Parametric studies."""
 
-from pyRunOF.modules.parametric_sweep import ParametricSweep
+from pyRunOF.sweep.parametric import ParametricSweep, SweepExecutionError, SweepPoint
 
-__all__ = ["ParametricSweep"]
+__all__ = ["ParametricSweep", "SweepExecutionError", "SweepPoint"]
