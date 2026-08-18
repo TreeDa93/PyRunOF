@@ -3,8 +3,8 @@ from pathlib import Path
 
 from pyRunOF.openfoam import OpenFOAMCase
 
-TESTS_ROOT = Path(__file__).resolve().parents[1]
-CASE_PATH = TESTS_ROOT / "PoiseuilleFlow" / "PoiseuilleFlow"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CASE_PATH = PROJECT_ROOT / "examples" / "workflows" / "poiseuille_flow" / "PoiseuilleFlow"
 OUTPUT_PATH = Path(__file__).resolve().parent / "output" / "base-case-config.json"
 
 def test_parse_case():
@@ -20,6 +20,7 @@ def test_parse_case():
             "system": ["controlDict", "fvSolution"],
         },
     )
+    assert saved_path == OUTPUT_PATH
 
 if __name__ == "__main__":
     test_parse_case()

@@ -5,8 +5,8 @@ from pathlib import Path
 from pyRunOF.openfoam import OpenFOAMCase
 
 
-TESTS_ROOT = Path(__file__).resolve().parents[1]
-CASE_PATH = TESTS_ROOT / "PoiseuilleFlow" / "PoiseuilleFlow"
+EXAMPLES_ROOT = Path(__file__).resolve().parents[1]
+CASE_PATH = EXAMPLES_ROOT / "workflows" / "poiseuille_flow" / "PoiseuilleFlow"
 
 
 def main() -> None:

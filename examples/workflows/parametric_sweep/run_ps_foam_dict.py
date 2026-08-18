@@ -10,7 +10,7 @@ from pathlib import Path
 
 from pyRunOF.case import ModelConfigurator
 from pyRunOF.openfoam import OpenFOAMCase
-from pyRunOF.sweep import ParametricSweep
+from pyRunOF.sweep import ParametricSweep, SweepPoint
 
 from settings.data import BASE_PARAMETERS, OF_CORES, SOLVER, SWEEP_PARAMETERS
 
@@ -18,6 +18,8 @@ from settings.data import BASE_PARAMETERS, OF_CORES, SOLVER, SWEEP_PARAMETERS
 TEST_MODE = True
 GENERATE_JSON_PARAMS = True
 DELETE_SOLUTION_FOLDER = False
+WORKERS = 2
+DISPLAY = "all"
 
 TEST_ROOT = Path(__file__).resolve().parent
 SOURCE_CASE = TEST_ROOT / "settings" / "base_case"
@@ -105,31 +107,33 @@ def build_case_settings(parameters: dict[str, float]) -> dict:
     }
 
 
-def prepare_case(sweep: ParametricSweep) -> None:
+def prepare_case(point: SweepPoint) -> Path:
     """Copy and configure one case for the current parameter set."""
-    parameters = BASE_PARAMETERS | sweep.cur_data
+    parameters = BASE_PARAMETERS | point.parameters
     parameters.update(calculate_initial_values(parameters))
-    case_path = SOLUTION_ROOT / f"{SOURCE_CASE.name}_{sweep.cur_i}"
+    case_path = SOLUTION_ROOT / f"{SOURCE_CASE.name}_{point.index}"
+    point.log(f"preparing {case_path}")
 
     configurator = ModelConfigurator(dir_path=TEST_ROOT)
     configurator.duplicate_case(SOURCE_CASE, case_path, mode="rewrite")
 
     case = OpenFOAMCase(case_path)
     report = case.parser.apply(build_case_settings(parameters))
-    print(f"Case {sweep.cur_i}: updated {report['updated']} entries")
+    point.log(f"updated {report['updated']} entries")
 
     case.runner.set_solver_name(SOLVER)
     case.runner.set_mode("parallel")
     case.runner.set_cores_OF(OF_CORES)
 
     if GENERATE_JSON_PARAMS:
-        snapshot_path = SOLUTION_ROOT / f"params_{sweep.cur_i}.json"
+        snapshot_path = SOLUTION_ROOT / f"params_{point.index}.json"
         configurator.create_json_params(parameters, save_path=snapshot_path)
 
     if not TEST_MODE:
         case.mesh.run_blockMesh()
         case.mesh.run_decompose(what="OF")
-        case.runner.run()
+        case.runner.run(output_callback=point.log)
+    return case_path
 
 
 def main() -> None:
@@ -138,8 +142,14 @@ def main() -> None:
         configurator.delete_folders([SOLUTION_ROOT], directory=TEST_ROOT)
 
     SOLUTION_ROOT.mkdir(exist_ok=True)
-    sweep = ParametricSweep(prepare_case)
-    sweep.run(SWEEP_PARAMETERS, type_set="series")
+    sweep = ParametricSweep(SWEEP_PARAMETERS, mode="zip")
+    sweep.run(
+        prepare_case,
+        workers=WORKERS,
+        display=DISPLAY,
+        journal_path=SOLUTION_ROOT / "sweep-journal.json",
+        on_error="continue",
+    )
 
 
 if __name__ == "__main__":

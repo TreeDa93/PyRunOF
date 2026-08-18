@@ -1,10 +1,13 @@
 import os
 import pathlib as pl
+import queue
 import shlex
 import subprocess
+import threading
+import time
 import traceback
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, Callable
 
 from pyRunOF.exceptions import CommandExecutionError
 
@@ -19,6 +22,7 @@ def run_command(
     log_path: str | os.PathLike[str] | None = None,
     timeout: float | None = None,
     capture_output: bool = False,
+    output_callback: Callable[[str], Any] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     """Run an external command without invoking a shell.
 
@@ -35,6 +39,8 @@ def run_command(
 
     if capture_output and log_path is not None:
         raise ValueError("capture_output and log_path cannot be used together")
+    if capture_output and output_callback is not None:
+        raise ValueError("capture_output and output_callback cannot be used together")
 
     output = None
     log_file = None
@@ -46,6 +52,14 @@ def run_command(
         output = log_file.open("a", encoding="utf-8")
 
     try:
+        if output_callback is not None:
+            return _run_command_streaming(
+                args,
+                cwd,
+                output_callback,
+                output=output,
+                timeout=timeout,
+            )
         return subprocess.run(
             args,
             cwd=cwd,
@@ -63,6 +77,58 @@ def run_command(
     finally:
         if output is not None:
             output.close()
+
+
+def _run_command_streaming(
+    args: list[str],
+    cwd: pl.Path,
+    output_callback: Callable[[str], Any],
+    *,
+    output: Any = None,
+    timeout: float | None = None,
+) -> subprocess.CompletedProcess[str]:
+    """Run a command and publish complete output lines while it is running."""
+    process = subprocess.Popen(
+        args,
+        cwd=cwd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        start_new_session=True,
+        text=True,
+        bufsize=1,
+    )
+    lines: queue.Queue[str | None] = queue.Queue()
+
+    def read_output() -> None:
+        assert process.stdout is not None
+        for line in process.stdout:
+            lines.put(line)
+        lines.put(None)
+
+    threading.Thread(target=read_output, daemon=True).start()
+    deadline = None if timeout is None else time.monotonic() + timeout
+    try:
+        while True:
+            remaining = None if deadline is None else max(0.0, deadline - time.monotonic())
+            try:
+                line = lines.get(timeout=remaining)
+            except queue.Empty as exc:
+                process.kill()
+                process.wait()
+                raise subprocess.TimeoutExpired(args, timeout) from exc
+            if line is None:
+                break
+            if output is not None:
+                output.write(line)
+                output.flush()
+            output_callback(line.rstrip("\r\n"))
+        return_code = process.wait()
+        if return_code:
+            raise subprocess.CalledProcessError(return_code, args)
+        return subprocess.CompletedProcess(args, return_code)
+    finally:
+        if process.stdout is not None:
+            process.stdout.close()
 
 
 def merge_dicts(args: Sequence[dict]):

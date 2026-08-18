@@ -2,6 +2,7 @@
 
 from pyRunOF.openfoam.case import OpenFOAMCase
 from pyRunOF.openfoam.parser import CaseParser
+from pyRunOF.openfoam.schema import CaseSchemaArtifacts
 from pyRunOF.modules.constant import Constant
 from pyRunOF.modules.initial_values import InitialValues
 from pyRunOF.modules.meshes import Mesh
@@ -10,6 +11,7 @@ from pyRunOF.modules.set_system import System
 
 __all__ = [
     "CaseParser",
+    "CaseSchemaArtifacts",
     "Constant",
     "InitialValues",
     "Mesh",

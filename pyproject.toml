@@ -43,7 +43,7 @@ build-backend = "hatchling.build"
 packages = ["pyRunOF"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/pyRunOF", "/tests", "/README.md", "/pyproject.toml"]
+include = ["/pyRunOF", "/tests", "/examples", "/README.md", "/pyproject.toml"]
 
 [tool.uv]
 package = true
@@ -58,12 +58,8 @@ line-length = 100
 extend-exclude = [
     "pyRunOF/files/MeshScripts/exportMesh.py",
     "tests/fixtures",
-    "tests/PoiseuilleFlow",
-    "tests/obstacle_icoFoam",
-    "tests/obstacle_turb_models_pimpleFoam",
-    "tests/paralle_test",
-    "tests/parametric_sweep_test",
-    "tests/Coutte_run_app",
+    "examples/workflows",
+    "examples/parser_original",
 ]
 
 [tool.ruff.lint]

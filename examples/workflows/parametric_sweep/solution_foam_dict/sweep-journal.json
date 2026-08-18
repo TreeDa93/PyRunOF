@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "started_at": "2026-08-18T23:14:33.544709+00:00",
+  "finished_at": "2026-08-18T23:14:34.343526+00:00",
+  "summary": {
+    "pending": 0,
+    "running": 0,
+    "solved": 4,
+    "error": 0
+  },
+  "cases": [
+    {
+      "index": 1,
+      "name": "case-0001__Uin_var-3__nu_var-1e-07__rho_var-6450",
+      "parameters": {
+        "Uin_var": 3,
+        "nu_var": 1e-07,
+        "rho_var": 6450
+      },
+      "status": "solved",
+      "started_at": "2026-08-18T23:14:33.548136+00:00",
+      "finished_at": "2026-08-18T23:14:33.948330+00:00",
+      "duration_seconds": 0.400193,
+      "error": null
+    },
+    {
+      "index": 2,
+      "name": "case-0002__Uin_var-2__nu_var-2e-07__rho_var-6410",
+      "parameters": {
+        "Uin_var": 2,
+        "nu_var": 2e-07,
+        "rho_var": 6410
+      },
+      "status": "solved",
+      "started_at": "2026-08-18T23:14:33.550181+00:00",
+      "finished_at": "2026-08-18T23:14:33.942363+00:00",
+      "duration_seconds": 0.394091,
+      "error": null
+    },
+    {
+      "index": 3,
+      "name": "case-0003__Uin_var-5__nu_var-5e-07__rho_var-6100",
+      "parameters": {
+        "Uin_var": 5,
+        "nu_var": 5e-07,
+        "rho_var": 6100
+      },
+      "status": "solved",
+      "started_at": "2026-08-18T23:14:33.945030+00:00",
+      "finished_at": "2026-08-18T23:14:34.333451+00:00",
+      "duration_seconds": 0.38842,
+      "error": null
+    },
+    {
+      "index": 4,
+      "name": "case-0004__Uin_var-1__nu_var-8e-07__rho_var-6500",
+      "parameters": {
+        "Uin_var": 1,
+        "nu_var": 8e-07,
+        "rho_var": 6500
+      },
+      "status": "solved",
+      "started_at": "2026-08-18T23:14:33.950651+00:00",
+      "finished_at": "2026-08-18T23:14:34.341195+00:00",
+      "duration_seconds": 0.390543,
+      "error": null
+    }
+  ],
+  "events": [
+    {
+      "timestamp": "2026-08-18T23:14:33.548140+00:00",
+      "index": 1,
+      "name": "case-0001__Uin_var-3__nu_var-1e-07__rho_var-6450",
+      "status": "running",
+      "error": null
+    },
+    {
+      "timestamp": "2026-08-18T23:14:33.550185+00:00",
+      "index": 2,
+      "name": "case-0002__Uin_var-2__nu_var-2e-07__rho_var-6410",
+      "status": "running",
+      "error": null
+    },
+    {
+      "timestamp": "2026-08-18T23:14:33.942371+00:00",
+      "index": 2,
+      "name": "case-0002__Uin_var-2__nu_var-2e-07__rho_var-6410",
+      "status": "solved",
+      "error": null
+    },
+    {
+      "timestamp": "2026-08-18T23:14:33.945034+00:00",
+      "index": 3,
+      "name": "case-0003__Uin_var-5__nu_var-5e-07__rho_var-6100",
+      "status": "running",
+      "error": null
+    },
+    {
+      "timestamp": "2026-08-18T23:14:33.948336+00:00",
+      "index": 1,
+      "name": "case-0001__Uin_var-3__nu_var-1e-07__rho_var-6450",
+      "status": "solved",
+      "error": null
+    },
+    {
+      "timestamp": "2026-08-18T23:14:33.950654+00:00",
+      "index": 4,
+      "name": "case-0004__Uin_var-1__nu_var-8e-07__rho_var-6500",
+      "status": "running",
+      "error": null
+    },
+    {
+      "timestamp": "2026-08-18T23:14:34.333458+00:00",
+      "index": 3,
+      "name": "case-0003__Uin_var-5__nu_var-5e-07__rho_var-6100",
+      "status": "solved",
+      "error": null
+    },
+    {
+      "timestamp": "2026-08-18T23:14:34.341200+00:00",
+      "index": 4,
+      "name": "case-0004__Uin_var-1__nu_var-8e-07__rho_var-6500",
+      "status": "solved",
+      "error": null
+    }
+  ]
+}

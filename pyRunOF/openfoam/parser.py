@@ -13,6 +13,12 @@ from tqdm.auto import tqdm
 
 from pyRunOF.additional_fun.auxiliary_functions import run_command
 from pyRunOF.exceptions import CommandExecutionError, ConfigurationError, UnsafePathError
+from pyRunOF.openfoam.schema import (
+    CaseSchemaArtifacts,
+    build_json_schema,
+    generate_typed_dicts,
+    normalize_type_name,
+)
 
 CommandRunner = Callable[..., Any]
 SectionSelection = str | Iterable[str]
@@ -36,6 +42,7 @@ class CaseParser:
         *,
         strict: bool = True,
         sections: SectionSelection = "all",
+        parse_kind: str | None = None,
         files: Mapping[str, Iterable[str]] | None = None,
         progress: bool = True,
     ) -> dict[str, Any]:
@@ -51,6 +58,10 @@ class CaseParser:
         if not self.case_path.is_dir():
             raise FileNotFoundError(f"OpenFOAM case does not exist: {self.case_path}")
 
+        if parse_kind is not None:
+            if sections != "all":
+                raise ValueError("Use either sections or parse_kind, not both")
+            sections = parse_kind
         selected_sections = self._normalize_sections(sections)
         selected_files = self._normalize_files(files)
         unused_file_filters = set(selected_files).difference(selected_sections)
@@ -77,13 +88,21 @@ class CaseParser:
             unit="file",
             dynamic_ncols=True,
             disable=not progress,
+            bar_format=(
+                "{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} "
+                "[прошло {elapsed}, осталось {remaining}] {postfix}"
+            ),
         ) as progress_bar:
             for section, folder, paths in section_plans:
+                def report_file(relative_path: Path) -> None:
+                    progress_bar.set_postfix_str(f"file={relative_path}", refresh=True)
+                    progress_bar.update(1)
+
                 parsed_sections[section] = self._parse_section(
                     folder,
                     paths=paths,
                     strict=strict,
-                    on_file_parsed=progress_bar.update,
+                    on_file_parsed=report_file,
                 )
 
         return {
@@ -118,6 +137,55 @@ class CaseParser:
             json.dumps(data, ensure_ascii=False, indent=indent) + "\n", encoding="utf-8"
         )
         return destination
+
+    def export_schema(
+        self,
+        output: str | Path,
+        *,
+        name: str | None = None,
+        strict: bool = True,
+        indent: int = 2,
+        sections: SectionSelection = "all",
+        files: Mapping[str, Iterable[str]] | None = None,
+        progress: bool = True,
+    ) -> CaseSchemaArtifacts:
+        """Export values, JSON Schema and importable ``TypedDict`` definitions.
+
+        Relative output paths are resolved from the current working directory. The
+        generated schema suggests entries found in this case while still allowing
+        custom OpenFOAM keys.
+        """
+        directory = Path(output).expanduser().resolve()
+        directory.mkdir(parents=True, exist_ok=True)
+
+        data = self.parse(
+            strict=strict,
+            sections=sections,
+            files=files,
+            progress=progress,
+        )
+        data["generated_at"] = datetime.now(timezone.utc).isoformat()
+        schema_name = normalize_type_name(name or self.case_path.name)
+
+        config_path = directory / "config.json"
+        schema_path = directory / "schema.json"
+        types_path = directory / "types.py"
+        config_path.write_text(
+            json.dumps(data, ensure_ascii=False, indent=indent) + "\n", encoding="utf-8"
+        )
+        schema_path.write_text(
+            json.dumps(
+                build_json_schema(data, title=f"{schema_name}Settings"),
+                ensure_ascii=False,
+                indent=indent,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        types_path.write_text(
+            generate_typed_dicts(data, name=schema_name), encoding="utf-8"
+        )
+        return CaseSchemaArtifacts(directory, config_path, schema_path, types_path)
 
     def apply(
         self,
@@ -261,7 +329,7 @@ class CaseParser:
         *,
         paths: Sequence[Path],
         strict: bool,
-        on_file_parsed: Callable[[int], Any] | None = None,
+        on_file_parsed: Callable[[Path], Any] | None = None,
     ) -> dict[str, Any]:
         root = self.case_path / folder
         result: dict[str, Any] = {}
@@ -276,7 +344,7 @@ class CaseParser:
                 result[key] = {"_parse_error": str(exc)}
             finally:
                 if on_file_parsed is not None:
-                    on_file_parsed(1)
+                    on_file_parsed(relative_case_path)
 
         return result
 

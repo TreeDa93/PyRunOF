@@ -5,8 +5,8 @@ from pathlib import Path
 from pyRunOF.openfoam import CaseParser
 
 
-TESTS_ROOT = Path(__file__).resolve().parents[1]
-CASE_PATH = TESTS_ROOT / "parametric_sweep_test" / "settings" / "base_case"
+EXAMPLES_ROOT = Path(__file__).resolve().parents[1]
+CASE_PATH = EXAMPLES_ROOT / "workflows" / "parametric_sweep" / "settings" / "base_case"
 OUTPUT_PATH = Path(__file__).resolve().parent / "output" / "base-case-config.json"
 
 

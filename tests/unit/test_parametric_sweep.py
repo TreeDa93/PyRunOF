@@ -1,3 +1,8 @@
+import json
+import threading
+import time
+from pathlib import Path
+
 import pytest
 
 from pyRunOF import ParametricSweep
@@ -97,3 +102,53 @@ def test_large_product_is_not_materialized() -> None:
     sweep = ParametricSweep({f"p{i}": range(10) for i in range(10)})
     assert sweep.total == 10**10
     assert next(iter(sweep)).index == 1
+
+
+def test_parallel_execution_preserves_order_and_writes_journal(
+    tmp_path: Path, capsys
+) -> None:
+    journal_path = tmp_path / "sweep-journal.json"
+    sweep = ParametricSweep({"x": [1, 2, 3]}, mode="zip")
+    lock = threading.Lock()
+    active = 0
+    maximum_active = 0
+
+    def solve(point: SweepPoint) -> int:
+        nonlocal active, maximum_active
+        with lock:
+            active += 1
+            maximum_active = max(maximum_active, active)
+        point.log(f"solver iteration for x={point.parameters['x']}")
+        time.sleep(0.03 * (4 - point.index))
+        with lock:
+            active -= 1
+        if point.parameters["x"] == 2:
+            raise RuntimeError("solver diverged")
+        return point.parameters["x"] * 10
+
+    results = sweep.run(
+        solve,
+        workers=2,
+        display="log",
+        journal_path=journal_path,
+        on_error="continue",
+    )
+
+    assert maximum_active == 2
+    assert results[0] == 10
+    assert isinstance(results[1], SweepExecutionError)
+    assert results[2] == 30
+    journal = json.loads(journal_path.read_text(encoding="utf-8"))
+    assert journal["summary"] == {"pending": 0, "running": 0, "solved": 2, "error": 1}
+    assert [case["status"] for case in journal["cases"]] == ["solved", "error", "solved"]
+    assert all(case["duration_seconds"] is not None for case in journal["cases"])
+    assert journal["finished_at"] is not None
+    output = capsys.readouterr().out
+    assert "solver iteration for x=1" in output
+    assert "status=error: solver diverged" in output
+
+
+def test_parallel_execution_rejects_legacy_mutable_callback() -> None:
+    sweep = ParametricSweep(lambda current: current.cur_i)
+    with pytest.raises(ValueError, match="new SweepPoint"):
+        sweep.run({"x": [1, 2]}, workers=2)

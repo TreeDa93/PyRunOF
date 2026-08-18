@@ -59,6 +59,28 @@ for point in sweep:
     print(point.index, point.parameters, point.name)
 ```
 
+Параллельный запуск, журнал статусов и вывод solver log:
+
+```python
+def solve(point: SweepPoint):
+    case = OpenFOAMCase(f"cases/{point.name}")
+    return case.runner.run(output_callback=point.log)
+
+
+results = sweep.run(
+    solve,
+    workers=4,
+    display="all",
+    journal_path="results/sweep-journal.json",
+    on_error="continue",
+)
+```
+
+Режимы `display`: `progress` показывает текущие кейсы, остаток и оценку времени;
+`log` показывает строки `point.log(...)`; `all` объединяет оба представления;
+`none` отключает терминальный вывод. В журнале каждый кейс проходит состояния
+`pending`, `running`, `solved` или `error` с временными отметками и длительностью.
+
 Запуск OpenFOAM-кейса:
 
 ```python
@@ -141,6 +163,43 @@ case.parser.apply("case-config.json")
 `CaseConfig` рекомендуется для нового кода. Исторический аргумент `info` и
 импорты из `pyRunOF.modules` пока поддерживаются для обратной совместимости.
 
+### Подсказки для словарей распарсенного кейса
+
+Парсер может одним вызовом сохранить значения кейса, JSON Schema и Python-типы:
+
+```python
+from pyRunOF.openfoam import OpenFOAMCase
+
+case = OpenFOAMCase("cases/base_case")
+artifacts = case.parser.export_schema(
+    "generated/base_case",
+    name="BaseCase",
+)
+print(artifacts.config, artifacts.schema, artifacts.types)
+```
+
+Относительный каталог создаётся от текущего рабочего каталога и содержит:
+
+```text
+generated/base_case/
+├── config.json   # значения словарей OpenFOAM
+├── schema.json   # схема для редакторов JSON/YAML
+└── types.py      # вложенные TypedDict для Python IDE
+```
+
+После генерации тип можно импортировать в пользовательском коде:
+
+```python
+from generated.base_case.types import CaseSettings
+
+settings: CaseSettings = case.parser.parse()
+end_time = settings["system"]["controlDict"]["endTime"]
+```
+
+IDE подсказывает известные ключи, но схема не запрещает нестандартные поля
+OpenFOAM. После изменения структуры базового кейса артефакты следует
+сгенерировать повторно.
+
 ## Где что редактировать
 
 ```text
@@ -177,6 +236,19 @@ PyRunOF/
 
 Имя дистрибутива в PyPI/uv — `pyrunof`, а исторический Python-импорт пока
 сохранён как `pyRunOF` для совместимости со старыми скриптами.
+
+## Примеры
+
+Учебные сценарии вынесены в [`examples/`](examples/README.md) и разделены по
+требованиям: чистый Python без OpenFOAM, чтение кейсов через `foamDictionary`,
+типизированные конфигурации и полные расчётные процессы. Тяжёлые и исторические
+сценарии также перенесены из `tests/` в классифицированные разделы каталога.
+
+Начать можно с примера, не требующего OpenFOAM:
+
+```bash
+uv run python examples/basic/01_product_sweep.py
+```
 
 ## Рабочий процесс разработчика
 

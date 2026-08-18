@@ -14,7 +14,13 @@ from pyRunOF.modules.elmer import Elmer
 from pyRunOF.modules.initial_values import InitialValues
 from pyRunOF.modules.meshes import Mesh
 from pyRunOF.modules.model_config import ModelConfigurator
-from pyRunOF.sweep import ParametricSweep, SweepExecutionError, SweepPoint
+from pyRunOF.sweep import (
+    ParametricSweep,
+    SweepCaseRecord,
+    SweepExecutionError,
+    SweepJournal,
+    SweepPoint,
+)
 from pyRunOF.modules.post_process import PostProcess
 from pyRunOF.modules.run import Run
 from pyRunOF.modules.set_system import System
@@ -33,7 +39,9 @@ __all__ = [
     "ModelConfigurator",
     "OpenFOAMCase",
     "ParametricSweep",
+    "SweepCaseRecord",
     "SweepExecutionError",
+    "SweepJournal",
     "SweepPoint",
     "PostProcess",
     "PyRunOFError",

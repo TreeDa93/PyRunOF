@@ -16,5 +16,6 @@ htmlcov/
 .git
 __pycache__/
 solution/
+examples/**/output/
 *_solved/
 *_in_progress/

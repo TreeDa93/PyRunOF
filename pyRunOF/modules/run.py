@@ -34,6 +34,7 @@ class Run(Information):
             case_path,
             log_path=log_path,
             timeout=options.get("timeout"),
+            output_callback=options.get("output_callback"),
         )
 
     def set_cores(self, coreOF: int = 4, coreElmer: int = 4, info_key=None) -> None:

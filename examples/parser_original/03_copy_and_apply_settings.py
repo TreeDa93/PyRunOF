@@ -6,8 +6,8 @@ from pyRunOF.case import ModelConfigurator
 from pyRunOF.openfoam import OpenFOAMCase
 
 
-TESTS_ROOT = Path(__file__).resolve().parents[1]
-SOURCE_CASE = TESTS_ROOT / "paralle_test" / "pitzDaily"
+EXAMPLES_ROOT = Path(__file__).resolve().parents[1]
+SOURCE_CASE = EXAMPLES_ROOT / "workflows" / "parallel" / "pitzDaily"
 TARGET_CASE = Path(__file__).resolve().parent / "output" / "pitzDaily_modified"
 
 CHANGES = {
@@ -31,7 +31,7 @@ CHANGES = {
 
 
 def main() -> None:
-    configurator = ModelConfigurator(dir_path=TESTS_ROOT)
+    configurator = ModelConfigurator(dir_path=EXAMPLES_ROOT)
     configurator.duplicate_case(SOURCE_CASE, TARGET_CASE, mode="rewrite")
 
     target = OpenFOAMCase(TARGET_CASE)
